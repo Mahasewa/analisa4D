@@ -61,17 +61,29 @@
     </section>
 
     <section class="analysis-panel">
-        <h3><i class="fa-solid fa-gears"></i> Generator Analisa BBFS</h3>
-        <div class="market-selector">
-            <label><input type="checkbox" id="checkMagnum" checked> Magnum</label>
-            <label><input type="checkbox" id="checkKuda"> Kuda</label>
-            <label><input type="checkbox" id="checkToto"> Toto</label>
-        </div>
-        <button class="btn-generator" onclick="jalankanGenerator()">
-            <i class="fa-solid fa-bolt"></i> GENERATE ANALISA
-        </button>
-        <div id="analysisResult" class="analysis-output"></div>
-    </section>
+    <h3><i class="fa-solid fa-gears"></i> Generator Rekomendasi BBFS</h3>
+    
+    <div class="setting-bbfs">
+        <span>Mau BBFS berapa angka? </span>
+        <select id="jumlahDigit">
+            <option value="5">5 Angka</option>
+            <option value="6">6 Angka</option>
+            <option value="7">7 Angka</option>
+            <option value="8" selected>8 Angka (Maksimal)</option>
+        </select>
+    </div>
+
+    <div class="market-selector">
+        <label><input type="checkbox" id="checkMagnum" checked> Magnum</label>
+        <label><input type="checkbox" id="checkKuda"> Kuda</label>
+        <label><input type="checkbox" id="checkToto"> Toto</label>
+    </div>
+    
+    <button class="btn-generator" onclick="jalankanGenerator()">
+        <i class="fa-solid fa-bolt"></i> GENERATE REKOMENDASI
+    </button>
+    <div id="analysisResult" class="analysis-output"></div>
+</section>
 </div>
 
 <script src="perintah.js"></script>
