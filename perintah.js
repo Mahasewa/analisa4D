@@ -1,50 +1,55 @@
-async function sedotDataLengkap(fileName, prefix) {
+async function sedotData(fileName, prefix) {
     try {
         const response = await fetch(fileName);
         const text = await response.text();
         const baris = text.trim().split('\n');
         
-        let dataHalaman = { tgl: "", p1: "", p2: "", p3: "", spec: [], cons: [] };
+        let p1="", p2="", p3="", spec=[], cons=[], tgl="";
 
-        // Mencari blok data terakhir di file Koh
         for (let i = baris.length - 1; i >= 0; i--) {
-            if (baris[i].includes("1st Prize:")) dataHalaman.p1 = baris[i].split(":")[1].trim();
-            if (baris[i].includes("2nd Prize:")) dataHalaman.p2 = baris[i].split(":")[1].trim();
-            if (baris[i].includes("3rd Prize:")) dataHalaman.p3 = baris[i].split(":")[1].trim();
-            if (baris[i].includes("Special:")) dataHalaman.spec = baris[i].split(":")[1].trim().split(", ");
-            if (baris[i].includes("Consolation:")) dataHalaman.cons = baris[i].split(":")[1].trim().split(", ");
+            if (baris[i].includes("1st Prize:")) p1 = baris[i].split(":")[1].trim();
+            if (baris[i].includes("2nd Prize:")) p2 = baris[i].split(":")[1].trim();
+            if (baris[i].includes("3rd Prize:")) p3 = baris[i].split(":")[1].trim();
+            if (baris[i].includes("Special:")) spec = baris[i].split(":")[1].trim().split(", ");
+            if (baris[i].includes("Consolation:")) cons = baris[i].split(":")[1].trim().split(", ");
             if (baris[i].includes("Tanggal Result:")) {
-                dataHalaman.tgl = baris[i].split(":")[1].trim();
-                break; // Berhenti jika sudah dapat satu blok lengkap terbaru
+                tgl = baris[i].split(":")[1].trim();
+                break;
             }
         }
 
-        // Tampilkan ke HTML
-        document.getElementById(prefix + '1').innerText = dataHalaman.p1;
-        document.getElementById(prefix + '2').innerText = dataHalaman.p2;
-        document.getElementById(prefix + '3').innerText = dataHalaman.p3;
-        document.getElementById('lastUpdateTitle').innerText = "Result Terakhir: " + dataHalaman.tgl;
+        document.getElementById(prefix + '1').innerText = p1;
+        document.getElementById(prefix + '2').innerText = p2;
+        document.getElementById(prefix + '3').innerText = p3;
+        document.getElementById('lastUpdateTitle').innerText = "Result Terakhir: " + tgl;
 
-        // Isi Special & Consolation
-        const buatGrid = (containerId, dataArray) => {
-            const container = document.getElementById(containerId);
-            container.innerHTML = "";
-            dataArray.forEach(angka => {
-                let span = document.createElement('span');
-                span.innerText = angka;
-                container.appendChild(span);
-            });
+        const renderGrid = (id, arr) => {
+            const el = document.getElementById(id);
+            el.innerHTML = arr.map(n => `<span>${n}</span>`).join('');
         };
+        renderGrid(prefix + 'Spec', spec);
+        renderGrid(prefix + 'Cons', cons);
+        
+        // Simpan semua angka untuk generator
+        document.getElementById(prefix + '1').setAttribute('data-all', p1+p2+p3+spec.join('')+cons.join(''));
 
-        buatGrid(prefix + 'Spec', dataHalaman.spec);
-        buatGrid(prefix + 'Cons', dataHalaman.cons);
-
-    } catch (err) {
-        console.error("Gagal baca " + fileName, err);
-    }
+    } catch (e) { console.log("Error baca " + fileName); }
 }
 
-// Jalankan untuk 3 file
-sedotDataLengkap('data_keluaran_magnum.txt', 'mag');
-sedotDataLengkap('data_keluaran_kuda.txt', 'kud');
-sedotDataLengkap('data_keluaran_toto.txt', 'tot');
+function jalankanGenerator() {
+    const out = document.getElementById('analysisResult');
+    out.innerHTML = "<h4>Hasil Analisa BBFS Tembus (Semua Prize):</h4>";
+    ['mag', 'kud', 'tot'].forEach(p => {
+        const check = document.getElementById('check' + (p==='mag'?'Magnum':p==='kud'?'Kuda':'Toto'));
+        if(check.checked) {
+            const allStr = document.getElementById(p + '1').getAttribute('data-all') || "";
+            const bbfs = [...new Set(allStr.split(''))].sort();
+            out.innerHTML += `<p><b>${p.toUpperCase()}:</b> ${bbfs.map(n => `<span class="bbfs-box">${n}</span>`).join('')}</p>`;
+        }
+    });
+}
+
+// Jalankan otomatis
+sedotData('data_keluaran_magnum.txt', 'mag');
+sedotData('data_keluaran_kuda.txt', 'kud');
+sedotData('data_keluaran_toto.txt', 'tot');
