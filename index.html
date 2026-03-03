@@ -1,60 +1,49 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sapu Jagat Dashboard - Koh Alim</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-</head>
-<body>
-
-<div class="dashboard">
-    <header>
-        <h1><i class="fa-solid fa-chart-line"></i> ANALISA SAPU JAGAT</h1>
-        <div class="search-box">
-            <input type="text" id="searchDate" placeholder="Cari tanggal (DD-MM-YYYY)...">
-            <button onclick="cariData()"><i class="fa-solid fa-magnifying-glass"></i></button>
-        </div>
-    </header>
-
-    <section class="latest-results">
-        <h2 id="lastUpdateTitle">Result Terakhir: --/--/----</h2>
-        <div class="result-grid">
-            <div class="card magnum">
-                <h3>MAGNUM</h3>
-                <div class="number" id="resMagnum">----</div>
+<section class="latest-results">
+    <h2 id="lastUpdateTitle">Result Terakhir: --/--/----</h2>
+    <div class="result-grid">
+        <div class="card magnum">
+            <div class="card-header">MAGNUM 4D</div>
+            <div class="main-prizes">
+                <div><small>1st Prize</small><div class="num p1" id="mag1">----</div></div>
+                <div><small>2nd Prize</small><div class="num" id="mag2">----</div></div>
+                <div><small>3rd Prize</small><div class="num" id="mag3">----</div></div>
             </div>
-            <div class="card kuda">
-                <h3>KUDA</h3>
-                <div class="number" id="resKuda">----</div>
-            </div>
-            <div class="card toto">
-                <h3>TOTO</h3>
-                <div class="number" id="resToto">----</div>
+            <div class="extra-prizes">
+                <small>Special</small>
+                <div class="grid-small" id="magSpec"></div>
+                <small>Consolation</small>
+                <div class="grid-small" id="magCons"></div>
             </div>
         </div>
-    </section>
 
-    <section class="analysis-panel">
-        <h3><i class="fa-solid fa-gears"></i> Generator Analisa BBFS</h3>
-        <p>Pilih pasaran untuk melihat kombinasi angka yang menembus 4D hari ini:</p>
-        
-        <div class="market-selector">
-            <label><input type="checkbox" id="checkMagnum" checked> Magnum</label>
-            <label><input type="checkbox" id="checkKuda"> Kuda</label>
-            <label><input type="checkbox" id="checkToto"> Toto</label>
+        <div class="card kuda">
+            <div class="card-header">DAMACAI 1+3D</div>
+            <div class="main-prizes">
+                <div><small>1st Prize</small><div class="num p1" id="kud1">----</div></div>
+                <div><small>2nd Prize</small><div class="num" id="kud2">----</div></div>
+                <div><small>3rd Prize</small><div class="num" id="kud3">----</div></div>
+            </div>
+            <div class="extra-prizes">
+                <small>Special</small>
+                <div class="grid-small" id="kudSpec"></div>
+                <small>Consolation</small>
+                <div class="grid-small" id="kudCons"></div>
+            </div>
         </div>
 
-        <button class="btn-generator" onclick="jalankanGenerator()">
-            <i class="fa-solid fa-bolt"></i> GENERATE ANALISA
-        </button>
-
-        <div id="analysisResult" class="analysis-output">
+        <div class="card toto">
+            <div class="card-header">SPORTS TOTO</div>
+            <div class="main-prizes">
+                <div><small>1st Prize</small><div class="num p1" id="tot1">----</div></div>
+                <div><small>2nd Prize</small><div class="num" id="tot2">----</div></div>
+                <div><small>3rd Prize</small><div class="num" id="tot3">----</div></div>
             </div>
-    </section>
-</div>
-
-<script src="perintah.js"></script>
-</body>
-</html>
+            <div class="extra-prizes">
+                <small>Special</small>
+                <div class="grid-small" id="totSpec"></div>
+                <small>Consolation</small>
+                <div class="grid-small" id="totCons"></div>
+            </div>
+        </div>
+    </div>
+</section>
