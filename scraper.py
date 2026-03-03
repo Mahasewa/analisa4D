@@ -89,7 +89,7 @@ def save_to_file(filename, date, n):
 def run_history_scraper():
     # TEST: Kita ambil data Februari 2026 dulu (28 hari)
     start_date = datetime(2026, 2, 1)
-    end_date = datetime(2026, 2, 28)
+    end_date = datetime(2026, 2, 3)
     
     current = start_date
     while current <= end_date:
