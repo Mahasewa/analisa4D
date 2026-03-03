@@ -14,3 +14,10 @@ Tanggal Result: Tanggal Tidak Ditemukan
 Special: 
 Consolation: 
 ------------------------------
+Tanggal Result: Tanggal Tidak Ditemukan
+1st Prize: ----
+2nd Prize: ----
+3rd Prize: ----
+Special: ----
+Consolation: ----
+------------------------------
