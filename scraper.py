@@ -82,27 +82,31 @@ def save_to_file(filename, date, n):
         print(f"Gagal simpan ke {filename}: {e}")
 
 def run_history_scraper():
-    # Sesuai settingan baru Koh: 1 Januari 2026
+    # Setting Januari 2026 sesuai instruksi Koh
     start_date = datetime(2026, 1, 1)
     end_date = datetime.now()
     
     curr = start_date
-    print(f"--- MULAI PROSES CEK HARI RUTIN (Rabu, Sabtu, Minggu) ---", flush=True)
+    print(f"--- MULAI MARATON (Cek Hari Server) ---", flush=True)
     
     while curr <= end_date:
-        # Mengambil nama hari langsung dari server (Contoh: Wednesday, Saturday)
+        # Ambil nama hari langsung dari server (Sunday, Monday, dsb)
         nama_hari_server = curr.strftime('%A')
-        tgl_str = curr.strftime('%d-%m-%Y')
         
-        # 2 = Rabu, 5 = Sabtu, 6 = Minggu
+        # Filter: 2=Wednesday, 5=Saturday, 6=Sunday
         if curr.weekday() in [2, 5, 6]:
-            print(f">>> PROSES: {nama_hari_server}, {tgl_str} <<<", flush=True)
-            # Pastikan nama fungsi di bawah ini sesuai dengan yang ada di kode atas Koh
-            get_data_sapu_jagat(curr) 
+            # KUNCI: Ubah tanggal jadi teks (YYYY-MM-DD) tanpa jam 00:00:00
+            tgl_bersih = curr.strftime('%Y-%m-%d')
+            
+            print(f"\n>>> PROSES: {nama_hari_server}, {tgl_bersih} <<<", flush=True)
+            
+            # Panggil fungsi sapu jagat pakai tgl_bersih
+            get_data_sapu_jagat(tgl_bersih)
+            
             time.sleep(12) 
         else:
-            # Menampilkan nama hari meskipun di-skip
-            print(f"SKIP: {nama_hari_server}, {tgl_str} (Bukan hari result)", flush=True)
+            # Tetap tampilkan hari server meskipun skip
+            print(f"SKIP: {nama_hari_server}, {curr.strftime('%d-%m-%Y')} (Bukan result)", flush=True)
             
         curr += timedelta(days=1)
 
