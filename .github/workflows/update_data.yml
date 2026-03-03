@@ -1,38 +1,47 @@
-name: Run 4D Scraper Selenium
+name: Scraper Harian Otomatis
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [ main ]
+  schedule:
+    # 11:30 UTC sama dengan 19:30 Waktu Malaysia (MYT)
+    - cron: '30 11 * * *'
+  workflow_dispatch: # Agar Koh bisa jalankan manual kapan saja
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo content
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
 
-    - name: Install Chrome
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y google-chrome-stable
+      - name: Install Google Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install selenium webdriver-manager
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install selenium webdriver-manager
 
-    - name: Run scraper
-      run: python scraper.py
+      - name: Run Scraper
+        run: python scraper.py
 
-    - name: Commit and Push changes
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add *.txt
-        git commit -m "Update data keluaran 4D" || echo "No changes to commit"
-        git push
+      - name: Commit and Push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add *.txt
+          # Hanya push jika ada perubahan pada file .txt
+          git commit -m "Update data keluaran otomatis [$(date)]" || echo "Tidak ada perubahan data"
+          git push
