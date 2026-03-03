@@ -23,7 +23,7 @@ def get_data_sapu_jagat(target_date):
         url = f"https://4dno.org/past-results-history/{target_date}"
         driver.get(url)
         
-        # Diubah menjadi 10 detik sesuai permintaan Koh
+        # Jeda 10 detik agar hemat waktu namun tetap stabil
         time.sleep(10) 
         
         body_text = driver.find_element(By.TAG_NAME, "body").text
@@ -44,12 +44,13 @@ def get_data_sapu_jagat(target_date):
                     if p.isdigit() and len(p) == 4:
                         all_data[current_market].append(p)
 
+        # Hanya simpan jika data lengkap (minimal 3 angka utama)
         for market, numbers in all_data.items():
             if len(numbers) >= 3:
                 save_to_file(f"data_keluaran_{market.lower()}.txt", target_date, numbers)
                 print(f"SUKSES: {market} - {target_date}")
             else:
-                print(f"KOSONG/LEWATI: {market} - {target_date}")
+                print(f"LEWATI: {market} - {target_date} (Data tidak tersedia)")
 
     except Exception as e:
         print(f"Error pada {target_date}: {e}")
@@ -58,15 +59,17 @@ def get_data_sapu_jagat(target_date):
 
 def save_to_file(filename, date, n):
     try:
+        # Cek apakah data tanggal ini sudah pernah disimpan
         if os.path.exists(filename):
             with open(filename, "r") as f:
                 if f"Tanggal Result: {date}" in f.read():
-                    return # Data sudah ada, tidak tulis ulang
+                    return
 
         n_clean = []
         for x in n:
             if x not in n_clean: n_clean.append(x)
         
+        # Susun format tulisan Special & Consolation
         content = f"Tanggal Result: {date}\n"
         content += f"1st Prize: {n_clean[0]}\n2nd Prize: {n_clean[1]}\n3rd Prize: {n_clean[2]}\n"
         content += f"Special: {', '.join(n_clean[3:13])}\n"
@@ -76,10 +79,10 @@ def save_to_file(filename, date, n):
         with open(filename, "a") as f:
             f.write(content)
     except Exception as e:
-        print(f"Gagal simpan: {e}")
+        print(f"Gagal simpan ke {filename}: {e}")
 
 def run_history_scraper():
-    # Tarik dari 1 Jan 2025 sampai hari ini
+    # Menarik data dari 1 Januari 2025 sampai hari ini
     start_date = datetime(2025, 1, 1)
     end_date = datetime.now()
     
