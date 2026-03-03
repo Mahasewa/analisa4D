@@ -1,34 +1,37 @@
-// Konfigurasi Fitur Dinamis
-const daftarFitur = [
-    { nama: "Lihat Data Januari", aksi: "tampilData" },
-    { nama: "Cek Hari Result", aksi: "cekHari" },
-    { nama: "Update Otomatis", aksi: "refreshData" }
+// Fungsi simulasi ambil data (Nanti disambung ke data_keluaran_semua.txt)
+const dataResult = [
+    { tgl: "04-03-2026", magnum: "1234", kuda: "5678", toto: "9012" }
 ];
 
-// Fungsi untuk membuat tombol secara otomatis saat halaman dibuka
-function buatMenu() {
-    const container = document.getElementById('menu-container');
-    daftarFitur.forEach(fitur => {
-        let btn = document.createElement('button');
-        btn.innerText = fitur.nama;
-        btn.onclick = () => window[fitur.aksi](); // Memanggil fungsi berdasarkan nama aksi
-        container.appendChild(btn);
+// Set tampilan default
+function loadDefault() {
+    const last = dataResult[0];
+    document.getElementById('lastUpdateTitle').innerText = "Result Terakhir: " + last.tgl;
+    document.getElementById('resMagnum').innerText = last.magnum;
+    document.getElementById('resKuda').innerText = last.kuda;
+    document.getElementById('resToto').innerText = last.toto;
+}
+
+function jalankanGenerator() {
+    const out = document.getElementById('analysisResult');
+    out.innerHTML = "<h4>Hasil Analisa Kombinasi Angka (BBFS):</h4>";
+    
+    let selectedMarkets = [];
+    if(document.getElementById('checkMagnum').checked) selectedMarkets.push({name: "MAGNUM", res: document.getElementById('resMagnum').innerText});
+    if(document.getElementById('checkKuda').checked) selectedMarkets.push({name: "KUDA", res: document.getElementById('resKuda').innerText});
+    if(document.getElementById('checkToto').checked) selectedMarkets.push({name: "TOTO", res: document.getElementById('resToto').innerText});
+
+    selectedMarkets.forEach(m => {
+        // Logika membedah angka unik yang membentuk 4D tersebut
+        let angkaUnik = [...new Set(m.res.split(''))].sort();
+        let html = `<p><b>${m.name} (${m.res}):</b> Kombinasi BBFS yang menembus adalah angka: `;
+        angkaUnik.forEach(num => {
+            html += `<span class="bbfs-box">${num}</span>`;
+        });
+        html += ` (Total ${angkaUnik.length} Digit)</p>`;
+        out.innerHTML += html;
     });
 }
 
-// ISI PERINTAH/FUNGSI (Bisa ditambah sesuka hati Koh)
-function tampilData() {
-    document.getElementById('display-area').innerHTML = "<h3>Memuat data dari data_keluaran_semua.txt...</h3>";
-    // Nanti di sini kita pasang kode untuk baca file TXT hasil maraton tadi
-}
-
-function cekHari() {
-    alert("Hari Result Rutin: Rabu, Sabtu, Minggu (Server Time)");
-}
-
-function refreshData() {
-    location.reload();
-}
-
-// Jalankan pembuatan menu
-buatMenu();
+// Jalankan fungsi saat startup
+loadDefault();
