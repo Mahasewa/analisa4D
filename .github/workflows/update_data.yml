@@ -1,0 +1,32 @@
+name: Update 4D Results
+
+on:
+  schedule:
+    - cron: '30 13 * * *' # Jalan otomatis setiap jam 13:30 UTC (sekitar jam 20:30 WIB)
+  workflow_dispatch: # Tombol untuk jalankan manual jika mau
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo content
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Run scraper
+        run: python scraper.py
+
+      - name: Commit and push if changes
+        run: |
+          git config --global user.email "bot@github.com"
+          git config --global user.name "Data-Bot"
+          git add .
+          git commit -m "Update result otomatis" || exit 0
+          git push
