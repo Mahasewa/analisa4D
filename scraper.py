@@ -82,22 +82,28 @@ def save_to_file(filename, date, n):
         print(f"Gagal simpan ke {filename}: {e}")
 
 def run_history_scraper():
-    # Tentukan rentang waktu yang Koh mau (contoh: Sept 2025 sampai sekarang)
-    start_date = datetime(2025, 9, 1)
+    # Start dari tanggal yang Koh minta
+    start_date = datetime(2025, 9, 6) 
     end_date = datetime.now()
     
     curr = start_date
+    nama_hari = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"]
+    
+    print(f"--- MULAI TARIK DATA 4DNO.ORG ({start_date.strftime('%d-%m-%Y')}) ---", flush=True)
+    
     while curr <= end_date:
-        # 2 = Rabu, 5 = Sabtu, 6 = Minggu
+        # Filter: Rabu(2), Sabtu(5), Minggu(6)
         if curr.weekday() in [2, 5, 6]:
-            print(f"--- MENARIK DATA HARI RESULT: {curr.strftime('%d-%m-%Y')} ---", flush=True)
-            get_data_sapu_jagat(curr)
-            time.sleep(10) # Jeda agar aman
+            hari_ini = nama_hari[curr.weekday()]
+            print(f"\n[Target] {hari_ini}, {curr.strftime('%d-%m-%Y')}", flush=True)
+            get_data_4dno(curr)
+            time.sleep(12) # Jeda aman biar tidak kena blokir
         else:
-            # Jika bukan hari result, robot langsung skip tanpa nunggu 10 detik
-            print(f"SKIP: {curr.strftime('%d-%m-%Y')} (Bukan hari result)", flush=True)
+            # Skip hari lain biar ngebut
+            print(f"skip {curr.strftime('%d-%m-%Y')}", end=" | ", flush=True)
             
         curr += timedelta(days=1)
 
 if __name__ == "__main__":
     run_history_scraper()
+    print("\n\nBERES KOH! Gudang 4DNO sudah terisi.", flush=True)
