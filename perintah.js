@@ -1,3 +1,38 @@
+// Tambahkan ini di paling atas perintah.js Koh
+async function ambilDataDariServer() {
+    try {
+        // Mengambil file hasil maraton robot
+        const response = await fetch('data_keluaran_semua.txt');
+        const dataMentah = await response.text();
+        
+        // Proses pecah data per baris
+        const baris = dataMentah.trim().split('\n');
+        const hasilTerakhir = baris[baris.length - 1]; // Ambil baris paling bawah (terbaru)
+        
+        console.log("Data Berhasil Dimuat: " + hasilTerakhir);
+        
+        // Update tampilan kartu di atas secara otomatis
+        updateKartuOtomatis(hasilTerakhir);
+    } catch (err) {
+        console.log("Gagal ambil data TXT: ", err);
+    }
+}
+
+function updateKartuOtomatis(teksBaris) {
+    // Format di TXT kita: "DD-MM-YYYY: angka1,angka2,angka3..."
+    const bagian = teksBaris.split(': ');
+    const tgl = bagian[0];
+    const angka = bagian[1].split(',');
+
+    document.getElementById('lastUpdateTitle').innerText = "Result Terakhir: " + tgl;
+    document.getElementById('resMagnum').innerText = angka[0] || "----";
+    document.getElementById('resKuda').innerText = angka[1] || "----";
+    document.getElementById('resToto').innerText = angka[2] || "----";
+}
+
+// Panggil fungsi ini saat halaman dibuka
+ambilDataDariServer();
+
 // Fungsi simulasi ambil data (Nanti disambung ke data_keluaran_semua.txt)
 const dataResult = [
     { tgl: "04-03-2026", magnum: "1234", kuda: "5678", toto: "9012" }
