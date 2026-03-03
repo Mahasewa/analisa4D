@@ -18,7 +18,7 @@ def uji_intip():
     driver = webdriver.Chrome(service=service, options=chrome_options)
     
     # Kita tes tanggal 01-03-2026 yang sudah pasti ada resultnya
-    url = "https://4dno.org/past-result-history/01-03-2026"
+    url = "https://4dno.org/past-results-history/01-03-2026"
     
     try:
         print(f"--- MEMULAI UJI INTIP PADA: {url} ---")
