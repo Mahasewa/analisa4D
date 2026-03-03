@@ -22,8 +22,8 @@ def get_data_selenium(target_date):
         print(f"--- Mencoba Akses URL: {url} ---")
         driver.get(url)
         
-        print("Menunggu halaman stabil (10 detik)...")
-        time.sleep(10) 
+        print("Menunggu halaman stabil (20 detik)...")
+        time.sleep(20) 
         
         rows = driver.find_elements(By.TAG_NAME, "tr")
         print(f"Jumlah baris tabel ditemukan: {len(rows)}")
