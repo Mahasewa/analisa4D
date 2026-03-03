@@ -1,75 +1,61 @@
-import requests
-from bs4 import BeautifulSoup
 import time
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 from datetime import datetime, timedelta
 
-def get_data_by_date(target_date):
+def get_data_selenium(target_date):
+    options = Options()
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+
+    driver = webdriver.Chrome(options=options)
     url = f"https://4dno.org/past-result-history/{target_date}"
-    headers = {'User-Agent': 'Mozilla/5.0'}
     
     try:
-        response = requests.get(url, headers=headers)
-        if response.status_code != 200:
-            return
-            
-        soup = BeautifulSoup(response.text, 'html.parser')
-        # Mencari semua blok kartu hasil (Magnum, Toto, Kuda)
-        results = soup.select('.card') 
+        driver.get(url)
+        time.sleep(10) # Menunggu web loading angka
         
-        for res in results:
-            title = res.get_text().upper()
-            
-            # Cari sel tabel yang berisi angka 4 digit
-            cells = res.find_all('td')
-            numbers = [c.get_text(strip=True) for c in cells if c.get_text(strip=True).isdigit() and len(c.get_text(strip=True)) == 4]
+        # Mencari semua kartu (Magnum, Toto, Kuda)
+        cards = driver.find_elements(By.CLASS_NAME, "card")
+        
+        for card in cards:
+            text = card.text.upper()
+            # Ambil semua teks dari cell tabel
+            cells = card.find_elements(By.TAG_NAME, "td")
+            numbers = [c.text.strip() for c in cells if len(c.text.strip()) == 4 and c.text.strip().isdigit()]
             
             if len(numbers) >= 3:
-                # Tentukan nama file berdasarkan judul di kartu
                 filename = ""
-                if "MAGNUM 4D" in title:
-                    filename = "data_keluaran_magnum.txt"
-                elif "DA MA CAI 1+3D" in title:
-                    filename = "data_keluaran_kuda.txt"
-                elif "SPORTS TOTO 4D" in title:
-                    filename = "data_keluaran_toto.txt"
+                if "MAGNUM 4D" in text: filename = "data_keluaran_magnum.txt"
+                elif "DA MA CAI" in text: filename = "data_keluaran_kuda.txt"
+                elif "SPORTS TOTO" in text: filename = "data_keluaran_toto.txt"
                 
                 if filename:
-                    save_to_file(filename, target_date, numbers)
-
+                    p1, p2, p3 = numbers[0], numbers[1], numbers[2]
+                    special = ", ".join(numbers[3:13])
+                    consolation = ", ".join(numbers[13:23])
+                    
+                    hasil = (f"Tanggal Result: {target_date}\n"
+                             f"1st Prize: {p1}\n2nd Prize: {p2}\n3rd Prize: {p3}\n"
+                             f"Special: {special}\nConsolation: {consolation}\n"
+                             f"{'-'*30}\n")
+                    
+                    with open(filename, "a") as f:
+                        f.write(hasil)
+                    print(f"Berhasil: {filename} {target_date}")
+                    
     except Exception as e:
-        print(f"Error pada tanggal {target_date}: {e}")
+        print(f"Error {target_date}: {e}")
+    finally:
+        driver.quit()
 
-def save_to_file(filename, date, numbers):
-    # Format data: 1st, 2nd, 3rd, Special (10 angka), Consolation (10 angka)
-    content = f"Tanggal Result: {date}\n"
-    content += f"1st Prize: {numbers[0]}\n"
-    content += f"2nd Prize: {numbers[1]}\n"
-    content += f"3rd Prize: {numbers[2]}\n"
-    
-    special = numbers[3:13]
-    consolation = numbers[13:23]
-    
-    content += f"Special: {', '.join(special)}\n"
-    content += f"Consolation: {', '.join(consolation)}\n"
-    content += "-"*30 + "\n"
-    
-    with open(filename, "a") as f:
-        f.write(content)
-    print(f"Berhasil simpan {filename} - {date}")
-
-def run_history_scraper():
-    # TEST: Tarik data Februari 2026 saja
-    start_date = datetime(2026, 2, 1)
-    end_date = datetime(2026, 2, 28)
-    
-    current = start_date
-    while current <= end_date:
-        date_str = current.strftime("%d-%m-%Y")
-        print(f"Mengecek: {date_str}")
-        get_data_by_date(date_str)
-        
-        time.sleep(1) # Jeda agar aman
-        current += timedelta(days=1)
+def run_history():
+    # Tes untuk tanggal 01-03-2026 (sesuai foto Koh yang ada datanya)
+    test_date = "01-03-2026"
+    get_data_selenium(test_date)
 
 if __name__ == "__main__":
-    run_history_scraper()
+    run_history()
