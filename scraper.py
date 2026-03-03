@@ -53,12 +53,21 @@ def save_to_file(filename, date, soup_element):
         with open(filename, "a") as f:
             f.write(content)
 
-# BAGIAN TEST RUN UNTUK HARI INI SAJA
+
 def run_history_scraper():
-    # Set tanggal ke hari ini saja
-    today = datetime.now().strftime("%d-%m-%Y")
-    print(f"Sedang mengetes tarikan data hari ini: {today}")
-    get_data_by_date(today)
+    # Menarik data khusus bulan Februari 2026
+    start_date = datetime(2026, 2, 1)
+    end_date = datetime(2026, 2, 28)
+    
+    current = start_date
+    while current <= end_date:
+        date_str = current.strftime("%d-%m-%Y")
+        print(f"Sedang mengecek data: {date_str}")
+        get_data_by_date(date_str)
+        
+        # Jeda 1 detik agar aman
+        time.sleep(1)
+        current += timedelta(days=1)
 
 if __name__ == "__main__":
     run_history_scraper()
