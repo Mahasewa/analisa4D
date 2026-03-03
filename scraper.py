@@ -83,7 +83,7 @@ def save_to_file(filename, date, n):
 
 def run_history_scraper():
     # Tentukan rentang waktu yang Koh mau (contoh: Sept 2025 sampai sekarang)
-    start_date = datetime(2025, 9, 6)
+    start_date = datetime(2025, 9, 1)
     end_date = datetime.now()
     
     curr = start_date
