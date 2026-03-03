@@ -1,48 +1,94 @@
 import time
+from datetime import datetime, timedelta
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 
-def diagnosa_total():
+def get_data_sapu_jagat(target_date):
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
+    # Set layar sangat lebar & panjang agar semua kotak tertangkap
+    chrome_options.add_argument("--window-size=1920,3000") 
+    chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
     
     driver = None
     try:
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=chrome_options)
         
-        url = "https://4dno.org/past-results-history/01-03-2026"
-        print(f"--- DIAGNOSA START: {url} ---")
+        url = f"https://4dno.org/past-results-history/{target_date}"
+        print(f"--- MEMULAI SAPU JAGAT: {url} ---")
         driver.get(url)
+        
+        print("Menunggu 20 detik agar semua kotak muncul...")
         time.sleep(20) 
         
-        # Ambil SEMUA elemen teks di halaman tanpa kecuali
-        print("Mencetak isi teks yang tertangkap di layar:")
-        elements = driver.find_elements(By.TAG_NAME, "td")
-        
-        if not elements:
-            # Jika td tidak ada, coba ambil semua div
-            elements = driver.find_elements(By.TAG_NAME, "div")
+        # AMBIL SEMUA TEKS DI HALAMAN (Body)
+        body_text = driver.find_element(By.TAG_NAME, "body").text
+        lines = body_text.split('\n')
+        print(f"Total baris teks yang terbaca: {len(lines)}")
 
-        semua_teks = []
-        for e in elements:
-            t = e.text.strip()
-            if t:
-                semua_teks.append(t)
-        
-        print(f"Total elemen teks ditemukan: {len(semua_teks)}")
-        print(f"Isi mentah: {semua_teks[:50]}") # Cetak 50 kata pertama
+        current_market = ""
+        all_data = {"MAGNUM": [], "KUDA": [], "TOTO": []}
+
+        for line in lines:
+            txt = line.strip().upper()
+            
+            # 1. Tentukan Sedang Di Pasaran Mana
+            if "MAGNUM 4D" in txt:
+                current_market = "MAGNUM"
+                continue
+            elif "DA MA CAI" in txt:
+                current_market = "KUDA"
+                continue
+            elif "SPORTS TOTO" in txt:
+                current_market = "TOTO"
+                continue
+            
+            # 2. Ambil Angka 4 Digit (Jika sedang di dalam pasaran)
+            if current_market:
+                # Pisahkan kata jika dalam satu baris ada banyak angka (misal Special)
+                parts = txt.split()
+                for p in parts:
+                    if p.isdigit() and len(p) == 4:
+                        all_data[current_market].append(p)
+
+        # 3. Simpan Hasilnya ke File Masing-masing
+        for market, numbers in all_data.items():
+            if numbers:
+                filename = f"data_keluaran_{market.lower()}.txt"
+                save_to_file(filename, target_date, numbers)
+                print(f"BERHASIL: {market} ditarik ({len(numbers)} angka)")
+            else:
+                print(f"ZONK: Tidak ada angka ditemukan untuk {market}")
 
     except Exception as e:
-        print(f"Error Diagnosa: {e}")
+        print(f"Error: {e}")
     finally:
         if driver:
             driver.quit()
 
+def save_to_file(filename, date, n):
+    # Bersihkan duplikat tapi jaga urutan
+    n_clean = []
+    for x in n:
+        if x not in n_clean: n_clean.append(x)
+        
+    content = f"Tanggal Result: {date}\n"
+    content += f"1st Prize: {n_clean[0] if len(n_clean) > 0 else '-'}\n"
+    content += f"2nd Prize: {n_clean[1] if len(n_clean) > 1 else '-'}\n"
+    content += f"3rd Prize: {n_clean[2] if len(n_clean) > 2 else '-'}\n"
+    if len(n_clean) > 3:
+        content += f"Angka Lainnya: {', '.join(n_clean[3:])}\n"
+    content += "-"*30 + "\n"
+    
+    with open(filename, "a") as f:
+        f.write(content)
+
 if __name__ == "__main__":
-    diagnosa_total()
+    # Tes tanggal 1 Maret 2026
+    get_data_sapu_jagat("01-03-2026")
