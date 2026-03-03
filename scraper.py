@@ -73,22 +73,29 @@ def get_data_sapu_jagat(target_date):
             driver.quit()
 
 def save_to_file(filename, date, n):
-    # Bersihkan duplikat tapi jaga urutan
-    n_clean = []
-    for x in n:
-        if x not in n_clean: n_clean.append(x)
+    try:
+        # Bersihkan duplikat tapi jaga urutan
+        n_clean = []
+        for x in n:
+            if x not in n_clean: n_clean.append(x)
         
-    content = f"Tanggal Result: {date}\n"
-    content += f"1st Prize: {n_clean[0] if len(n_clean) > 0 else '-'}\n"
-    content += f"2nd Prize: {n_clean[1] if len(n_clean) > 1 else '-'}\n"
-    content += f"3rd Prize: {n_clean[2] if len(n_clean) > 2 else '-'}\n"
-    if len(n_clean) > 3:
-        content += f"Angka Lainnya: {', '.join(n_clean[3:])}\n"
-    content += "-"*30 + "\n"
-    
-    with open(filename, "a") as f:
-        f.write(content)
-
-if __name__ == "__main__":
-    # Tes tanggal 1 Maret 2026
-    get_data_sapu_jagat("01-03-2026")
+        content = f"Tanggal Result: {date}\n"
+        content += f"1st Prize: {n_clean[0] if len(n_clean) > 0 else '-'}\n"
+        content += f"2nd Prize: {n_clean[1] if len(n_clean) > 1 else '-'}\n"
+        content += f"3rd Prize: {n_clean[2] if len(n_clean) > 2 else '-'}\n"
+        
+        # Mengambil 10 angka setelah prize utama sebagai Special
+        special = n_clean[3:13]
+        content += f"Special: {', '.join(special) if special else '-'}\n"
+        
+        # Mengambil 10 angka setelah Special sebagai Consolation
+        consolation = n_clean[13:23]
+        content += f"Consolation: {', '.join(consolation) if consolation else '-'}\n"
+        
+        content += "-"*30 + "\n"
+        
+        with open(filename, "a") as f:
+            f.write(content)
+        print(f"SUKSES: {filename} diperbarui dengan format Special & Consolation")
+    except Exception as e:
+        print(f"Gagal Menulis File: {e}")
