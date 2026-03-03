@@ -4,98 +4,83 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
 def get_data_selenium(target_date):
-    # Pengaturan Chrome agar bisa jalan di server (Headless)
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--window-size=1920,1080")
-    
-    # Memasang Driver secara otomatis
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=chrome_options)
-    
-    url = f"https://4dno.org/past-result-history/{target_date}"
     
     try:
+        service = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=chrome_options)
+        
+        url = f"https://4dno.org/past-result-history/{target_date}"
         print(f"Membuka halaman: {url}")
         driver.get(url)
-        time.sleep(5) # Memberi waktu lebih lama agar tabel termuat sempurna
         
-        # Mengambil semua baris tabel
-        rows = driver.find_elements(By.TAG_NAME, "tr")
+        # Tunggu sampai elemen angka muncul (maksimal 15 detik)
+        try:
+            WebDriverWait(driver, 15).until(
+                EC.presence_of_element_located((By.XPATH, "//*[contains(text(), '1st Prize')]"))
+            )
+        except:
+            print(f"Melewati tanggal {target_date}: Data tidak ditemukan atau libur.")
+            driver.quit()
+            return
+
+        # Ambil semua teks di halaman dan cari angka 4 digit
+        all_elements = driver.find_elements(By.XPATH, "//*[self::td or self::div or self::span]")
+        raw_values = [e.text.strip() for e in all_elements if e.text.strip().isdigit() and len(e.text.strip()) == 4]
         
-        current_market = ""
+        # Unikkan angka sambil menjaga urutan agar tidak berantakan
         numbers = []
+        for val in raw_values:
+            if val not in numbers:
+                numbers.append(val)
 
-        for row in rows:
-            text = row.text.upper()
-            
-            # Deteksi Pasaran berdasarkan teks di baris
-            if "MAGNUM 4D" in text:
-                current_market = "MAGNUM"
-                numbers = []
-            elif "DA MA CAI" in text:
-                current_market = "KUDA"
-                numbers = []
-            elif "SPORTS TOTO" in text:
-                current_market = "TOTO"
-                numbers = []
+        # Cari judul pasaran untuk menentukan file
+        page_content = driver.page_source.upper()
+        
+        markets = {
+            "MAGNUM": "MAGNUM 4D",
+            "KUDA": "DA MA CAI",
+            "TOTO": "SPORTS TOTO"
+        }
 
-            # Ambil semua cell (td) dan cari angka 4 digit
-            cells = row.find_elements(By.TAG_NAME, "td")
-            for cell in cells:
-                val = cell.text.strip()
-                if val.isdigit() and len(val) == 4:
-                    numbers.append(val)
-
-            # Jika angka sudah terkumpul lengkap (minimal 23 angka untuk 1 set result)
-            if len(numbers) >= 23 and current_market:
-                filename = {
-                    "MAGNUM": "data_keluaran_magnum.txt",
-                    "KUDA": "data_keluaran_kuda.txt",
-                    "TOTO": "data_keluaran_toto.txt"
-                }.get(current_market)
-                
+        for key, title in markets.items():
+            if title in page_content and len(numbers) >= 3:
+                filename = f"data_keluaran_{key.lower()}.txt"
                 save_to_file(filename, target_date, numbers)
-                current_market = "" # Reset pasaran setelah disimpan
-                numbers = []
+                print(f">>> BERHASIL SIMPAN: {filename} - {target_date}")
 
-    except Exception as e:
-        print(f"Error pada tanggal {target_date}: {e}")
-    finally:
         driver.quit()
+    except Exception as e:
+        print(f"Error: {e}")
 
 def save_to_file(filename, date, n):
-    try:
-        # Susunan: 1st(0), 2nd(1), 3rd(2), Special(3-12), Consolation(13-22)
-        content = f"Tanggal Result: {date}\n"
-        content += f"1st Prize: {n[0]}\n"
-        content += f"2nd Prize: {n[1]}\n"
-        content += f"3rd Prize: {n[2]}\n"
-        content += f"Special: {', '.join(n[3:13])}\n"
-        content += f"Consolation: {', '.join(n[13:23])}\n"
-        content += "-"*30 + "\n"
-        
-        with open(filename, "a") as f:
-            f.write(content)
-        print(f">>> BERHASIL: Data {filename} untuk {date} telah disimpan.")
-    except Exception as e:
-        print(f"Gagal menulis file: {e}")
+    # Mengambil 3 prize utama, sisanya dianggap special/consolation
+    content = f"Tanggal Result: {date}\n"
+    content += f"1st Prize: {n[0]}\n2nd Prize: {n[1]}\n3rd Prize: {n[2]}\n"
+    if len(n) > 3:
+        content += f"Angka Lainnya: {', '.join(n[3:23])}\n"
+    content += "-"*30 + "\n"
+    
+    with open(filename, "a") as f:
+        f.write(content)
 
 def run_history_scraper():
-    # TEST: Kita ambil data Februari 2026 dulu (28 hari)
-    start_date = datetime(2026, 2, 1)
-    end_date = datetime(2026, 2, 3)
+    # Coba tarik data awal Maret 2026 yang sudah pasti ada result-nya (sesuai foto Koh)
+    start_date = datetime(2026, 3, 1)
+    end_date = datetime(2026, 3, 1) # Tes satu hari dulu
     
-    current = start_date
-    while current <= end_date:
-        date_str = current.strftime("%d-%m-%Y")
-        get_data_selenium(date_str)
-        current += timedelta(days=1)
+    curr = start_date
+    while curr <= end_date:
+        get_data_selenium(curr.strftime("%d-%m-%Y"))
+        curr += timedelta(days=1)
 
 if __name__ == "__main__":
     run_history_scraper()
