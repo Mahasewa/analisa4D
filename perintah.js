@@ -58,40 +58,61 @@ async function ambilDataLengkap(fileName, prefix) {
 // Fungsi Generator untuk membedah BBFS
 function jalankanGenerator() {
     const out = document.getElementById('analysisResult');
-    const jml = parseInt(document.getElementById('jumlahDigit').value);
-    out.innerHTML = `<h4><i class='fa-solid fa-microchip'></i> Rekomendasi BBFS ${jml} Digit Terkuat:</h4>`;
+    const limitDigit = parseInt(document.getElementById('jumlahDigit').value);
+    out.innerHTML = `<h4><i class='fa-solid fa-microchip'></i> BBFS Terkuat (Cakupan JP Terbanyak):</h4>`;
     
     const markets = [
-        { id: 'checkMagnum', key: 'mag', name: 'MAGNUM' },
-        { id: 'checkKuda', key: 'kud', name: 'KUDA' },
-        { id: 'checkToto', key: 'tot', name: 'TOTO' }
+        { id: 'checkMagnum', prefix: 'mag', name: 'MAGNUM' },
+        { id: 'checkKuda', prefix: 'kud', name: 'KUDA' },
+        { id: 'checkToto', prefix: 'tot', name: 'TOTO' }
     ];
 
     markets.forEach(m => {
         if (document.getElementById(m.id).checked) {
-            const raw = document.getElementById(m.key + '1').getAttribute('data-all') || "";
-            if (raw) {
-                // 1. Hitung berapa kali setiap angka (0-9) muncul
-                let frekuensi = {};
-                for (let i = 0; i <= 9; i++) frekuensi[i] = 0;
-                
-                raw.split('').forEach(char => {
-                    if (frekuensi[char] !== undefined) frekuensi[char]++;
+            const el = document.getElementById(m.prefix + '1');
+            const p123 = el.getAttribute('data-prizes') || "";
+            const spec = el.getAttribute('data-spec') || "";
+            const cons = el.getAttribute('data-cons') || "";
+
+            // 1. Kumpulkan semua 23 nomor yang keluar di pasaran tersebut
+            const semuaNomor = (p123 + "," + spec + "," + cons).split(',').filter(n => n !== "-" && n !== "");
+
+            // 2. Hitung frekuensi: Angka mana (0-9) yang paling sering muncul membentuk 4D
+            let hitung = {};
+            for (let i = 0; i <= 9; i++) hitung[i] = 0;
+
+            semuaNomor.forEach(nomor => {
+                // Ambil angka unik dalam satu nomor (misal 8890 jadi 8,9,0)
+                let unikDiNomor = [...new Set(nomor.trim().split(''))];
+                unikDiNomor.forEach(digit => {
+                    if (hitung[digit] !== undefined) hitung[digit]++;
                 });
+            });
 
-                // 2. Urutkan angka dari yang paling sering muncul ke yang paling jarang
-                let sortedDigits = Object.keys(frekuensi).sort((a, b) => frekuensi[b] - frekuensi[a]);
+            // 3. Urutkan angka dari yang paling banyak berkontribusi membentuk JP
+            let urutanTerkuat = Object.keys(hitung).sort((a, b) => hitung[b] - hitung[a]);
 
-                // 3. Ambil sebanyak jumlah digit yang Koh minta (5-8)
-                let bbfsPilihan = sortedDigits.slice(0, jml).sort();
+            // 4. Ambil X angka teratas sesuai permintaan Koh (5-8 digit)
+            let bbfsSapuJagat = urutanTerkuat.slice(0, limitDigit).sort();
 
-                out.innerHTML += `
-                    <div class='res-box' style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
-                        <b>${m.name} (Top ${jml} Digit):</b><br>
-                        ${bbfsPilihan.map(n => `<span class="bbfs-box">${n}</span>`).join('')}
-                        <br><small>Angka di atas adalah yang paling banyak membentuk 4D di semua prize.</small>
-                    </div>`;
-            }
+            // 5. Hitung berapa banyak 4D yang "Kena" dengan set BBFS ini
+            let totalJP = 0;
+            semuaNomor.forEach(nomor => {
+                let digitNomor = nomor.trim().split('');
+                let tembus = digitNomor.every(d => bbfsSapuJagat.includes(d));
+                if (tembus) totalJP++;
+            });
+
+            out.innerHTML += `
+                <div class='res-box' style="margin-bottom:20px; border-bottom:2px solid #3498db; padding-bottom:15px;">
+                    <b style="font-size:18px; color:#2c3e50;">${m.name}:</b><br>
+                    <div style="margin:10px 0;">
+                        ${bbfsSapuJagat.map(n => `<span class="bbfs-box" style="font-size:20px; padding:8px 15px;">${n}</span>`).join('')}
+                    </div>
+                    <span style="background:#27ae60; color:white; padding:3px 8px; border-radius:4px; font-size:12px;">
+                        <i class="fa-solid fa-trophy"></i> Berhasil Melahap ${totalJP} JP (4D) di Hari Ini
+                    </span>
+                </div>`;
         }
     });
 }
