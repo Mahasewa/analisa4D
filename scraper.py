@@ -1,47 +1,43 @@
 import requests
-from bs4 import BeautifulSoup
 
 def scrape_magnum():
-    url = "https://www.magnum4d.my/en/results"
+    # Jalur API resmi untuk mengambil hasil terbaru
+    url = "https://www.magnum4d.my/api/draw-results?draw_date=" 
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0',
+        'Accept': 'application/json'
     }
     
     try:
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
-            soup = BeautifulSoup(response.text, 'html.parser')
+            data = response.json()
             
-            # Ambil Tanggal (mencari div dengan class result-date)
-            date_element = soup.find('div', class_='result-date')
-            draw_date = date_element.text.strip() if date_element else "Tanggal Tidak Ditemukan"
+            # Mengambil data dari struktur JSON API
+            draw_date = data.get('draw_date', 'Tanggal Tidak Ada')
+            p1 = data.get('first_prize', '----')
+            p2 = data.get('second_prize', '----')
+            p3 = data.get('third_prize', '----')
             
-            # Ambil Top 3 Prize
-            p1 = soup.select_one('.p1-no').text.strip() if soup.select_one('.p1-no') else "----"
-            p2 = soup.select_one('.p2-no').text.strip() if soup.select_one('.p2-no') else "----"
-            p3 = soup.select_one('.p3-no').text.strip() if soup.select_one('.p3-no') else "----"
+            # Mengambil Special dan Consolation
+            special = data.get('special_prizes', [])
+            consolation = data.get('consolation_prizes', [])
             
-            # Ambil Special & Consolation (Mengumpulkan semua angka)
-            special_list = [n.text.strip() for n in soup.select('.special-no')]
-            consolation_list = [n.text.strip() for n in soup.select('.consolation-no')]
-            
-            special_str = ", ".join(special_list) if special_list else "----"
-            consolation_str = ", ".join(consolation_list) if consolation_list else "----"
-            
-            # Format rapi untuk file .txt
             content = (
                 f"Tanggal Result: {draw_date}\n"
                 f"1st Prize: {p1}\n"
                 f"2nd Prize: {p2}\n"
                 f"3rd Prize: {p3}\n"
-                f"Special: {special_str}\n"
-                f"Consolation: {consolation_str}\n"
+                f"Special: {', '.join(special)}\n"
+                f"Consolation: {', '.join(consolation)}\n"
                 f"{'-'*30}\n"
             )
             
             with open("data_keluaran_magnum.txt", "a") as f:
                 f.write(content)
-            print(f"Berhasil simpan data tanggal {draw_date}")
+            print(f"Berhasil! Data tanggal {draw_date} sudah masuk.")
+        else:
+            print(f"Gagal akses API. Kode Status: {response.status_code}")
             
     except Exception as e:
         print(f"Error: {e}")
