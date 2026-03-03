@@ -58,7 +58,8 @@ async function ambilDataLengkap(fileName, prefix) {
 // Fungsi Generator untuk membedah BBFS
 function jalankanGenerator() {
     const out = document.getElementById('analysisResult');
-    out.innerHTML = "<h4><i class='fa-solid fa-microchip'></i> Analisa BBFS Tembus Semua Prize:</h4>";
+    const jml = parseInt(document.getElementById('jumlahDigit').value);
+    out.innerHTML = `<h4><i class='fa-solid fa-microchip'></i> Rekomendasi BBFS ${jml} Digit Terkuat:</h4>`;
     
     const markets = [
         { id: 'checkMagnum', key: 'mag', name: 'MAGNUM' },
@@ -70,8 +71,26 @@ function jalankanGenerator() {
         if (document.getElementById(m.id).checked) {
             const raw = document.getElementById(m.key + '1').getAttribute('data-all') || "";
             if (raw) {
-                const bbfs = [...new Set(raw.match(/\d/g))].sort(); // Ambil angka unik saja
-                out.innerHTML += `<div class='res-box'><b>${m.name}:</b><br>${bbfs.map(n => `<span class="bbfs-box">${n}</span>`).join('')}</div>`;
+                // 1. Hitung berapa kali setiap angka (0-9) muncul
+                let frekuensi = {};
+                for (let i = 0; i <= 9; i++) frekuensi[i] = 0;
+                
+                raw.split('').forEach(char => {
+                    if (frekuensi[char] !== undefined) frekuensi[char]++;
+                });
+
+                // 2. Urutkan angka dari yang paling sering muncul ke yang paling jarang
+                let sortedDigits = Object.keys(frekuensi).sort((a, b) => frekuensi[b] - frekuensi[a]);
+
+                // 3. Ambil sebanyak jumlah digit yang Koh minta (5-8)
+                let bbfsPilihan = sortedDigits.slice(0, jml).sort();
+
+                out.innerHTML += `
+                    <div class='res-box' style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
+                        <b>${m.name} (Top ${jml} Digit):</b><br>
+                        ${bbfsPilihan.map(n => `<span class="bbfs-box">${n}</span>`).join('')}
+                        <br><small>Angka di atas adalah yang paling banyak membentuk 4D di semua prize.</small>
+                    </div>`;
             }
         }
     });
