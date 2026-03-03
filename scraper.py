@@ -12,35 +12,39 @@ def scrape_magnum():
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
             
-            # Mengambil Tanggal Result dari Web
-            # Struktur ini disesuaikan dengan tampilan Magnum terbaru
-            draw_date = soup.find('div', class_='result-date').text.strip() if soup.find('div', class_='result-date') else "Tanggal Tidak Ditemukan"
+            # Ambil Tanggal (mencari div dengan class result-date)
+            date_element = soup.find('div', class_='result-date')
+            draw_date = date_element.text.strip() if date_element else "Tanggal Tidak Ditemukan"
             
-            # Mengambil 1st, 2nd, 3rd Prize
+            # Ambil Top 3 Prize
             p1 = soup.select_one('.p1-no').text.strip() if soup.select_one('.p1-no') else "----"
             p2 = soup.select_one('.p2-no').text.strip() if soup.select_one('.p2-no') else "----"
             p3 = soup.select_one('.p3-no').text.strip() if soup.select_one('.p3-no') else "----"
             
-            # Mengambil Special & Consolation (Mengumpulkan semua angka di dalam list)
-            special_numbers = [div.text.strip() for div in soup.select('.special-no')]
-            consolation_numbers = [div.text.strip() for div in soup.select('.consolation-no')]
+            # Ambil Special & Consolation (Mengumpulkan semua angka)
+            special_list = [n.text.strip() for n in soup.select('.special-no')]
+            consolation_list = [n.text.strip() for n in soup.select('.consolation-no')]
             
-            # Format teks yang akan disimpan
-            content = f"Tanggal Result: {draw_date}\n"
-            content += f"1st Prize: {p1}\n"
-            content += f"2nd Prize: {p2}\n"
-            content += f"3rd Prize: {p3}\n"
-            content += f"Special: {', '.join(special_numbers)}\n"
-            content += f"Consolation: {', '.join(consolation_numbers)}\n"
-            content += "-"*30 + "\n"
+            special_str = ", ".join(special_list) if special_list else "----"
+            consolation_str = ", ".join(consolation_list) if consolation_list else "----"
             
-            # Simpan ke file
+            # Format rapi untuk file .txt
+            content = (
+                f"Tanggal Result: {draw_date}\n"
+                f"1st Prize: {p1}\n"
+                f"2nd Prize: {p2}\n"
+                f"3rd Prize: {p3}\n"
+                f"Special: {special_str}\n"
+                f"Consolation: {consolation_str}\n"
+                f"{'-'*30}\n"
+            )
+            
             with open("data_keluaran_magnum.txt", "a") as f:
                 f.write(content)
-            print(f"Berhasil update data tanggal: {draw_date}")
+            print(f"Berhasil simpan data tanggal {draw_date}")
             
     except Exception as e:
-        print(f"Terjadi kesalahan saat ambil data: {e}")
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
     scrape_magnum()
