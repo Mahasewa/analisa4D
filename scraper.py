@@ -13,24 +13,27 @@ def get_data_selenium(target_date):
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
     
+    driver = None
     try:
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=chrome_options)
         
-        # URL dengan huruf 's' yang sudah fix
         url = f"https://4dno.org/past-results-history/{target_date}"
+        print(f"--- Mencoba Akses URL: {url} ---")
         driver.get(url)
-        time.sleep(7) # Tunggu loading angka
         
-        # Cari semua baris tabel
+        print("Menunggu halaman stabil (10 detik)...")
+        time.sleep(10) 
+        
         rows = driver.find_elements(By.TAG_NAME, "tr")
+        print(f"Jumlah baris tabel ditemukan: {len(rows)}")
+        
         current_market = ""
         numbers = []
 
         for row in rows:
             text = row.text.upper()
             
-            # Deteksi Pasaran
             if "MAGNUM 4D" in text:
                 current_market = "MAGNUM"
                 numbers = []
@@ -41,49 +44,47 @@ def get_data_selenium(target_date):
                 current_market = "TOTO"
                 numbers = []
 
-            # Ambil cell data
             cells = row.find_elements(By.TAG_NAME, "td")
             for cell in cells:
                 val = cell.text.strip()
                 if val.isdigit() and len(val) == 4:
                     numbers.append(val)
 
-            # Jika angka terkumpul (23 angka), langsung simpan
-            if len(numbers) >= 23 and current_market:
+            # CEK: Jika angka sudah terkumpul, kita paksa tulis
+            if len(numbers) >= 3 and current_market:
+                print(f"Mencoba menyimpan data {current_market}. Total angka didapat: {len(numbers)}")
                 filename = f"data_keluaran_{current_market.lower()}.txt"
                 save_to_file(filename, target_date, numbers)
-                print(f"Berhasil simpan {current_market} tanggal {target_date}")
                 current_market = "" 
                 numbers = []
 
-        driver.quit()
     except Exception as e:
-        print(f"Error pada {target_date}: {e}")
+        print(f"Terjadi Kesalahan: {e}")
+    finally:
+        if driver:
+            driver.quit()
 
 def save_to_file(filename, date, n):
-    # Format penulisan sesuai permintaan Koh
-    content = f"Tanggal Result: {date}\n"
-    content += f"1st Prize: {n[0]}\n"
-    content += f"2nd Prize: {n[1]}\n"
-    content += f"3rd Prize: {n[2]}\n"
-    content += f"Special: {', '.join(n[3:13])}\n"
-    content += f"Consolation: {', '.join(n[13:23])}\n"
-    content += "-"*30 + "\n"
-    
-    with open(filename, "a") as f:
-        f.write(content)
+    try:
+        content = f"Tanggal Result: {date}\n"
+        content += f"1st Prize: {n[0] if len(n) > 0 else '-'}\n"
+        content += f"2nd Prize: {n[1] if len(n) > 1 else '-'}\n"
+        content += f"3rd Prize: {n[2] if len(n) > 2 else '-'}\n"
+        if len(n) > 3:
+            content += f"Angka Lainnya: {', '.join(n[3:23])}\n"
+        content += "-"*30 + "\n"
+        
+        with open(filename, "a") as f:
+            f.write(content)
+        print(f"FILE BERHASIL DITULIS: {filename}")
+    except Exception as e:
+        print(f"Gagal Menulis ke File: {e}")
 
 def run_history_scraper():
-    # Mari kita tes dari tanggal 1 - 3 Maret 2026 dulu
-    start_date = datetime(2026, 3, 1)
-    end_date = datetime(2026, 3, 3)
-    
-    curr = start_date
-    while curr <= end_date:
-        date_str = curr.strftime("%d-%m-%Y")
-        print(f"Sedang menarik data: {date_str}")
-        get_data_selenium(date_str)
-        curr += timedelta(days=1)
+    # Tes satu hari saja: 1 Maret 2026
+    test_date = "01-03-2026"
+    print(f"MEMULAI PROSES SCRAPING TANGGAL: {test_date}")
+    get_data_selenium(test_date)
 
 if __name__ == "__main__":
     run_history_scraper()
