@@ -1,7 +1,7 @@
 name: Run 4D Scraper Selenium
 
 on:
-  workflow_dispatch: # Tombol manual "Run workflow" tetap ada
+  workflow_dispatch:
 
 jobs:
   build:
@@ -12,20 +12,19 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Setup Python
-      uses: actions/set-up-python@v4
+      uses: actions/setup-python@v4
       with:
         python-version: '3.9'
 
-    - name: Install Chrome and Driver
+    - name: Install Chrome
       run: |
         sudo apt-get update
         sudo apt-get install -y google-chrome-stable
-        # ChromeDriver otomatis menyesuaikan dengan versi Chrome terbaru di Ubuntu
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install requests beautifulsoup4 selenium webdriver-manager
+        pip install selenium webdriver-manager
 
     - name: Run scraper
       run: python scraper.py
