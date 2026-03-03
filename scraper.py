@@ -4,7 +4,6 @@ import time
 from datetime import datetime, timedelta
 
 def get_data_by_date(target_date):
-    # Format URL: https://4dno.org/past-result-history/DD-MM-YYYY
     url = f"https://4dno.org/past-result-history/{target_date}"
     headers = {'User-Agent': 'Mozilla/5.0'}
     
@@ -14,59 +13,62 @@ def get_data_by_date(target_date):
             return
             
         soup = BeautifulSoup(response.text, 'html.parser')
-        # Mencari semua blok hasil (biasanya dalam class card atau col)
-        results = soup.select('.card-body') 
+        # Mencari semua blok kartu hasil (Magnum, Toto, Kuda)
+        results = soup.select('.card') 
         
         for res in results:
-            title = res.text
+            title = res.get_text().upper()
             
-            # 1. LOGIKA UNTUK MAGNUM
-            if "MAGNUM 4D" in title:
-                save_to_file("data_keluaran_magnum.txt", target_date, res)
+            # Cari sel tabel yang berisi angka 4 digit
+            cells = res.find_all('td')
+            numbers = [c.get_text(strip=True) for c in cells if c.get_text(strip=True).isdigit() and len(c.get_text(strip=True)) == 4]
             
-            # 2. LOGIKA UNTUK DA MA CAI (KUDA)
-            elif "DA MA CAI 1+3D" in title:
-                save_to_file("data_keluaran_kuda.txt", target_date, res)
+            if len(numbers) >= 3:
+                # Tentukan nama file berdasarkan judul di kartu
+                filename = ""
+                if "MAGNUM 4D" in title:
+                    filename = "data_keluaran_magnum.txt"
+                elif "DA MA CAI 1+3D" in title:
+                    filename = "data_keluaran_kuda.txt"
+                elif "SPORTS TOTO 4D" in title:
+                    filename = "data_keluaran_toto.txt"
                 
-            # 3. LOGIKA UNTUK SPORTS TOTO
-            elif "SPORTS TOTO 4D" in title:
-                save_to_file("data_keluaran_toto.txt", target_date, res)
+                if filename:
+                    save_to_file(filename, target_date, numbers)
 
     except Exception as e:
         print(f"Error pada tanggal {target_date}: {e}")
 
-def save_to_file(filename, date, soup_element):
-    # Mengambil angka berdasarkan posisi atau class di web 4dno
-    # Kode ini akan kita pertajam setelah tes jalan pertama
-    numbers = [n.text.strip() for n in soup_element.select('.number-display')] 
-    
+def save_to_file(filename, date, numbers):
+    # Format data: 1st, 2nd, 3rd, Special (10 angka), Consolation (10 angka)
     content = f"Tanggal Result: {date}\n"
-    # Misal urutan: 1st, 2nd, 3rd, lalu sisanya special & consolation
-    if len(numbers) >= 3:
-        content += f"1st Prize: {numbers[0]}\n"
-        content += f"2nd Prize: {numbers[1]}\n"
-        content += f"3rd Prize: {numbers[2]}\n"
-        content += f"Special: {', '.join(numbers[3:13])}\n"
-        content += f"Consolation: {', '.join(numbers[13:])}\n"
-        content += "-"*30 + "\n"
-        
-        with open(filename, "a") as f:
-            f.write(content)
-
+    content += f"1st Prize: {numbers[0]}\n"
+    content += f"2nd Prize: {numbers[1]}\n"
+    content += f"3rd Prize: {numbers[2]}\n"
+    
+    special = numbers[3:13]
+    consolation = numbers[13:23]
+    
+    content += f"Special: {', '.join(special)}\n"
+    content += f"Consolation: {', '.join(consolation)}\n"
+    content += "-"*30 + "\n"
+    
+    with open(filename, "a") as f:
+        f.write(content)
+    print(f"Berhasil simpan {filename} - {date}")
 
 def run_history_scraper():
-    # Menarik data khusus bulan Februari 2026
+    # TEST: Tarik data Februari 2026 saja
     start_date = datetime(2026, 2, 1)
     end_date = datetime(2026, 2, 28)
     
     current = start_date
     while current <= end_date:
         date_str = current.strftime("%d-%m-%Y")
-        print(f"Sedang mengecek data: {date_str}")
+        print(f"Mengecek: {date_str}")
         get_data_by_date(date_str)
         
-        # Jeda 1 detik agar aman
-        time.sleep(1)
+        time.sleep(1) # Jeda agar aman
         current += timedelta(days=1)
 
 if __name__ == "__main__":
