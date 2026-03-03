@@ -11,7 +11,7 @@ def get_data_sapu_jagat(target_date):
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
-    # Set layar sangat lebar & panjang agar semua kotak tertangkap
+    # Set layar lebar agar semua kotak (Magnum, Kuda, Toto) terbaca
     chrome_options.add_argument("--window-size=1920,3000") 
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
     
@@ -20,25 +20,26 @@ def get_data_sapu_jagat(target_date):
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=chrome_options)
         
+        # URL dengan huruf 's' pada results
         url = f"https://4dno.org/past-results-history/{target_date}"
-        print(f"--- MEMULAI SAPU JAGAT: {url} ---")
+        print(f"--- MEMULAI PROSES: {url} ---")
         driver.get(url)
         
-        print("Menunggu 20 detik agar semua kotak muncul...")
+        # Tunggu 20 detik agar semua angka muncul sempurna
+        print("Menunggu loading 20 detik...")
         time.sleep(20) 
         
-        # AMBIL SEMUA TEKS DI HALAMAN (Body)
+        # Ambil semua teks di halaman
         body_text = driver.find_element(By.TAG_NAME, "body").text
         lines = body_text.split('\n')
-        print(f"Total baris teks yang terbaca: {len(lines)}")
-
+        
         current_market = ""
         all_data = {"MAGNUM": [], "KUDA": [], "TOTO": []}
 
         for line in lines:
             txt = line.strip().upper()
             
-            # 1. Tentukan Sedang Di Pasaran Mana
+            # Identifikasi Pasaran
             if "MAGNUM 4D" in txt:
                 current_market = "MAGNUM"
                 continue
@@ -49,22 +50,18 @@ def get_data_sapu_jagat(target_date):
                 current_market = "TOTO"
                 continue
             
-            # 2. Ambil Angka 4 Digit (Jika sedang di dalam pasaran)
+            # Ambil angka 4 digit
             if current_market:
-                # Pisahkan kata jika dalam satu baris ada banyak angka (misal Special)
                 parts = txt.split()
                 for p in parts:
                     if p.isdigit() and len(p) == 4:
                         all_data[current_market].append(p)
 
-        # 3. Simpan Hasilnya ke File Masing-masing
+        # Simpan hasil ke file masing-masing
         for market, numbers in all_data.items():
             if numbers:
-                filename = f"data_keluaran_{market.lower()}.txt"
-                save_to_file(filename, target_date, numbers)
+                save_to_file(f"data_keluaran_{market.lower()}.txt", target_date, numbers)
                 print(f"BERHASIL: {market} ditarik ({len(numbers)} angka)")
-            else:
-                print(f"ZONK: Tidak ada angka ditemukan untuk {market}")
 
     except Exception as e:
         print(f"Error: {e}")
@@ -74,21 +71,22 @@ def get_data_sapu_jagat(target_date):
 
 def save_to_file(filename, date, n):
     try:
-        # Bersihkan duplikat tapi jaga urutan
+        # Unikkan angka tanpa merusak urutan asli
         n_clean = []
         for x in n:
             if x not in n_clean: n_clean.append(x)
         
+        # Format penulisan sesuai instruksi Koh
         content = f"Tanggal Result: {date}\n"
         content += f"1st Prize: {n_clean[0] if len(n_clean) > 0 else '-'}\n"
         content += f"2nd Prize: {n_clean[1] if len(n_clean) > 1 else '-'}\n"
         content += f"3rd Prize: {n_clean[2] if len(n_clean) > 2 else '-'}\n"
         
-        # Mengambil 10 angka setelah prize utama sebagai Special
+        # Special (10 angka)
         special = n_clean[3:13]
         content += f"Special: {', '.join(special) if special else '-'}\n"
         
-        # Mengambil 10 angka setelah Special sebagai Consolation
+        # Consolation (10 angka)
         consolation = n_clean[13:23]
         content += f"Consolation: {', '.join(consolation) if consolation else '-'}\n"
         
@@ -96,6 +94,19 @@ def save_to_file(filename, date, n):
         
         with open(filename, "a") as f:
             f.write(content)
-        print(f"SUKSES: {filename} diperbarui dengan format Special & Consolation")
     except Exception as e:
         print(f"Gagal Menulis File: {e}")
+
+def run_history_scraper():
+    # Menarik data tanggal 1, 2, dan 3 Maret 2026 sebagai tes
+    start_date = datetime(2026, 3, 1)
+    end_date = datetime(2026, 3, 3)
+    
+    curr = start_date
+    while curr <= end_date:
+        date_str = curr.strftime("%d-%m-%Y")
+        get_data_sapu_jagat(date_str)
+        curr += timedelta(days=1)
+
+if __name__ == "__main__":
+    run_history_scraper()
