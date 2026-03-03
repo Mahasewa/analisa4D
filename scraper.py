@@ -82,14 +82,21 @@ def save_to_file(filename, date, n):
         print(f"Gagal simpan ke {filename}: {e}")
 
 def run_history_scraper():
-    # Menarik data dari 1 Januari 2025 sampai hari ini
-    start_date = datetime(2026, 1, 1)
+    # Tentukan rentang waktu yang Koh mau (contoh: Sept 2025 sampai sekarang)
+    start_date = datetime(2025, 9, 1)
     end_date = datetime.now()
     
     curr = start_date
     while curr <= end_date:
-        date_str = curr.strftime("%d-%m-%Y")
-        get_data_sapu_jagat(date_str)
+        # 2 = Rabu, 5 = Sabtu, 6 = Minggu
+        if curr.weekday() in [2, 5, 6]:
+            print(f"--- MENARIK DATA HARI RESULT: {curr.strftime('%d-%m-%Y')} ---", flush=True)
+            get_data_sapu_jagat(curr)
+            time.sleep(10) # Jeda agar aman
+        else:
+            # Jika bukan hari result, robot langsung skip tanpa nunggu 10 detik
+            print(f"SKIP: {curr.strftime('%d-%m-%Y')} (Bukan hari result)", flush=True)
+            
         curr += timedelta(days=1)
 
 if __name__ == "__main__":
