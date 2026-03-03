@@ -3,28 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wadah Data Sapu Jagat</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #333; }
-        #menu-container { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
-        button { padding: 10px 20px; cursor: pointer; border: none; background: #28a745; color: white; border-radius: 5px; transition: 0.3s; }
-        button:hover { background: #218838; }
-        #display-area { border-top: 2px solid #eee; padding-top: 20px; min-height: 200px; }
-        .data-item { background: #eef; padding: 10px; margin-bottom: 5px; border-radius: 4px; }
-    </style>
+    <title>Sapu Jagat Dashboard - Koh Alim</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 
-<div class="container">
-    <h1>Data Result Koh Alim</h1>
-    
-    <div id="menu-container"></div>
+<div class="dashboard">
+    <header>
+        <h1><i class="fa-solid fa-chart-line"></i> ANALISA SAPU JAGAT</h1>
+        <div class="search-box">
+            <input type="text" id="searchDate" placeholder="Cari tanggal (DD-MM-YYYY)...">
+            <button onclick="cariData()"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+    </header>
 
-    <div id="display-area">
-        <p style="text-align:center;">Silakan pilih fitur atau tanggal di atas...</p>
-    </div>
+    <section class="latest-results">
+        <h2 id="lastUpdateTitle">Result Terakhir: --/--/----</h2>
+        <div class="result-grid">
+            <div class="card magnum">
+                <h3>MAGNUM</h3>
+                <div class="number" id="resMagnum">----</div>
+            </div>
+            <div class="card kuda">
+                <h3>KUDA</h3>
+                <div class="number" id="resKuda">----</div>
+            </div>
+            <div class="card toto">
+                <h3>TOTO</h3>
+                <div class="number" id="resToto">----</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="analysis-panel">
+        <h3><i class="fa-solid fa-gears"></i> Generator Analisa BBFS</h3>
+        <p>Pilih pasaran untuk melihat kombinasi angka yang menembus 4D hari ini:</p>
+        
+        <div class="market-selector">
+            <label><input type="checkbox" id="checkMagnum" checked> Magnum</label>
+            <label><input type="checkbox" id="checkKuda"> Kuda</label>
+            <label><input type="checkbox" id="checkToto"> Toto</label>
+        </div>
+
+        <button class="btn-generator" onclick="jalankanGenerator()">
+            <i class="fa-solid fa-bolt"></i> GENERATE ANALISA
+        </button>
+
+        <div id="analysisResult" class="analysis-output">
+            </div>
+    </section>
 </div>
 
 <script src="perintah.js"></script>
