@@ -83,7 +83,7 @@ def save_to_file(filename, date, n):
 
 def run_history_scraper():
     # Menarik data dari 1 Januari 2025 sampai hari ini
-    start_date = datetime(2025, 1, 1)
+    start_date = datetime(2025, 9, 1)
     end_date = datetime.now()
     
     curr = start_date
