@@ -82,20 +82,27 @@ def save_to_file(filename, date, n):
         print(f"Gagal simpan ke {filename}: {e}")
 
 def run_history_scraper():
-    # Tentukan rentang waktu yang Koh mau (contoh: Sept 2025 sampai sekarang)
-    start_date = datetime(2025, 9, 1)
+    # Sesuai settingan baru Koh: 1 Januari 2026
+    start_date = datetime(2026, 1, 1)
     end_date = datetime.now()
     
     curr = start_date
+    print(f"--- MULAI PROSES CEK HARI RUTIN (Rabu, Sabtu, Minggu) ---", flush=True)
+    
     while curr <= end_date:
+        # Mengambil nama hari langsung dari server (Contoh: Wednesday, Saturday)
+        nama_hari_server = curr.strftime('%A')
+        tgl_str = curr.strftime('%d-%m-%Y')
+        
         # 2 = Rabu, 5 = Sabtu, 6 = Minggu
         if curr.weekday() in [2, 5, 6]:
-            print(f"--- MENARIK DATA HARI RESULT: {curr.strftime('%d-%m-%Y')} ---", flush=True)
-            get_data_sapu_jagat(curr)
-            time.sleep(10) # Jeda agar aman
+            print(f">>> PROSES: {nama_hari_server}, {tgl_str} <<<", flush=True)
+            # Pastikan nama fungsi di bawah ini sesuai dengan yang ada di kode atas Koh
+            get_data_sapu_jagat(curr) 
+            time.sleep(12) 
         else:
-            # Jika bukan hari result, robot langsung skip tanpa nunggu 10 detik
-            print(f"SKIP: {curr.strftime('%d-%m-%Y')} (Bukan hari result)", flush=True)
+            # Menampilkan nama hari meskipun di-skip
+            print(f"SKIP: {nama_hari_server}, {tgl_str} (Bukan hari result)", flush=True)
             
         curr += timedelta(days=1)
 
