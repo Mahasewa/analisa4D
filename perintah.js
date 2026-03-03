@@ -1,68 +1,50 @@
-async function sedotSemuaData() {
-    const outlets = [
-        { id: 'resMagnum', file: 'data_keluaran_magnum.txt' },
-        { id: 'resKuda', file: 'data_keluaran_kuda.txt' },
-        { id: 'resToto', file: 'data_keluaran_toto.txt' }
-    ];
-
+async function sedotDataLengkap(fileName, prefix) {
     try {
-        let tglTerakhir = "";
+        const response = await fetch(fileName);
+        const text = await response.text();
+        const baris = text.trim().split('\n');
+        
+        let dataHalaman = { tgl: "", p1: "", p2: "", p3: "", spec: [], cons: [] };
 
-        for (let outlet of outlets) {
-            const response = await fetch(outlet.file);
-            if (response.ok) {
-                const text = await response.text();
-                const baris = text.trim().split('\n');
-                const dataTerbaru = baris[baris.length - 1]; // Ambil baris paling bawah
-                
-                // Format di file Koh: "01-03-2026: 3737,2866,9791..."
-                const [tgl, angkaTeks] = dataTerbaru.split(': ');
-                const daftarAngka = angkaTeks.split(',');
-
-                // Tampilkan Prize 1 di kotak utama
-                document.getElementById(outlet.id).innerText = daftarAngka[0] || "----";
-                tglTerakhir = tgl;
-
-                // Simpan data lengkap ke elemen (hidden) untuk dianalisa generator nanti
-                document.getElementById(outlet.id).setAttribute('data-full', angkaTeks);
+        // Mencari blok data terakhir di file Koh
+        for (let i = baris.length - 1; i >= 0; i--) {
+            if (baris[i].includes("1st Prize:")) dataHalaman.p1 = baris[i].split(":")[1].trim();
+            if (baris[i].includes("2nd Prize:")) dataHalaman.p2 = baris[i].split(":")[1].trim();
+            if (baris[i].includes("3rd Prize:")) dataHalaman.p3 = baris[i].split(":")[1].trim();
+            if (baris[i].includes("Special:")) dataHalaman.spec = baris[i].split(":")[1].trim().split(", ");
+            if (baris[i].includes("Consolation:")) dataHalaman.cons = baris[i].split(":")[1].trim().split(", ");
+            if (baris[i].includes("Tanggal Result:")) {
+                dataHalaman.tgl = baris[i].split(":")[1].trim();
+                break; // Berhenti jika sudah dapat satu blok lengkap terbaru
             }
         }
-        
-        if(tglTerakhir) {
-            document.getElementById('lastUpdateTitle').innerText = "Result Terakhir: " + tglTerakhir;
-        }
+
+        // Tampilkan ke HTML
+        document.getElementById(prefix + '1').innerText = dataHalaman.p1;
+        document.getElementById(prefix + '2').innerText = dataHalaman.p2;
+        document.getElementById(prefix + '3').innerText = dataHalaman.p3;
+        document.getElementById('lastUpdateTitle').innerText = "Result Terakhir: " + dataHalaman.tgl;
+
+        // Isi Special & Consolation
+        const buatGrid = (containerId, dataArray) => {
+            const container = document.getElementById(containerId);
+            container.innerHTML = "";
+            dataArray.forEach(angka => {
+                let span = document.createElement('span');
+                span.innerText = angka;
+                container.appendChild(span);
+            });
+        };
+
+        buatGrid(prefix + 'Spec', dataHalaman.spec);
+        buatGrid(prefix + 'Cons', dataHalaman.cons);
+
     } catch (err) {
-        console.error("Gagal sedot data:", err);
+        console.error("Gagal baca " + fileName, err);
     }
 }
 
-function jalankanGenerator() {
-    const out = document.getElementById('analysisResult');
-    out.innerHTML = "<h4><i class='fa-solid fa-microchip'></i> Bedah Kombinasi BBFS (All Prizes):</h4>";
-    
-    const checklist = [
-        { id: 'checkMagnum', name: 'MAGNUM', displayId: 'resMagnum' },
-        { id: 'checkKuda', name: 'KUDA', displayId: 'resKuda' },
-        { id: 'checkToto', name: 'TOTO', displayId: 'resToto' }
-    ];
-
-    checklist.forEach(item => {
-        if(document.getElementById(item.id).checked) {
-            const fullData = document.getElementById(item.displayId).getAttribute('data-full');
-            if(fullData) {
-                // Menghapus koma dan mengambil semua angka unik dari P1 sampai Consolation
-                const semuaAngka = fullData.replace(/,/g, '');
-                const bbfs = [...new Set(semuaAngka.split(''))].sort();
-                
-                let html = `<div style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
-                    <b>${item.name}:</b> Kombinasi angka yang keluar di semua prize hari ini:<br>
-                    ${bbfs.map(n => `<span class="bbfs-box">${n}</span>`).join(' ')}
-                    <br><small>Gunakan ${bbfs.length} digit ini untuk cover semua Prize.</small>
-                </div>`;
-                out.innerHTML += html;
-            }
-        }
-    });
-}
-
-sedotSemuaData();
+// Jalankan untuk 3 file
+sedotDataLengkap('data_keluaran_magnum.txt', 'mag');
+sedotDataLengkap('data_keluaran_kuda.txt', 'kud');
+sedotDataLengkap('data_keluaran_toto.txt', 'tot');
