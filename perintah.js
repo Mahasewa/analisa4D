@@ -59,7 +59,7 @@ async function ambilDataLengkap(fileName, prefix) {
 function jalankanGenerator() {
     const out = document.getElementById('analysisResult');
     const limitDigit = parseInt(document.getElementById('jumlahDigit').value);
-    out.innerHTML = `<h4><i class='fa-solid fa-microchip'></i> BBFS Terkuat (Cakupan JP Terbanyak):</h4>`;
+    out.innerHTML = `<h4><i class='fa-solid fa-microchip'></i> BBFS Sapu Jagat (Top ${limitDigit} Digit):</h4>`;
     
     const markets = [
         { id: 'checkMagnum', prefix: 'mag', name: 'MAGNUM' },
@@ -74,44 +74,42 @@ function jalankanGenerator() {
             const spec = el.getAttribute('data-spec') || "";
             const cons = el.getAttribute('data-cons') || "";
 
-            // 1. Kumpulkan semua 23 nomor yang keluar di pasaran tersebut
-            const semuaNomor = (p123 + "," + spec + "," + cons).split(',').filter(n => n !== "-" && n !== "");
+            // 1. Ambil SEMUA 23 nomor result hari itu
+            const semuaNomor = (p123 + "," + spec + "," + cons).split(',').filter(n => n.length >= 4);
 
-            // 2. Hitung frekuensi: Angka mana (0-9) yang paling sering muncul membentuk 4D
-            let hitung = {};
-            for (let i = 0; i <= 9; i++) hitung[i] = 0;
+            // 2. Hitung angka unik (0-9) yang paling sering muncul di semua prize
+            let skorAngka = {};
+            for (let i = 0; i <= 9; i++) skorAngka[i] = 0;
 
-            semuaNomor.forEach(nomor => {
-                // Ambil angka unik dalam satu nomor (misal 8890 jadi 8,9,0)
-                let unikDiNomor = [...new Set(nomor.trim().split(''))];
-                unikDiNomor.forEach(digit => {
-                    if (hitung[digit] !== undefined) hitung[digit]++;
-                });
+            semuaNomor.forEach(no => {
+                let unik = [...new Set(no.trim().split(''))];
+                unik.forEach(digit => { if(skorAngka[digit] !== undefined) skorAngka[digit]++; });
             });
 
-            // 3. Urutkan angka dari yang paling banyak berkontribusi membentuk JP
-            let urutanTerkuat = Object.keys(hitung).sort((a, b) => hitung[b] - hitung[a]);
+            // 3. Ambil X angka terkuat (yang paling sering muncul)
+            let bbfsHasil = Object.keys(skorAngka)
+                .sort((a, b) => skorAngka[b] - skorAngka[a])
+                .slice(0, limitDigit)
+                .sort();
 
-            // 4. Ambil X angka teratas sesuai permintaan Koh (5-8 digit)
-            let bbfsSapuJagat = urutanTerkuat.slice(0, limitDigit).sort();
-
-            // 5. Hitung berapa banyak 4D yang "Kena" dengan set BBFS ini
+            // 4. HITUNG ULANG: Berapa banyak nomor yang BENAR-BENAR tembus 4D dengan BBFS ini
             let totalJP = 0;
-            semuaNomor.forEach(nomor => {
-                let digitNomor = nomor.trim().split('');
-                let tembus = digitNomor.every(d => bbfsSapuJagat.includes(d));
-                if (tembus) totalJP++;
+            semuaNomor.forEach(no => {
+                let digitNo = no.trim().split('');
+                // Cek apakah semua digit di nomor result ada di dalam bbfsHasil
+                let isJP = digitNo.every(d => bbfsHasil.includes(d));
+                if (isJP) totalJP++;
             });
 
             out.innerHTML += `
-                <div class='res-box' style="margin-bottom:20px; border-bottom:2px solid #3498db; padding-bottom:15px;">
-                    <b style="font-size:18px; color:#2c3e50;">${m.name}:</b><br>
+                <div class='res-box' style="margin-bottom:20px; border-bottom:2px solid #e74c3c; padding-bottom:15px;">
+                    <b style="font-size:18px;">${m.name}:</b><br>
                     <div style="margin:10px 0;">
-                        ${bbfsSapuJagat.map(n => `<span class="bbfs-box" style="font-size:20px; padding:8px 15px;">${n}</span>`).join('')}
+                        ${bbfsHasil.map(n => `<span class="bbfs-box">${n}</span>`).join('')}
                     </div>
-                    <span style="background:#27ae60; color:white; padding:3px 8px; border-radius:4px; font-size:12px;">
-                        <i class="fa-solid fa-trophy"></i> Berhasil Melahap ${totalJP} JP (4D) di Hari Ini
-                    </span>
+                    <div style="background:#27ae60; color:white; padding:5px 10px; border-radius:20px; display:inline-block; font-size:13px; font-weight:bold;">
+                        <i class="fa-solid fa-fire"></i> Melahap ${totalJP} Kali JP 4D
+                    </div>
                 </div>`;
         }
     });
