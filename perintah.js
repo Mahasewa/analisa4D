@@ -81,3 +81,57 @@ function jalankanGenerator() {
 ambilDataLengkap('data_keluaran_magnum.txt', 'mag');
 ambilDataLengkap('data_keluaran_kuda.txt', 'kud');
 ambilDataLengkap('data_keluaran_toto.txt', 'tot');
+async function cariDataOtomatis() {
+    // Ambil tanggal dari kalender (formatnya YYYY-MM-DD)
+    const tglPilihan = document.getElementById('inputKalender').value;
+    if (!tglPilihan) return;
+
+    console.log("Mencari data untuk tanggal: " + tglPilihan);
+    
+    // Jalankan pencarian di 3 pasaran
+    cariDiFile('data_keluaran_magnum.txt', 'mag', tglPilihan);
+    cariDiFile('data_keluaran_kuda.txt', 'kud', tglPilihan);
+    cariDiFile('data_keluaran_toto.txt', 'tot', tglPilihan);
+}
+
+async function cariDiFile(fileName, prefix, tglTarget) {
+    try {
+        const response = await fetch(fileName);
+        const text = await response.text();
+        const baris = text.trim().split('\n');
+        
+        let dataFound = { p1: "----", p2: "----", p3: "----", spec: "-", cons: "-" };
+        let ketemu = false;
+
+        // Cari blok yang mengandung Tanggal Result: YYYY-MM-DD
+        for (let i = 0; i < baris.length; i++) {
+            if (baris[i].includes("Tanggal Result: " + tglTarget)) {
+                ketemu = true;
+                // Ambil 5 baris di bawahnya (P1, P2, P3, Spec, Cons)
+                if (baris[i+1]) dataFound.p1 = baris[i+1].split(":")[1].trim();
+                if (baris[i+2]) dataFound.p2 = baris[i+2].split(":")[1].trim();
+                if (baris[i+3]) dataFound.p3 = baris[i+3].split(":")[1].trim();
+                if (baris[i+4]) dataFound.spec = baris[i+4].split(":")[1].trim();
+                if (baris[i+5]) dataFound.cons = baris[i+5].split(":")[1].trim();
+                break;
+            }
+        }
+
+        // Tampilkan hasil ke kartu
+        document.getElementById(prefix + '1').innerText = dataFound.p1;
+        document.getElementById(prefix + '2').innerText = dataFound.p2;
+        document.getElementById(prefix + '3').innerText = dataFound.p3;
+        
+        const renderGrid = (id, teks) => {
+            const el = document.getElementById(id);
+            el.innerHTML = (teks !== "-") ? teks.split(', ').map(n => `<span>${n}</span>`).join('') : "";
+        };
+        renderGrid(prefix + 'Spec', dataFound.spec);
+        renderGrid(prefix + 'Cons', dataFound.cons);
+
+        if (ketemu) {
+            document.getElementById('lastUpdateTitle').innerText = "Hasil Pencarian: " + tglTarget;
+        }
+
+    } catch (e) { console.log("Gagal mencari di " + fileName); }
+}
