@@ -23,3 +23,5 @@ input[type="date"] {
     color: #333;
     cursor: pointer;
 }
+.setting-bbfs { margin-bottom: 15px; font-weight: bold; color: #2c3e50; }
+.setting-bbfs select { padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; }
