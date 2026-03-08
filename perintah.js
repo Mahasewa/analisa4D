@@ -173,3 +173,79 @@ async function cariDiFile(fileName, prefix, tglTarget) {
 
     } catch (e) { console.log("Gagal mencari di " + fileName); }
 }
+// Variabel Global untuk Histori
+let allHistoryData = [];
+let currentPage = 1;
+const itemsPerPage = 6;
+
+function showHome() {
+    document.getElementById('home-content').style.display = 'block';
+    document.getElementById('history-content').style.display = 'none';
+}
+
+async function showHistory(prefix, fileName) {
+    document.getElementById('home-content').style.display = 'none';
+    document.getElementById('history-content').style.display = 'block';
+    document.getElementById('history-title').innerText = "Histori: " + fileName.replace('.txt', '').replace('data_keluaran_', '').toUpperCase();
+    
+    try {
+        const response = await fetch(fileName);
+        const text = await response.text();
+        const lines = text.trim().split('\n');
+        
+        allHistoryData = []; // Reset data
+        let currentEntry = {};
+
+        // Parsing file menjadi array objek
+        lines.forEach(line => {
+            if (line.includes("Tanggal Result:")) currentEntry.tgl = line.split(":")[1].trim();
+            if (line.includes("1st Prize:")) currentEntry.p1 = line.split(":")[1].trim();
+            if (line.includes("2nd Prize:")) currentEntry.p2 = line.split(":")[1].trim();
+            if (line.includes("3rd Prize:")) currentEntry.p3 = line.split(":")[1].trim();
+            if (line.includes("Special:")) currentEntry.spec = line.split(":")[1].trim();
+            if (line.includes("Consolation:")) {
+                currentEntry.cons = line.split(":")[1].trim();
+                allHistoryData.push({...currentEntry}); // Simpan blok lengkap
+            }
+        });
+
+        allHistoryData.reverse(); // Terbaru di atas
+        currentPage = 1;
+        renderHistoryPage();
+    } catch (e) { console.error("Gagal load histori"); }
+}
+
+function renderHistoryPage() {
+    const container = document.getElementById('history-table-container');
+    container.innerHTML = "";
+    
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const pageData = allHistoryData.slice(start, end);
+
+    pageData.forEach(item => {
+        let card = document.createElement('div');
+        card.className = 'hist-card';
+        card.innerHTML = `
+            <div style="background:#2c3e50; color:white; padding:5px; text-align:center; font-weight:bold; border-radius:4px 4px 0 0;">${item.tgl}</div>
+            <table>
+                <tr><th colspan="3" style="color:#e74c3c">Utama</th></tr>
+                <tr><td>${item.p1}</td><td>${item.p2}</td><td>${item.p3}</td></tr>
+                <tr><th colspan="3">Special</th></tr>
+                <tr><td colspan="3">${item.spec}</td></tr>
+                <tr><th colspan="3">Consolation</th></tr>
+                <tr><td colspan="3">${item.cons}</td></tr>
+            </table>
+        `;
+        container.appendChild(card);
+    });
+
+    document.getElementById('pageInfo').innerText = `Halaman ${currentPage}`;
+    document.getElementById('prevBtn').disabled = currentPage === 1;
+    document.getElementById('nextBtn').disabled = end >= allHistoryData.length;
+}
+
+function changePage(step) {
+    currentPage += step;
+    renderHistoryPage();
+}
