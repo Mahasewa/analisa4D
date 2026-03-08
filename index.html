@@ -106,8 +106,11 @@
                     </div>
                 </div>`;
         });
-        document.getElementById('infoHal').innerText = "Halaman " + (halAktif + 1);
-    }
+       // GANTI BAGIAN PEMANGGILAN FUNGSI DI PALING BAWAH DENGAN INI:
+            document.addEventListener("DOMContentLoaded", function() {
+            console.log("Halaman siap, memulai muat data...");
+            muatData();
+    });
 </script>
 </body>
 </html>
