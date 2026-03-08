@@ -8,106 +8,99 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
-<nav class="menu-bar">
-    <a href="#" onclick="showHome()"><i class="fa-solid fa-house"></i> Home</a>
-    <a href="#" onclick="showHistory('mag', 'data_keluaran_magnum.txt', 'MAGNUM 4D')">Magnum 4D</a>
-    <a href="#" onclick="showHistory('kud', 'data_keluaran_kuda.txt', 'DAMACAI 1+3D')">Da Ma Cai</a>
-    <a href="#" onclick="showHistory('tot', 'data_keluaran_toto.txt', 'SPORTS TOTO')">Sports Toto</a>
-</nav>
 
-<div id="home-content">
-    <section class="latest-results">
-        <h2 id="lastUpdateTitle">Result Terakhir: --/--/----</h2>
-        </section>
-</div>
-
-<div id="history-content" style="display:none; margin-top: 20px;">
-    <h2 id="history-main-title" style="text-align:center; color:#2c3e50;">Histori Pengeluaran</h2>
-    <div id="history-grid" class="result-grid">
-        </div>
-    
-    <div class="pagination">
-        <button id="prevBtn" class="btn-page" onclick="changePage(-1)"><i class="fa-solid fa-chevron-left"></i> SEBELUMNYA</button>
-        <span id="pageInfo" class="page-num">Halaman 1</span>
-        <button id="nextBtn" class="btn-page" onclick="changePage(1)">SELANJUTNYA <i class="fa-solid fa-chevron-right"></i></button>
-    </div>
-</div>
-    
 <div class="dashboard">
     <header>
         <h1><i class="fa-solid fa-chart-line"></i> ANALISA SAPU JAGAT</h1>
         <div class="search-box">
-    <input type="date" id="inputKalender" onchange="cariDataOtomatis()">
-    <button onclick="cariDataOtomatis()"><i class="fa-solid fa-magnifying-glass"></i></button>
-</div>
+            <input type="date" id="inputKalender" onchange="cariDataOtomatis()">
+            <button onclick="cariDataOtomatis()"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
     </header>
 
-    <section class="latest-results">
-        <h2 id="lastUpdateTitle">Result Terakhir: --/--/----</h2>
-        <div class="result-grid">
-            <div class="card magnum">
-                <div class="card-header">MAGNUM 4D</div>
-                <div class="main-prizes">
-                    <div><small>1st</small><div class="num p1" id="mag1">----</div></div>
-                    <div><small>2nd</small><div class="num" id="mag2">----</div></div>
-                    <div><small>3rd</small><div class="num" id="mag3">----</div></div>
+    <nav class="menu-bar">
+        <a href="#" onclick="showHome()"><i class="fa-solid fa-house"></i> Home</a>
+        <a href="#" onclick="showHistory('mag', 'data_keluaran_magnum.txt', 'MAGNUM 4D')">Magnum 4D</a>
+        <a href="#" onclick="showHistory('kud', 'data_keluaran_kuda.txt', 'DAMACAI 1+3D')">Da Ma Cai</a>
+        <a href="#" onclick="showHistory('tot', 'data_keluaran_toto.txt', 'SPORTS TOTO')">Sports Toto</a>
+    </nav>
+
+    <div id="home-content">
+        <section class="latest-results">
+            <h2 id="lastUpdateTitle">Result Terakhir: --/--/----</h2>
+            <div class="result-grid">
+                <div class="card magnum">
+                    <div class="card-header">MAGNUM 4D</div>
+                    <div class="main-prizes">
+                        <div><small>1st</small><div class="num p1" id="mag1">----</div></div>
+                        <div><small>2nd</small><div class="num" id="mag2">----</div></div>
+                        <div><small>3rd</small><div class="num" id="mag3">----</div></div>
+                    </div>
+                    <div class="extra-prizes">
+                        <small>Special</small><div class="grid-small" id="magSpec"></div>
+                        <small>Consolation</small><div class="grid-small" id="magCons"></div>
+                    </div>
                 </div>
-                <div class="extra-prizes">
-                    <small>Special</small><div class="grid-small" id="magSpec"></div>
-                    <small>Consolation</small><div class="grid-small" id="magCons"></div>
+                <div class="card kuda">
+                    <div class="card-header">DAMACAI 1+3D</div>
+                    <div class="main-prizes">
+                        <div><small>1st</small><div class="num p1" id="kud1">----</div></div>
+                        <div><small>2nd</small><div class="num" id="kud2">----</div></div>
+                        <div><small>3rd</small><div class="num" id="kud3">----</div></div>
+                    </div>
+                    <div class="extra-prizes">
+                        <small>Special</small><div class="grid-small" id="kudSpec"></div>
+                        <small>Consolation</small><div class="grid-small" id="kudCons"></div>
+                    </div>
+                </div>
+                <div class="card toto">
+                    <div class="card-header">SPORTS TOTO</div>
+                    <div class="main-prizes">
+                        <div><small>1st</small><div class="num p1" id="tot1">----</div></div>
+                        <div><small>2nd</small><div class="num" id="tot2">----</div></div>
+                        <div><small>3rd</small><div class="num" id="tot3">----</div></div>
+                    </div>
+                    <div class="extra-prizes">
+                        <small>Special</small><div class="grid-small" id="totSpec"></div>
+                        <small>Consolation</small><div class="grid-small" id="totCons"></div>
+                    </div>
                 </div>
             </div>
-            <div class="card kuda">
-                <div class="card-header">DAMACAI 1+3D</div>
-                <div class="main-prizes">
-                    <div><small>1st</small><div class="num p1" id="kud1">----</div></div>
-                    <div><small>2nd</small><div class="num" id="kud2">----</div></div>
-                    <div><small>3rd</small><div class="num" id="kud3">----</div></div>
-                </div>
-                <div class="extra-prizes">
-                    <small>Special</small><div class="grid-small" id="kudSpec"></div>
-                    <small>Consolation</small><div class="grid-small" id="kudCons"></div>
-                </div>
+        </section>
+
+        <section class="analysis-panel">
+            <h3><i class="fa-solid fa-gears"></i> Generator Rekomendasi BBFS</h3>
+            <div class="setting-bbfs">
+                <span>Mau BBFS berapa angka?</span>
+                <select id="jumlahDigit">
+                    <option value="5">5 Angka</option>
+                    <option value="6">6 Angka</option>
+                    <option value="7">7 Angka</option>
+                    <option value="8" selected>8 Angka (Maksimal)</option>
+                </select>
             </div>
-            <div class="card toto">
-                <div class="card-header">SPORTS TOTO</div>
-                <div class="main-prizes">
-                    <div><small>1st</small><div class="num p1" id="tot1">----</div></div>
-                    <div><small>2nd</small><div class="num" id="tot2">----</div></div>
-                    <div><small>3rd</small><div class="num" id="tot3">----</div></div>
-                </div>
-                <div class="extra-prizes">
-                    <small>Special</small><div class="grid-small" id="totSpec"></div>
-                    <small>Consolation</small><div class="grid-small" id="totCons"></div>
-                </div>
+            <div class="market-selector">
+                <label><input type="checkbox" id="checkMagnum" checked> Magnum</label>
+                <label><input type="checkbox" id="checkKuda"> Kuda</label>
+                <label><input type="checkbox" id="checkToto"> Toto</label>
             </div>
+            <button class="btn-generator" onclick="jalankanGenerator()">
+                <i class="fa-solid fa-bolt"></i> GENERATE REKOMENDASI
+            </button>
+            <div id="analysisResult" class="analysis-output"></div>
+        </section>
+    </div>
+
+    <div id="history-content" style="display:none;">
+        <h2 id="history-main-title" style="text-align:center; color:#2c3e50; margin: 20px 0;">Histori Pengeluaran</h2>
+        <div id="history-grid" class="result-grid">
+            </div>
+        <div class="pagination">
+            <button id="prevBtn" class="btn-page" onclick="changePage(-1)"><i class="fa-solid fa-chevron-left"></i> SEBELUMNYA</button>
+            <span id="pageInfo" class="page-num">Halaman 1</span>
+            <button id="nextBtn" class="btn-page" onclick="changePage(1)">SELANJUTNYA <i class="fa-solid fa-chevron-right"></i></button>
         </div>
-    </section>
-
-    <section class="analysis-panel">
-    <h3><i class="fa-solid fa-gears"></i> Generator Rekomendasi BBFS</h3>
-    
-    <div class="setting-bbfs">
-        <span>Mau BBFS berapa angka? </span>
-        <select id="jumlahDigit">
-            <option value="5">5 Angka</option>
-            <option value="6">6 Angka</option>
-            <option value="7">7 Angka</option>
-            <option value="8" selected>8 Angka (Maksimal)</option>
-        </select>
     </div>
-
-    <div class="market-selector">
-        <label><input type="checkbox" id="checkMagnum" checked> Magnum</label>
-        <label><input type="checkbox" id="checkKuda"> Kuda</label>
-        <label><input type="checkbox" id="checkToto"> Toto</label>
-    </div>
-    
-    <button class="btn-generator" onclick="jalankanGenerator()">
-        <i class="fa-solid fa-bolt"></i> GENERATE REKOMENDASI
-    </button>
-    <div id="analysisResult" class="analysis-output"></div>
-</section>
 </div>
 
 <script src="perintah.js"></script>
