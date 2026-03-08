@@ -82,8 +82,8 @@ def save_to_file(filename, date, n):
         print(f"Gagal simpan ke {filename}: {e}")
 
 def run_history_scraper():
-    # Setting Januari 2026 sesuai instruksi Koh
-    start_date = datetime(2026, 1, 1)
+    # Setting Harian
+    start_date = datetime.now()
     end_date = datetime.now()
     
     curr = start_date
