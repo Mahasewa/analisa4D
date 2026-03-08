@@ -2,115 +2,93 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Sapu Jagat Dashboard - Koh Alim</title>
+    <title>Sapu Jagat Dashboard</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #eef2f5; margin: 0; padding: 20px; }
-        .dashboard { max-width: 1100px; margin: auto; }
+        body { font-family: sans-serif; background: #eef2f5; padding: 20px; }
         .menu-bar { display: flex; gap: 10px; margin-bottom: 20px; }
         .menu-bar button { padding: 10px 20px; cursor: pointer; background: #2c3e50; color: white; border: none; border-radius: 5px; }
         .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .card-header { background: #34495e; color: white; padding: 10px; text-align: center; font-weight: bold; }
-        .main-prizes { display: flex; justify-content: space-around; padding: 10px; background: #f8f9fa; }
-        .grid-small { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; padding: 10px; }
-        .grid-small span { background: #eee; padding: 3px; text-align: center; font-size: 12px; border-radius: 3px; }
-        .nav-btns { text-align: center; margin: 20px; }
+        .card { background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .card-header { font-weight: bold; margin-bottom: 10px; color: #e74c3c; }
+        .nav-btns { text-align: center; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-<div class="dashboard">
-    <h1>Analisa Sapu Jagat</h1>
-    <nav class="menu-bar">
-        <button onclick="pilihPasaran('home')">HOME</button>
-        <button onclick="pilihPasaran('mag')">MAGNUM 4D</button>
-        <button onclick="pilihPasaran('kud')">DAMACAI 1+3D</button>
-        <button onclick="pilihPasaran('tot')">SPORTS TOTO</button>
-    </nav>
+<nav class="menu-bar">
+    <button onclick="pilihPasaran('home')">HOME</button>
+    <button onclick="pilihPasaran('mag')">MAGNUM 4D</button>
+    <button onclick="pilihPasaran('kud')">DAMACAI 1+3D</button>
+    <button onclick="pilihPasaran('tot')">SPORTS TOTO</button>
+</nav>
 
-    <div id="kontenData" class="result-grid"></div>
+<div id="kontenData" class="result-grid">Memuat data...</div>
 
-    <div class="nav-btns">
-        <button onclick="ubahHalaman(-1)">Previous</button>
-        <span id="infoHal">Halaman 1</span>
-        <button onclick="ubahHalaman(1)">Next</button>
-    </div>
+<div class="nav-btns">
+    <button onclick="ubahHalaman(-1)">Previous</button>
+    <span id="infoHal">Halaman 1</span>
+    <button onclick="ubahHalaman(1)">Next</button>
 </div>
 
 <script>
     let dataGlobal = [];
     let pasaranAktif = 'home';
     let halAktif = 0;
-    const dataPerHalaman = 6;
 
     async function muatData() {
-        const fileMap = { 
-            'mag': 'data_keluaran_magnum.txt', 
-            'kud': 'data_keluaran_kuda.txt', 
-            'tot': 'data_keluaran_toto.txt' 
-        };
-        
-        for (let key in fileMap) {
+        const files = { 'mag': 'data_keluaran_magnum.txt', 'kud': 'data_keluaran_kuda.txt', 'tot': 'data_keluaran_toto.txt' };
+        for (let key in files) {
             try {
-                const res = await fetch(fileMap[key]);
+                const res = await fetch(files[key]);
                 const text = await res.text();
-                // Mengurai file teks menjadi objek data
-                parseDanSimpan(text, key);
-            } catch(e) { console.error("Gagal load " + fileMap[key]); }
+                // Split berdasarkan baris, cari yang mengandung "Tanggal Result:"
+                const lines = text.split('\n');
+                let item = null;
+                lines.forEach(line => {
+                    if (line.includes("Tanggal Result:")) {
+                        if (item) dataGlobal.push(item);
+                        item = { pasaran: key, tgl: line.split(":")[1].trim(), p1: "-", p2: "-", p3: "-", spec: "-", cons: "-" };
+                    } else if (item) {
+                        if (line.includes("1st Prize:")) item.p1 = line.split(":")[1].trim();
+                        if (line.includes("2nd Prize:")) item.p2 = line.split(":")[1].trim();
+                        if (line.includes("3rd Prize:")) item.p3 = line.split(":")[1].trim();
+                        if (line.includes("Special:")) item.spec = line.split(":")[1].trim();
+                        if (line.includes("Consolation:")) item.cons = line.split(":")[1].trim();
+                    }
+                });
+                if (item) dataGlobal.push(item);
+            } catch (e) { console.error("Error load " + files[key]); }
         }
-        render();
-    }
-
-    function parseDanSimpan(text, source) {
-        const blok = text.split("Tanggal Result:");
-        blok.forEach(b => {
-            if (!b.trim()) return;
-            const baris = b.split('\n');
-            let item = { pasaran: source, tgl: baris[0].trim(), p1: "-", p2: "-", p3: "-", spec: "-", cons: "-" };
-            baris.forEach(l => {
-                if (l.includes("1st Prize:")) item.p1 = l.split(":")[1].trim();
-                if (l.includes("2nd Prize:")) item.p2 = l.split(":")[1].trim();
-                if (l.includes("3rd Prize:")) item.p3 = l.split(":")[1].trim();
-                if (l.includes("Special:")) item.spec = l.split(":")[1].trim();
-                if (l.includes("Consolation:")) item.cons = l.split(":")[1].trim();
-            });
-            dataGlobal.push(item);
-        });
-        // Urutkan dari yang terbaru
         dataGlobal.sort((a,b) => new Date(b.tgl) - new Date(a.tgl));
+        render();
     }
 
     function render() {
         const kontainer = document.getElementById('kontenData');
-        kontainer.innerHTML = "";
+        let filtered = (pasaranAktif === 'home') ? dataGlobal : dataGlobal.filter(d => d.pasaran === pasaranAktif);
+        let start = halAktif * 6;
+        let dataTampil = filtered.slice(start, start + 6);
         
-        // Filter data berdasarkan menu yang dipilih
-        let dataFilter = (pasaranAktif === 'home') ? dataGlobal : dataGlobal.filter(d => d.pasaran === pasaranAktif);
-        
-        // Potong data untuk 6 item per halaman
-        let start = halAktif * dataPerHalaman;
-        let dataTampil = dataFilter.slice(start, start + dataPerHalaman);
-        
+        kontainer.innerHTML = dataTampil.length ? "" : "Data tidak ditemukan.";
         dataTampil.forEach(d => {
             kontainer.innerHTML += `
                 <div class="card">
                     <div class="card-header">${d.pasaran.toUpperCase()} - ${d.tgl}</div>
-                    <div class="main-prizes">
-                        <div><small>1st</small><div class="num p1">${d.p1}</div></div>
-                        <div><small>2nd</small><div class="num">${d.p2}</div></div>
-                        <div><small>3rd</small><div class="num">${d.p3}</div></div>
-                    </div>
-                    <div class="extra-prizes">
-                        <small>Special</small><div class="grid-small">${d.spec.split(', ').map(n=>`<span>${n}</span>`).join('')}</div>
-                        <small>Consolation</small><div class="grid-small">${d.cons.split(', ').map(n=>`<span>${n}</span>`).join('')}</div>
-                    </div>
+                    <div>1st: ${d.p1} | 2nd: ${d.p2} | 3rd: ${d.p3}</div>
+                    <div style="font-size:12px; margin-top:5px;">Spec: ${d.spec}</div>
+                    <div style="font-size:12px;">Cons: ${d.cons}</div>
                 </div>`;
         });
-       // GANTI BAGIAN PEMANGGILAN FUNGSI DI PALING BAWAH DENGAN INI:
-            document.addEventListener("DOMContentLoaded", function() {
-            console.log("Halaman siap, memulai muat data...");
-            muatData();
-    });
+        document.getElementById('infoHal').innerText = "Halaman " + (halAktif + 1);
+    }
+
+    function pilihPasaran(p) { pasaranAktif = p; halAktif = 0; render(); }
+    function ubahHalaman(dir) { 
+        halAktif = Math.max(0, halAktif + dir); 
+        render(); 
+    }
+
+    document.addEventListener("DOMContentLoaded", muatData);
 </script>
 </body>
 </html>
