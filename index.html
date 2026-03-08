@@ -41,35 +41,73 @@
     let dataGlobal = [];
     let pasaranAktif = 'home';
     let halAktif = 0;
+    const dataPerHalaman = 6;
 
     async function muatData() {
-        // Gabungkan semua data dari file TXT
-        const files = ['data_keluaran_magnum.txt', 'data_keluaran_kuda.txt', 'data_keluaran_toto.txt'];
-        for(let file of files) {
-            const res = await fetch(file).then(r => r.text());
-            // Logika parsing disederhanakan dari perintah.js 
-            parseData(res, file);
+        const fileMap = { 
+            'mag': 'data_keluaran_magnum.txt', 
+            'kud': 'data_keluaran_kuda.txt', 
+            'tot': 'data_keluaran_toto.txt' 
+        };
+        
+        for (let key in fileMap) {
+            try {
+                const res = await fetch(fileMap[key]);
+                const text = await res.text();
+                // Mengurai file teks menjadi objek data
+                parseDanSimpan(text, key);
+            } catch(e) { console.error("Gagal load " + fileMap[key]); }
         }
         render();
     }
 
-    function parseData(text, source) {
-        const lines = text.trim().split('\n');
-        // Logika memecah blok per tanggal [cite: 14, 15, 16, 17]
-        // (Di sini fungsi ini akan memasukkan objek ke dataGlobal)
+    function parseDanSimpan(text, source) {
+        const blok = text.split("Tanggal Result:");
+        blok.forEach(b => {
+            if (!b.trim()) return;
+            const baris = b.split('\n');
+            let item = { pasaran: source, tgl: baris[0].trim(), p1: "-", p2: "-", p3: "-", spec: "-", cons: "-" };
+            baris.forEach(l => {
+                if (l.includes("1st Prize:")) item.p1 = l.split(":")[1].trim();
+                if (l.includes("2nd Prize:")) item.p2 = l.split(":")[1].trim();
+                if (l.includes("3rd Prize:")) item.p3 = l.split(":")[1].trim();
+                if (l.includes("Special:")) item.spec = l.split(":")[1].trim();
+                if (l.includes("Consolation:")) item.cons = l.split(":")[1].trim();
+            });
+            dataGlobal.push(item);
+        });
+        // Urutkan dari yang terbaru
+        dataGlobal.sort((a,b) => new Date(b.tgl) - new Date(a.tgl));
     }
 
     function render() {
         const kontainer = document.getElementById('kontenData');
         kontainer.innerHTML = "";
-        // Filter berdasarkan pasaranAktif dan slice untuk 6 data
-        // Loop render card [cite: 2, 3, 4, 5, 6, 7]
+        
+        // Filter data berdasarkan menu yang dipilih
+        let dataFilter = (pasaranAktif === 'home') ? dataGlobal : dataGlobal.filter(d => d.pasaran === pasaranAktif);
+        
+        // Potong data untuk 6 item per halaman
+        let start = halAktif * dataPerHalaman;
+        let dataTampil = dataFilter.slice(start, start + dataPerHalaman);
+        
+        dataTampil.forEach(d => {
+            kontainer.innerHTML += `
+                <div class="card">
+                    <div class="card-header">${d.pasaran.toUpperCase()} - ${d.tgl}</div>
+                    <div class="main-prizes">
+                        <div><small>1st</small><div class="num p1">${d.p1}</div></div>
+                        <div><small>2nd</small><div class="num">${d.p2}</div></div>
+                        <div><small>3rd</small><div class="num">${d.p3}</div></div>
+                    </div>
+                    <div class="extra-prizes">
+                        <small>Special</small><div class="grid-small">${d.spec.split(', ').map(n=>`<span>${n}</span>`).join('')}</div>
+                        <small>Consolation</small><div class="grid-small">${d.cons.split(', ').map(n=>`<span>${n}</span>`).join('')}</div>
+                    </div>
+                </div>`;
+        });
+        document.getElementById('infoHal').innerText = "Halaman " + (halAktif + 1);
     }
-
-    function pilihPasaran(p) { pasaranAktif = p; halAktif = 0; render(); }
-    function ubahHalaman(dir) { halAktif += dir; render(); }
-
-    muatData();
 </script>
 </body>
 </html>
