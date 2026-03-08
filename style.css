@@ -25,3 +25,38 @@ input[type="date"] {
 }
 .setting-bbfs { margin-bottom: 15px; font-weight: bold; color: #2c3e50; }
 .setting-bbfs select { padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; }
+
+/* Gaya Menu Bar */
+.menu-bar {
+    display: flex;
+    background: #2c3e50;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+.menu-bar a {
+    color: white;
+    padding: 15px 20px;
+    text-decoration: none;
+    font-weight: bold;
+}
+.menu-bar a:hover { background: #34495e; }
+
+/* Layout Tabel Histori */
+#history-table-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+.hist-card {
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.hist-card table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.hist-card th, .hist-card td { border: 1px solid #ddd; padding: 5px; text-align: center; }
+
+.pagination { margin-top: 20px; text-align: center; }
+.pagination button { padding: 10px 20px; cursor: pointer; background: #2c3e50; color: white; border: none; border-radius: 5px; }
