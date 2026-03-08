@@ -8,7 +8,30 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
+<nav class="menu-bar">
+    <a href="#" onclick="showHome()"><i class="fa-solid fa-house"></i> Home</a>
+    <a href="#" onclick="showHistory('mag', 'data_keluaran_magnum.txt', 'MAGNUM 4D')">Magnum 4D</a>
+    <a href="#" onclick="showHistory('kud', 'data_keluaran_kuda.txt', 'DAMACAI 1+3D')">Da Ma Cai</a>
+    <a href="#" onclick="showHistory('tot', 'data_keluaran_toto.txt', 'SPORTS TOTO')">Sports Toto</a>
+</nav>
 
+<div id="home-content">
+    <section class="latest-results">
+        <h2 id="lastUpdateTitle">Result Terakhir: --/--/----</h2>
+        </section>
+</div>
+
+<div id="history-content" style="display:none; margin-top: 20px;">
+    <h2 id="history-main-title" style="text-align:center; color:#2c3e50;">Histori Pengeluaran</h2>
+    <div id="history-grid" class="result-grid">
+        </div>
+    
+    <div class="pagination">
+        <button id="prevBtn" class="btn-page" onclick="changePage(-1)"><i class="fa-solid fa-chevron-left"></i> SEBELUMNYA</button>
+        <span id="pageInfo" class="page-num">Halaman 1</span>
+        <button id="nextBtn" class="btn-page" onclick="changePage(1)">SELANJUTNYA <i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+</div>
 <div class="dashboard">
     <header>
         <h1><i class="fa-solid fa-chart-line"></i> ANALISA SAPU JAGAT</h1>
