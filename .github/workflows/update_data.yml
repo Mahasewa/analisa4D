@@ -6,6 +6,8 @@ on:
   schedule:
     # 11:30 UTC sama dengan 19:30 Waktu Malaysia (MYT)
     - cron: '30 11 * * *'
+    # Jadwal baru untuk result China (15:35 WIB / 08:35 UTC)
+    - cron: '35 8 * * *'
   workflow_dispatch: # Agar Koh bisa jalankan manual kapan saja
 
 permissions:
@@ -36,6 +38,8 @@ jobs:
 
       - name: Run Scraper
         run: python scraper.py
+      - name: Janalankan China
+        run: python scraper_china.py
 
       - name: Commit and Push changes
         run: |
