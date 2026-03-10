@@ -1,7 +1,4 @@
-// Simpan semua fungsi di sini: script.js
 let dataGlobal = [];
-let pasaranAktif = 'home';
-let halAktif = 0;
 
 async function muatData() {
     const file_map = {
@@ -16,6 +13,7 @@ async function muatData() {
             const res = await fetch(url);
             const text = await res.text();
             const lines = text.split('\n');
+            
             let item = null;
             lines.forEach(line => {
                 if (line.includes("Tanggal Result:")) {
@@ -30,13 +28,14 @@ async function muatData() {
                 }
             });
             if (item) dataGlobal.push(item);
-        } catch (e) { console.error("Gagal:", file_map[key]); }
+        } catch (e) { console.error("Gagal muat:", file_map[key]); }
     }
-    dataGlobal.sort((a,b) => new Date(b.tgl) - new Date(a.tgl));
-    if (typeof render === 'function') render();
-}
-
-function renderSpan(teks) {
-    if (!teks || teks === "-") return "";
-    return teks.split(', ').map(n => `<span>${n}</span>`).join('');
+    
+    // Urutkan data dari yang terbaru
+    dataGlobal.sort((a, b) => new Date(b.tgl) - new Date(a.tgl));
+    
+    // Panggil fungsi render yang ada di file HTML masing-masing
+    if (typeof render === 'function') {
+        render();
+    }
 }
