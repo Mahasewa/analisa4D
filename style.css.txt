@@ -1,0 +1,27 @@
+body { font-family: 'Segoe UI', sans-serif; background: #eef2f5; margin: 0; padding: 20px; }
+.dashboard { max-width: 1100px; margin: auto; }
+header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.search-box { display: flex; background: white; border-radius: 25px; padding: 5px 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.search-box input { border: none; padding: 10px; outline: none; }
+.result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+.card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+.card-header { background: #2c3e50; color: white; padding: 12px; text-align: center; font-weight: bold; }
+.main-prizes { display: flex; justify-content: space-around; padding: 15px; background: #f8f9fa; border-bottom: 1px solid #eee; }
+.num { font-size: 22px; font-weight: bold; }
+.num.p1 { color: #e74c3c; font-size: 26px; }
+.extra-prizes { padding: 15px; }
+.grid-small { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin: 10px 0; }
+.grid-small span { background: #fff; border: 1px solid #ddd; padding: 4px; text-align: center; font-size: 13px; font-weight: bold; border-radius: 4px; }
+.analysis-panel { background: white; margin-top: 30px; padding: 25px; border-radius: 15px; }
+.btn-generator { width: 100%; padding: 15px; background: #2c3e50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+.bbfs-box { display: inline-block; padding: 5px 10px; background: #3498db; color: white; border-radius: 4px; margin: 3px; font-weight: bold; }
+input[type="date"] {
+    border: none;
+    padding: 8px;
+    outline: none;
+    font-family: 'Segoe UI', sans-serif;
+    color: #333;
+    cursor: pointer;
+}
+.setting-bbfs { margin-bottom: 15px; font-weight: bold; color: #2c3e50; }
+.setting-bbfs select { padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; }
