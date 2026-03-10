@@ -33,23 +33,35 @@ let dataGlobal = [];
     }
 
     function render() {
-        const kontainer = document.getElementById('kontenData');
-        let filtered = (pasaranAktif === 'home') ? dataGlobal : dataGlobal.filter(d => d.pasaran === pasaranAktif);
-        let start = halAktif * 6;
-        let dataTampil = filtered.slice(start, start + 6);
-        
-        kontainer.innerHTML = dataTampil.length ? "" : "Data tidak ditemukan.";
-        dataTampil.forEach(d => {
-            kontainer.innerHTML += `
-                <div class="card">
-                    <div class="card-header">${d.pasaran.toUpperCase()} - ${d.tgl}</div>
-                    <div>1st: ${d.p1} | 2nd: ${d.p2} | 3rd: ${d.p3}</div>
-                    <div style="font-size:12px; margin-top:5px;">Spec: ${d.spec}</div>
-                    <div style="font-size:12px;">Cons: ${d.cons}</div>
-                </div>`;
-        });
-        document.getElementById('infoHal').innerText = "Halaman " + (halAktif + 1);
-    }
+    const kontainer = document.getElementById('kontenData');
+    if (!kontainer) return;
+
+    let filtered = (pasaranAktif === 'home') ? dataGlobal : dataGlobal.filter(d => d.pasaran === pasaranAktif);
+    let start = halAktif * 6;
+    let dataTampil = filtered.slice(start, start + 6);
+
+    // Mengosongkan kontainer sebelum diisi kartu baru
+    kontainer.innerHTML = "";
+
+    dataTampil.forEach(d => {
+        // Kita buat "kartu" untuk setiap baris data
+        kontainer.innerHTML += `
+            <div class="card ${d.pasaran}">
+                <div class="card-header">${d.pasaran.toUpperCase()} - ${d.tgl}</div>
+                <div class="main-prizes">
+                    <div><small>1st</small><div class="num p1">${d.p1}</div></div>
+                    <div><small>2nd</small><div class="num">${d.p2}</div></div>
+                    <div><small>3rd</small><div class="num">${d.p3}</div></div>
+                </div>
+                <div class="extra-prizes">
+                    <small>Special</small><div class="grid-small">${d.spec}</div>
+                    <small>Consolation</small><div class="grid-small">${d.cons}</div>
+                </div>
+            </div>`;
+    });
+    
+    document.getElementById('infoHal').innerText = "Halaman " + (halAktif + 1);
+}
 
     function pilihPasaran(p) { pasaranAktif = p; halAktif = 0; render(); }
     function ubahHalaman(dir) { 
