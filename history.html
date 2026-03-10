@@ -58,25 +58,25 @@
     }
 
     // Di history.html
-function render() {
-    const kontainer = document.getElementById('kontenData');
-    // ... (logika filter data tetap sama)
+    function render() {
+        const kontainer = document.getElementById('kontenData');
+        // ... (logika filter data tetap sama)
     
-    kontainer.innerHTML = ""; // Bersihkan kontainer sebelum render
-    dataTampil.forEach(d => {
-        kontainer.innerHTML += `
-            <div class="card">
-                <div class="card-header">${d.pasaran.toUpperCase()} - ${d.tgl}</div>
-                <div class="main-prizes">
-                    <div><small>1st</small><div class="num p1">${d.p1}</div></div>
-                    <div><small>2nd</small><div class="num">${d.p2}</div></div>
-                    <div><small>3rd</small><div class="num">${d.p3}</div></div>
-                </div>
-                <div class="extra-prizes">
-                    <small>Special</small><div class="grid-small">${renderSpan(d.spec)}</div>
-                    <small>Consolation</small><div class="grid-small">${renderSpan(d.cons)}</div>
-                </div>
-            </div>`;
+        kontainer.innerHTML = ""; // Bersihkan kontainer sebelum render
+        dataTampil.forEach(d => {
+            kontainer.innerHTML += `
+                <div class="card">
+                    <div class="card-header">${d.pasaran.toUpperCase()} - ${d.tgl}</div>
+                    <div class="main-prizes">
+                        <div><small>1st</small><div class="num p1">${d.p1}</div></div>
+                        <div><small>2nd</small><div class="num">${d.p2}</div></div>
+                        <div><small>3rd</small><div class="num">${d.p3}</div></div>
+                    </div>
+                    <div class="extra-prizes">
+                        <small>Special</small><div class="grid-small">${renderSpan(d.spec)}</div>
+                        <small>Consolation</small><div class="grid-small">${renderSpan(d.cons)}</div>
+                    </div>
+                </div>`;
     });
 }
 
