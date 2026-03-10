@@ -70,13 +70,39 @@ async function cariDiFile(fileName, prefix, tglTarget) {
     } catch (e) { console.error("Gagal cari data di " + fileName); }
 }
 
-// --- FUNGSI UNTUK HISTORY.HTML (Tabel Data) ---
+
+// --- FUNGSI UNTUK HISTORY.HTML ---
 let dataGlobal = [];
+
 async function muatData() {
     const files = ["data_keluaran_magnum.txt", "data_keluaran_kuda.txt", "data_keluaran_toto.txt"];
+    const pasaranMap = { "data_keluaran_magnum.txt": "mag", "data_keluaran_kuda.txt": "kud", "data_keluaran_toto.txt": "tot" };
+
     for (let file of files) {
-        // ... (Logika muatData yang sudah kita buat sebelumnya) ...
-        // Ingat untuk tetap menggunakan BASE_URL + file
+        try {
+            const response = await fetch(BASE_URL + file);
+            const text = await response.text();
+            const lines = text.trim().split('\n');
+            let item = null;
+
+            lines.forEach(line => {
+                if (line.includes("Tanggal Result:")) {
+                    if (item) dataGlobal.push(item);
+                    item = { pasaran: pasaranMap[file], tgl: line.split(":")[1].trim(), p1: "-", p2: "-", p3: "-", spec: "-", cons: "-" };
+                } else if (item) {
+                    if (line.includes("1st Prize:")) item.p1 = line.split(":")[1].trim();
+                    if (line.includes("2nd Prize:")) item.p2 = line.split(":")[1].trim();
+                    if (line.includes("3rd Prize:")) item.p3 = line.split(":")[1].trim();
+                    if (line.includes("Special:")) item.spec = line.split(":")[1].trim();
+                    if (line.includes("Consolation:")) item.cons = line.split(":")[1].trim();
+                }
+            });
+            if (item) dataGlobal.push(item);
+        } catch (e) { console.error("Gagal muat:", file); }
     }
+    // Urutkan data terbaru
+    dataGlobal.sort((a, b) => new Date(b.tgl) - new Date(a.tgl));
+    
+    // Panggil render setelah data siap
     if (typeof render === 'function') render();
 }
