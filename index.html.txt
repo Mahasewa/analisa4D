@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sapu Jagat Dashboard - Koh Alim</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #eef2f5; margin: 0; padding: 20px; }
+        .dashboard { max-width: 1100px; margin: auto; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .search-box { display: flex; background: white; border-radius: 25px; padding: 5px 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .search-box input { border: none; padding: 10px; outline: none; cursor: pointer; }
+        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        .card-header { background: #2c3e50; color: white; padding: 12px; text-align: center; font-weight: bold; }
+        .main-prizes { display: flex; justify-content: space-around; padding: 15px; background: #f8f9fa; border-bottom: 1px solid #eee; }
+        .num { font-size: 22px; font-weight: bold; }
+        .num.p1 { color: #e74c3c; font-size: 26px; }
+        .extra-prizes { padding: 15px; }
+        .grid-small { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin: 10px 0; }
+        .grid-small span { background: #fff; border: 1px solid #ddd; padding: 4px; text-align: center; font-size: 13px; font-weight: bold; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <header>
+        <h1><i class="fa-solid fa-chart-line"></i> ANALISA SAPU JAGAT</h1>
+        <div class="search-box">
+            <input type="date" id="inputKalender" onchange="cariDataOtomatis()">
+            <button onclick="cariDataOtomatis()"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+    </header>
+
+    <section class="latest-results">
+        <h2 id="lastUpdateTitle">Result Terakhir: --/--/----</h2>
+        <div class="result-grid">
+            <div class="card magnum">
+                <div class="card-header">MAGNUM 4D</div>
+                <div class="main-prizes">
+                    <div><small>1st</small><div class="num p1" id="mag1">----</div></div>
+                    <div><small>2nd</small><div class="num" id="mag2">----</div></div>
+                    <div><small>3rd</small><div class="num" id="mag3">----</div></div>
+                </div>
+                <div class="extra-prizes">
+                    <small>Special</small><div class="grid-small" id="magSpec"></div>
+                    <small>Consolation</small><div class="grid-small" id="magCons"></div>
+                </div>
+            </div>
+            <div class="card kuda">
+                <div class="card-header">DAMACAI 1+3D</div>
+                <div class="main-prizes">
+                    <div><small>1st</small><div class="num p1" id="kud1">----</div></div>
+                    <div><small>2nd</small><div class="num" id="kud2">----</div></div>
+                    <div><small>3rd</small><div class="num" id="kud3">----</div></div>
+                </div>
+                <div class="extra-prizes">
+                    <small>Special</small><div class="grid-small" id="kudSpec"></div>
+                    <small>Consolation</small><div class="grid-small" id="kudCons"></div>
+                </div>
+            </div>
+            <div class="card toto">
+                <div class="card-header">SPORTS TOTO</div>
+                <div class="main-prizes">
+                    <div><small>1st</small><div class="num p1" id="tot1">----</div></div>
+                    <div><small>2nd</small><div class="num" id="tot2">----</div></div>
+                    <div><small>3rd</small><div class="num" id="tot3">----</div></div>
+                </div>
+                <div class="extra-prizes">
+                    <small>Special</small><div class="grid-small" id="totSpec"></div>
+                    <small>Consolation</small><div class="grid-small" id="totCons"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    // Fungsi pemanggilan data asli dari perintah.js
+    async function ambilDataLengkap(fileName, prefix) {
+        try {
+            const response = await fetch(fileName);
+            const text = await response.text();
+            const baris = text.trim().split('\n');
+            let data = { tgl: "", p1: "-", p2: "-", p3: "-", spec: "-", cons: "-" };
+            for (let i = baris.length - 1; i >= 0; i--) {
+                let line = baris[i].trim();
+                if (line.includes("1st Prize:")) data.p1 = line.split(":")[1].trim();
+                if (line.includes("2nd Prize:")) data.p2 = line.split(":")[1].trim();
+                if (line.includes("3rd Prize:")) data.p3 = line.split(":")[1].trim();
+                if (line.includes("Special:")) data.spec = line.split(":")[1].trim();
+                if (line.includes("Consolation:")) data.cons = line.split(":")[1].trim();
+                if (line.includes("Tanggal Result:")) {
+                    data.tgl = line.split(":")[1].trim();
+                    break;
+                }
+            }
+            document.getElementById('lastUpdateTitle').innerText = "Result Terakhir: " + data.tgl;
+            document.getElementById(prefix + '1').innerText = data.p1;
+            document.getElementById(prefix + '2').innerText = data.p2;
+            document.getElementById(prefix + '3').innerText = data.p3;
+            const renderGrid = (id, teks) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.innerHTML = (teks !== "-") ? teks.split(', ').map(n => `<span>${n}</span>`).join('') : "";
+            };
+            renderGrid(prefix + 'Spec', data.spec);
+            renderGrid(prefix + 'Cons', data.cons);
+        } catch (err) { console.error("Gagal sedot: " + fileName, err); }
+    }
+
+    async function cariDiFile(fileName, prefix, tglTarget) {
+        try {
+            const response = await fetch(fileName);
+            const text = await response.text();
+            const baris = text.trim().split('\n');
+            let dataFound = { p1: "----", p2: "----", p3: "----", spec: "-", cons: "-" };
+            let ketemu = false;
+            for (let i = 0; i < baris.length; i++) {
+                if (baris[i].includes("Tanggal Result: " + tglTarget)) {
+                    ketemu = true;
+                    if (baris[i+1]) dataFound.p1 = baris[i+1].split(":")[1].trim();
+                    if (baris[i+2]) dataFound.p2 = baris[i+2].split(":")[1].trim();
+                    if (baris[i+3]) dataFound.p3 = baris[i+3].split(":")[1].trim();
+                    if (baris[i+4]) dataFound.spec = baris[i+4].split(":")[1].trim();
+                    if (baris[i+5]) dataFound.cons = baris[i+5].split(":")[1].trim();
+                    break;
+                }
+            }
+            document.getElementById(prefix + '1').innerText = dataFound.p1;
+            document.getElementById(prefix + '2').innerText = dataFound.p2;
+            document.getElementById(prefix + '3').innerText = dataFound.p3;
+            const renderGrid = (id, teks) => {
+                const el = document.getElementById(id);
+                el.innerHTML = (teks !== "-") ? teks.split(', ').map(n => `<span>${n}</span>`).join('') : "";
+            };
+            renderGrid(prefix + 'Spec', dataFound.spec);
+            renderGrid(prefix + 'Cons', dataFound.cons);
+            if (ketemu) document.getElementById('lastUpdateTitle').innerText = "Hasil Pencarian: " + tglTarget;
+        } catch (e) { console.log("Gagal mencari di " + fileName); }
+    }
+
+    function cariDataOtomatis() {
+        const tgl = document.getElementById('inputKalender').value;
+        if (!tgl) return;
+        cariDiFile('data_keluaran_magnum.txt', 'mag', tgl);
+        cariDiFile('data_keluaran_kuda.txt', 'kud', tgl);
+        cariDiFile('data_keluaran_toto.txt', 'tot', tgl);
+    }
+
+    // Jalankan saat pertama kali dibuka
+    ambilDataLengkap('data_keluaran_magnum.txt', 'mag');
+    ambilDataLengkap('data_keluaran_kuda.txt', 'kud');
+    ambilDataLengkap('data_keluaran_toto.txt', 'tot');
+</script>
+</body>
+</html>
