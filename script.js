@@ -41,6 +41,42 @@ function cariDataOtomatis() {
         cariDiFile('data_keluaran_toto.txt', 'tot', tgl);
     }
 
+// Tambahkan ini ke dalam file script.js Koh
+async function cariDiFile(fileName, prefix, tglTarget) {
+    try {
+        const response = await fetch(BASE_URL + fileName);
+        const text = await response.text();
+        const baris = text.trim().split('\n');
+        let dataFound = { p1: "----", p2: "----", p3: "----", spec: "-", cons: "-" };
+        let ketemu = false;
+        
+        for (let i = 0; i < baris.length; i++) {
+            if (baris[i].includes("Tanggal Result: " + tglTarget)) {
+                ketemu = true;
+                if (baris[i+1]) dataFound.p1 = baris[i+1].split(":")[1].trim();
+                if (baris[i+2]) dataFound.p2 = baris[i+2].split(":")[1].trim();
+                if (baris[i+3]) dataFound.p3 = baris[i+3].split(":")[1].trim();
+                if (baris[i+4]) dataFound.spec = baris[i+4].split(":")[1].trim();
+                if (baris[i+5]) dataFound.cons = baris[i+5].split(":")[1].trim();
+                break;
+            }
+        }
+        
+        document.getElementById(prefix + '1').innerText = dataFound.p1;
+        document.getElementById(prefix + '2').innerText = dataFound.p2;
+        document.getElementById(prefix + '3').innerText = dataFound.p3;
+        
+        const renderGrid = (id, teks) => {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = (teks !== "-") ? teks.split(', ').map(n => `<span>${n}</span>`).join('') : "";
+        };
+        renderGrid(prefix + 'Spec', dataFound.spec);
+        renderGrid(prefix + 'Cons', dataFound.cons);
+        
+        if (ketemu) document.getElementById('lastUpdateTitle').innerText = "Hasil Pencarian: " + tglTarget;
+    } catch (e) { console.error("Gagal cari data di " + fileName); }
+}
+
 // --- FUNGSI UNTUK HISTORY.HTML (Tabel Data) ---
 let dataGlobal = [];
 async function muatData() {
