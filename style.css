@@ -68,3 +68,33 @@ body { font-family: 'Segoe UI', sans-serif; background: #eef2f5; margin: 0; padd
     font-weight: bold; 
     border-radius: 4px; 
 }
+/* --- Menu Bar Centered --- */
+.menu-bar {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+    padding: 10px;
+}
+
+.btn-menu {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #333; /* Warna default Home */
+    color: white;
+}
+
+/* --- Sinkronisasi Warna --- */
+.btn-menu:nth-child(2) { background: #f1c40f; color: #000; } /* Magnum */
+.btn-menu:nth-child(3) { background: #3498db; color: #fff; } /* Kuda */
+.btn-menu:nth-child(4) { background: #e74c3c; color: #fff; } /* Toto */
+
+/* Efek saat diklik atau kursor diarahkan */
+.btn-menu:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
