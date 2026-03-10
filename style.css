@@ -75,6 +75,7 @@ body { font-family: 'Segoe UI', sans-serif; background: #eef2f5; margin: 0; padd
     gap: 15px;
     margin: 20px 0;
     padding: 10px;
+    width: 100%;
 }
 
 .btn-menu {
