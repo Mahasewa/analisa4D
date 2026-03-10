@@ -4,7 +4,14 @@
     <meta charset="UTF-8">
     <title>Sapu Jagat Dashboard</title>
     <style>
-    <link rel="stylesheet" href="style.css">
+		.card {
+    border: 5px solid red !important; /* Paksa muncul dengan garis merah */
+    background: yellow !important;    /* Paksa warna kuning */
+    display: block !important;
+    min-height: 100px;
+    margin: 20px;
+}
+    	<link rel="stylesheet" href="style.css">
     </style>
 </head>
 <body>
@@ -79,17 +86,18 @@
 		}
 
 		dataTampil.forEach(d => {
+			console.log("Sedang merender kartu untuk:", d.pasaran); // Tes apakah ini muncul di console?
 			kontainer.innerHTML += `
 				<div class="card">
 					<div class="card-header">${d.pasaran.toUpperCase()} - ${d.tgl}</div>
-					<div class="main-prizes">
-						<div><small>1st</small><div class="num p1">${d.p1}</div></div>
-						<div><small>2nd</small><div class="num">${d.p2}</div></div>
-						<div><small>3rd</small><div class="num">${d.p3}</div></div>
+					<div class="main-prizes" style="padding: 10px; text-align: center;">
+						<div>1st: <b>${d.p1}</b></div>
+						<div>2nd: <b>${d.p2}</b></div>
+						<div>3rd: <b>${d.p3}</b></div>
 					</div>
-					<div class="extra-prizes">
-						<small>Special</small><div class="grid-small">${renderSpan(d.spec)}</div>
-						<small>Consolation</small><div class="grid-small">${renderSpan(d.cons)}</div>
+					<div style="font-size: 12px; padding: 10px;">
+						Spec: ${d.spec}<br>
+						Cons: ${d.cons}
 					</div>
 				</div>`;
 		});
