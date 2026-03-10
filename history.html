@@ -9,20 +9,20 @@
 </head>
 <body>
 
-<nav class="menu-bar">
-    <button onclick="pilihPasaran('home')">HOME</button>
-    <button onclick="pilihPasaran('mag')">MAGNUM 4D</button>
-    <button onclick="pilihPasaran('kud')">DAMACAI 1+3D</button>
-    <button onclick="pilihPasaran('tot')">SPORTS TOTO</button>
-</nav>
+	<nav class="menu-bar">
+   	 <button onclick="pilihPasaran('home')">HOME</button>
+   	 <button onclick="pilihPasaran('mag')">MAGNUM 4D</button>
+   	 <button onclick="pilihPasaran('kud')">DAMACAI 1+3D</button>
+   	 <button onclick="pilihPasaran('tot')">SPORTS TOTO</button>
+	</nav>
 
-<div id="kontenData" class="result-grid">Memuat data...</div>
+	<div id="kontenData" class="result-grid">Memuat data...</div>
 
-<div class="nav-btns">
-    <button onclick="ubahHalaman(-1)">Previous</button>
-    <span id="infoHal">Halaman 1</span>
-    <button onclick="ubahHalaman(1)">Next</button>
-</div>
+	<div class="nav-btns">
+   	 <button onclick="ubahHalaman(-1)">Previous</button>
+  	  <span id="infoHal">Halaman 1</span>
+  	  <button onclick="ubahHalaman(1)">Next</button>
+	</div>
 
 <script>
 	let dataGlobal = [];
@@ -57,6 +57,7 @@
 					}
 				});
 				if (item) dataGlobal.push(item);
+				console.log("Data berhasil dimuat, jumlah:", dataGlobal.length);
 			} catch (e) { console.error("Gagal memuat: " + file_map[key]); }
 		}
 		dataGlobal.sort((a,b) => new Date(b.tgl) - new Date(a.tgl));
