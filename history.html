@@ -26,27 +26,32 @@
 	</div>
 <script src="script.js"></script>
 <script>
-    // Pemicu saat halaman pertama kali dibuka
-    document.addEventListener("DOMContentLoaded", async () => {
-        // 1. Muat data dulu dari GitHub
-        await muatData(); 
-        
-        // 2. Setelah data ada, paksa render halaman 'home'
-        pasaranAktif = 'home';
-        render(); 
-    });
-
-    // Fungsi Render di history.html
     function render() {
         const kontainer = document.getElementById('kontenData');
-        // Logika filter (pastikan 'home' menampilkan semua data)
         let filtered = (pasaranAktif === 'home') ? dataGlobal : dataGlobal.filter(d => d.pasaran === pasaranAktif);
+        let start = halAktif * 6;
+        let dataTampil = filtered.slice(start, start + 6);
         
-        // ... (sisanya isi logika filter/pagination Koh) ...
-        
-        // Contoh sederhana untuk tes:
-        kontainer.innerHTML = filtered.map(d => `<div class="card">${d.pasaran} - ${d.p1}</div>`).join('');
+        kontainer.innerHTML = dataTampil.length ? "" : "Data tidak ditemukan.";
+        dataTampil.forEach(d => {
+            kontainer.innerHTML += `
+                <div class="card">
+                    <div class="card-header">${d.pasaran.toUpperCase()} - ${d.tgl}</div>
+                    <div>1st: ${d.p1} | 2nd: ${d.p2} | 3rd: ${d.p3}</div>
+                    <div style="font-size:12px; margin-top:5px;">Spec: ${d.spec}</div>
+                    <div style="font-size:12px;">Cons: ${d.cons}</div>
+                </div>`;
+        });
+        document.getElementById('infoHal').innerText = "Halaman " + (halAktif + 1);
     }
+
+    function pilihPasaran(p) { pasaranAktif = p; halAktif = 0; render(); }
+    function ubahHalaman(dir) { 
+        halAktif = Math.max(0, halAktif + dir); 
+        render(); 
+    }
+
+    document.addEventListener("DOMContentLoaded", muatData);
 </script>
 </body>
 </html>
