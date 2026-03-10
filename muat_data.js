@@ -40,13 +40,15 @@ let dataGlobal = [];
     let start = halAktif * 6;
     let dataTampil = filtered.slice(start, start + 6);
 
-    // Mengosongkan kontainer sebelum diisi kartu baru
-    kontainer.innerHTML = "";
+    kontainer.innerHTML = ""; // Bersihkan kontainer sebelum diisi
 
     dataTampil.forEach(d => {
-        // Kita buat "kartu" untuk setiap baris data
+        // Tentukan class warna (pastikan d.pasaran bernilai 'mag', 'kud', atau 'tot')
+        let warnaClass = (d.pasaran === 'mag') ? 'warna-magnum' : 
+                         (d.pasaran === 'kud') ? 'warna-kuda' : 'warna-toto';
+
         kontainer.innerHTML += `
-            <div class="card ${d.pasaran}">
+            <div class="card ${warnaClass}">
                 <div class="card-header">${d.pasaran.toUpperCase()} - ${d.tgl}</div>
                 <div class="main-prizes">
                     <div><small>1st</small><div class="num p1">${d.p1}</div></div>
@@ -54,15 +56,14 @@ let dataGlobal = [];
                     <div><small>3rd</small><div class="num">${d.p3}</div></div>
                 </div>
                 <div class="extra-prizes">
-                    <small>Special</small><div class="grid-small">${d.spec}</div>
-                    <small>Consolation</small><div class="grid-small">${d.cons}</div>
+                    <small>Special</small><div class="grid-small">${d.spec.split(', ').map(n => `<span>${n}</span>`).join('')}</div>
+                    <small>Consolation</small><div class="grid-small">${d.cons.split(', ').map(n => `<span>${n}</span>`).join('')}</div>
                 </div>
             </div>`;
     });
     
     document.getElementById('infoHal').innerText = "Halaman " + (halAktif + 1);
 }
-
     function pilihPasaran(p) { pasaranAktif = p; halAktif = 0; render(); }
     function ubahHalaman(dir) { 
         halAktif = Math.max(0, halAktif + dir); 
