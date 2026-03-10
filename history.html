@@ -30,7 +30,7 @@
 	let halAktif = 0;
 
 	async function muatData() {
-		alert("Skrip berjalan!"); // Tambahkan ini untuk tes
+		
 		const file_map = {
 			"mag": "data_keluaran_magnum.txt",
 			"kud": "data_keluaran_kuda.txt",
@@ -58,7 +58,7 @@
 					}
 				});
 				if (item) dataGlobal.push(item);
-				console.log("Data berhasil dimuat, jumlah:", dataGlobal.length);
+				
 			} catch (e) { console.error("Gagal memuat: " + file_map[key]); }
 		}
 		dataGlobal.sort((a,b) => new Date(b.tgl) - new Date(a.tgl));
