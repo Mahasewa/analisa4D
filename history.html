@@ -57,30 +57,33 @@
         render();
     }
 
-    function render() {
-        const kontainer = document.getElementById('kontenData');
-        let filtered = (pasaranAktif === 'home') ? dataGlobal : dataGlobal.filter(d => d.pasaran === pasaranAktif);
-        let start = halAktif * 6;
-        let dataTampil = filtered.slice(start, start + 6);
-        
-        kontainer.innerHTML = dataTampil.length ? "" : "Data tidak ditemukan.";
-        dataTampil.forEach(d => {
-            kontainer.innerHTML += `
-                <div class="card">
-                    <div class="card-header">${d.pasaran.toUpperCase()} - ${d.tgl}</div>
-                    <div>1st: ${d.p1} | 2nd: ${d.p2} | 3rd: ${d.p3}</div>
-                    <div style="font-size:12px; margin-top:5px;">Spec: ${d.spec}</div>
-                    <div style="font-size:12px;">Cons: ${d.cons}</div>
-                </div>`;
-        });
-        document.getElementById('infoHal').innerText = "Halaman " + (halAktif + 1);
-    }
+    // Di history.html
+function render() {
+    const kontainer = document.getElementById('kontenData');
+    // ... (logika filter data tetap sama)
+    
+    kontainer.innerHTML = ""; // Bersihkan kontainer sebelum render
+    dataTampil.forEach(d => {
+        kontainer.innerHTML += `
+            <div class="card">
+                <div class="card-header">${d.pasaran.toUpperCase()} - ${d.tgl}</div>
+                <div class="main-prizes">
+                    <div><small>1st</small><div class="num p1">${d.p1}</div></div>
+                    <div><small>2nd</small><div class="num">${d.p2}</div></div>
+                    <div><small>3rd</small><div class="num">${d.p3}</div></div>
+                </div>
+                <div class="extra-prizes">
+                    <small>Special</small><div class="grid-small">${renderSpan(d.spec)}</div>
+                    <small>Consolation</small><div class="grid-small">${renderSpan(d.cons)}</div>
+                </div>
+            </div>`;
+    });
+}
 
-    function pilihPasaran(p) { pasaranAktif = p; halAktif = 0; render(); }
-    function ubahHalaman(dir) { 
-        halAktif = Math.max(0, halAktif + dir); 
-        render(); 
-    }
+function renderSpan(teks) {
+    if (teks === "-" || !teks) return "";
+    return teks.split(', ').map(n => `<span>${n}</span>`).join('');
+}
 
     document.addEventListener("DOMContentLoaded", muatData);
 </script>
