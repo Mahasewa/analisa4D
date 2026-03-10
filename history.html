@@ -25,9 +25,7 @@
   	  <button onclick="ubahHalaman(1)">Next</button>
 	</div>
 <script src="script.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", muatData);
-</script>
+
 <script>
 	function render() {
 		const kontainer = document.getElementById('kontenData');
@@ -76,6 +74,8 @@
 		halAktif = Math.max(0, halAktif + dir);
 		render(); 
 	}
+
+	document.addEventListener("DOMContentLoaded", muatData);
 
 </script>
 </body>
