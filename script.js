@@ -33,13 +33,6 @@ async function ambilDataLengkap(fileName, prefix) {
         renderGrid(prefix + 'Cons', data.cons);
     } catch (err) { console.error("Gagal ambil data: " + fileName, err); }
 }
-function cariDataOtomatis() {
-        const tgl = document.getElementById('inputKalender').value;
-        if (!tgl) return;
-        cariDiFile('data_keluaran_magnum.txt', 'mag', tgl);
-        cariDiFile('data_keluaran_kuda.txt', 'kud', tgl);
-        cariDiFile('data_keluaran_toto.txt', 'tot', tgl);
-    }
 
 // Tambahkan ini ke dalam file script.js Koh
 async function cariDiFile(fileName, prefix, tglTarget) {
