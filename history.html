@@ -26,6 +26,9 @@
 	</div>
 <script src="script.js"></script>
 <script>
+    document.addEventListener("DOMContentLoaded", muatData);
+</script>
+<script>
 	function render() {
 		const kontainer = document.getElementById('kontenData');
 		let filtered = (pasaranAktif === 'home') ? dataGlobal : dataGlobal.filter(d => d.pasaran === pasaranAktif);
@@ -74,7 +77,6 @@
 		render(); 
 	}
 
-	document.addEventListener("DOMContentLoaded", muatData);
 </script>
 </body>
 </html>
