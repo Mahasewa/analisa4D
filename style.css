@@ -1,61 +1,70 @@
+/* --- Pengaturan Dasar --- */
 body { font-family: 'Segoe UI', sans-serif; background: #eef2f5; margin: 0; padding: 20px; }
 .dashboard { max-width: 1100px; margin: auto; }
-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.search-box { display: flex; background: white; border-radius: 25px; padding: 5px 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-.search-box input { border: none; padding: 10px; outline: none; cursor: pointer; }
-.result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-.card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
-.card-header { background: #2c3e50; color: white; padding: 12px; text-align: center; font-weight: bold; }
-.main-prizes { display: flex; justify-content: space-around; padding: 15px; background: #f8f9fa; border-bottom: 1px solid #eee; }
-.num { font-size: 22px; font-weight: bold; }
-.num.p1 { color: #e74c3c; font-size: 26px; }
-.extra-prizes { padding: 15px; }
-.grid-small { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin: 10px 0; }
-.grid-small span { background: #fff; border: 1px solid #ddd; padding: 4px; text-align: center; font-size: 13px; font-weight: bold; border-radius: 4px; }
-/* Styling untuk Kartu Data */
+
+/* --- Struktur Grid Kartu --- */
 .history-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 20px;
     padding: 20px;
 }
 
-.card {
-    border: 2px solid #ccc; /* Garis tepi kartu */
-    border-radius: 12px;
-    padding: 15px;
-    background-color: white;
-    box-shadow: 4px 4px 8px rgba(0,0,0,0.1);
+/* --- Tampilan Kartu Dasar --- */
+.card { 
+    background: white; 
+    border-radius: 15px; 
+    overflow: hidden; 
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1); 
+    border: 2px solid #ccc;
+    margin-bottom: 20px;
 }
 
-.card-header {
+.card-header { 
+    color: white; 
+    padding: 12px; 
+    text-align: center; 
     font-weight: bold;
-    text-align: center;
-    background-color: #f0f0f0;
-    padding: 10px;
-    border-bottom: 2px solid #ccc; /* Garis pemisah header */
-    margin-bottom: 10px;
-    border-radius: 8px 8px 0 0;
+    font-size: 1.1rem;
 }
 
-.main-prizes {
-    display: flex;
-    justify-content: space-around;
-    text-align: center;
-    margin-bottom: 15px;
+/* --- Warna Khusus Pasaran --- */
+.warna-magnum { border-color: #f1c40f; }
+.warna-magnum .card-header { background: #f1c40f; color: #000; }
+
+.warna-kuda { border-color: #3498db; }
+.warna-kuda .card-header { background: #3498db; }
+
+.warna-toto { border-color: #e74c3c; }
+.warna-toto .card-header { background: #e74c3c; }
+
+/* --- Isi Kartu --- */
+.main-prizes { 
+    display: flex; 
+    justify-content: space-around; 
+    padding: 15px; 
+    background: #f8f9fa; 
+    border-bottom: 1px solid #eee; 
 }
 
-.num {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #d9534f;
+.num { font-size: 22px; font-weight: bold; color: #333; }
+.num.p1 { color: #e74c3c; font-size: 26px; }
+
+.extra-prizes { padding: 15px; }
+
+.grid-small { 
+    display: grid; 
+    grid-template-columns: repeat(5, 1fr); 
+    gap: 5px; 
+    margin: 10px 0; 
 }
 
-.grid-small {
-    font-family: monospace;
-    background: #f9f9f9;
-    padding: 5px;
-    border: 1px dashed #999;
-    margin-top: 5px;
-    word-wrap: break-word;
+.grid-small span { 
+    background: #fff; 
+    border: 1px solid #ddd; 
+    padding: 4px; 
+    text-align: center; 
+    font-size: 13px; 
+    font-weight: bold; 
+    border-radius: 4px; 
 }
