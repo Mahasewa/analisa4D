@@ -12,9 +12,50 @@ header { display: flex; justify-content: space-between; align-items: center; mar
 .extra-prizes { padding: 15px; }
 .grid-small { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin: 10px 0; }
 .grid-small span { background: #fff; border: 1px solid #ddd; padding: 4px; text-align: center; font-size: 13px; font-weight: bold; border-radius: 4px; }
+/* Styling untuk Kartu Data */
 .history-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
     padding: 20px;
+}
+
+.card {
+    border: 2px solid #ccc; /* Garis tepi kartu */
+    border-radius: 12px;
+    padding: 15px;
+    background-color: white;
+    box-shadow: 4px 4px 8px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    font-weight: bold;
+    text-align: center;
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-bottom: 2px solid #ccc; /* Garis pemisah header */
+    margin-bottom: 10px;
+    border-radius: 8px 8px 0 0;
+}
+
+.main-prizes {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.num {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #d9534f;
+}
+
+.grid-small {
+    font-family: monospace;
+    background: #f9f9f9;
+    padding: 5px;
+    border: 1px dashed #999;
+    margin-top: 5px;
+    word-wrap: break-word;
 }
