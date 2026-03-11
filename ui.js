@@ -58,3 +58,7 @@ document.addEventListener('input', (e) => {
     if (e.target.classList.contains('f-kop') && e.target.value.length === 1) e.target.nextElementSibling.focus();
     if (e.target.classList.contains('f-kep') && e.target.value.length === 1) e.target.nextElementSibling.focus();
 });
+function renderHasil(data) {
+    const output = document.getElementById('outputHasil');
+    output.innerHTML = `<h3>Hasil (${data.length} line):</h3><pre>${data.join('\n')}</pre>`;
+}
