@@ -8,6 +8,8 @@ async function scanAngka() {
     }
 
     kontainerHasil.innerHTML = "Sedang mencari...";
+    // Opsional: hapus input setelah enter
+    document.getElementById('inputScan').value = "";
 
     const daftarFile = [
         { url: 'data_keluaran_magnum.txt', nama: 'MAGNUM', class: 'warna-magnum' },
