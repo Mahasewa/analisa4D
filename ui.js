@@ -58,7 +58,21 @@ document.addEventListener('input', (e) => {
     if (e.target.classList.contains('f-kop') && e.target.value.length === 1) e.target.nextElementSibling.focus();
     if (e.target.classList.contains('f-kep') && e.target.value.length === 1) e.target.nextElementSibling.focus();
 });
+// ui.js - Bagian untuk menampilkan hasil
 function renderHasil(data) {
     const output = document.getElementById('outputHasil');
-    output.innerHTML = `<h3>Hasil (${data.length} line):</h3><pre>${data.join('\n')}</pre>`;
+    
+    // Cek apakah ada data
+    if (data.length === 0) {
+        output.innerHTML = "<p>Tidak ada angka yang cocok, Koh.</p>";
+        return;
+    }
+
+    // Tampilan hasil dalam bentuk kode blok yang mudah dicopy
+    output.innerHTML = `
+        <div class="result-block">
+            <h3>HASIL 4D ACAK (${data.length} line)</h3>
+            <textarea style="width: 100%; height: 200px; font-family: monospace;">${data.join('\n')}</textarea>
+        </div>
+    `;
 }
