@@ -74,12 +74,19 @@ async function scanAngka() {
         kontainerHasil.innerHTML = `<div class="no-data">NOMOR PERAWAN</div>`;
     }
 }
-// Mendengarkan event tombol keyboard pada input field
-document.getElementById('inputScan').addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        // Mencegah form submit default jika ada
-        e.preventDefault();
-        // Memanggil fungsi scan yang sudah ada
+// Listener untuk tombol Enter
+const inputScan = document.getElementById('inputScan');
+
+inputScan.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault(); // Mencegah submit form bawaan
+        
+        // Panggil fungsi utama
         scanAngka();
+        
+        // Kasih jeda sedikit (delay) supaya teks tidak hilang sebelum diproses
+        setTimeout(() => {
+            inputScan.value = ""; 
+        }, 100); 
     }
 });
