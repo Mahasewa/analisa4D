@@ -1,0 +1,36 @@
+/* Tampilan khusus untuk kartu hasil pencarian */
+.search-results-container {
+    margin-top: 20px;
+    padding: 10px;
+}
+
+.card-win {
+    border: 3px solid #27ae60 !important; /* Border hijau untuk tanda menang */
+    background: #f1fdf5 !important;
+    animation: muncul 0.5s ease-in-out;
+}
+
+.status-label {
+    text-align: center;
+    font-weight: bold;
+    padding: 10px;
+    background: #e74c3c;
+    color: white;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.no-data {
+    text-align: center;
+    font-weight: bold;
+    color: #e74c3c;
+    font-size: 1.2rem;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+}
+
+@keyframes muncul {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
