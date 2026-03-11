@@ -22,6 +22,11 @@
     <a href="index.html" class="btn-menu btn-home active">HOME</a>
     <a href="history.html" class="btn-menu btn-history">HISTORY</a>
     </nav>
+    <section style="max-width: 500px; margin: 20px auto; text-align: center;">
+        <input type="text" id="inputScan" placeholder="Masukkan 4 angka..." maxlength="4" style="padding:10px; border-radius:10px; border:1px solid #ccc;">
+        <button onclick="scanAngka()" style="padding:10px 20px; cursor:pointer;">SCAN</button>
+        <div id="hasilScan"></div>
+    </section>
    <section class="latest-results">
         <h2 id="lastUpdateTitle" style="text-align: center; margin-bottom: 20px;">Result Terakhir: --/--/----</h2>
         
@@ -66,7 +71,7 @@
             </div>
         </div>
     </section>
-</div>
+
 <script>
     function cariDataOtomatis() {
         const tgl = document.getElementById('inputKalender').value;
@@ -89,6 +94,7 @@
 <script src="matching.js"></script>
 </body>
 </html>
+
 
 
 
