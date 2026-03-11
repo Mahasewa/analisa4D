@@ -1,1 +1,38 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Sapu Jagat - BBFS Generator</title>
+    <link rel="stylesheet" href="bbfs.css">
+</head>
+<body>
+    <div class="bbfs-container">
+        <h2>BBFS SAPU JAGAT</h2>
+        
+        <input type="text" id="inputBBFS" placeholder="Masukkan digit (contoh: 01234567)" maxlength="10">
+        
+        <div class="market-filters">
+            <label><input type="checkbox" value="magnum"> MAGNUM</label>
+            <label><input type="checkbox" value="kuda"> KUDA</label>
+            <label><input type="checkbox" value="toto"> TOTO</label>
+        </div>
 
+        <div id="filterContainer">
+            <div class="filter-row">
+                <input type="text" class="f-as" maxlength="1" placeholder="As">
+                <input type="text" class="f-kop" maxlength="1" placeholder="Kop">
+                <input type="text" class="f-kep" maxlength="1" placeholder="Kep">
+                <input type="text" class="f-ekor" maxlength="1" placeholder="Ekor">
+            </div>
+        </div>
+        <button onclick="tambahBarisFilter()">+ Tambah Baris Filter</button>
+        <button onclick="jalankanProses()" class="btn-scan">GENERATE</button>
+
+        <div id="outputHasil"></div>
+    </div>
+
+    <script src="core.js"></script>
+    <script src="filter.js"></script>
+    <script src="ui.js"></script>
+</body>
+</html>
