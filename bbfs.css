@@ -5,3 +5,13 @@ input { padding: 10px; margin: 5px; border: 1px solid #ccc; border-radius: 5px; 
 .filter-row { margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
 #outputHasil { margin-top: 20px; }
 .result-block { background: #fff; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 8px; }
+.result-flow {
+    font-family: 'Courier New', monospace;
+    word-break: break-all; /* Memaksa ganti baris jika sudah mentok */
+    background: #fff;
+    padding: 15px;
+    border: 1px solid #ddd;
+    line-height: 1.5;
+    letter-spacing: 2px;
+    text-align: justify;
+}
