@@ -1,17 +1,13 @@
-.bbfs-container { max-width: 600px; margin: 20px auto; padding: 20px; background: #f9f9f9; border-radius: 15px; }
-input { padding: 10px; margin: 5px; border: 1px solid #ccc; border-radius: 5px; }
-.f-as, .f-kop, .f-kep, .f-ekor { width: 40px; text-align: center; }
-.btn-scan { background: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-.filter-row { margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
-#outputHasil { margin-top: 20px; }
-.result-block { background: #fff; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 8px; }
+.bbfs-container { max-width: 600px; margin: 20px auto; padding: 20px; font-family: sans-serif; }
+.filter-row { margin-bottom: 5px; }
+input { width: 40px; padding: 5px; text-align: center; }
 .result-flow {
-    font-family: 'Courier New', monospace;
-    word-break: break-all; /* Memaksa ganti baris jika sudah mentok */
-    background: #fff;
-    padding: 15px;
-    border: 1px solid #ddd;
-    line-height: 1.5;
-    letter-spacing: 2px;
-    text-align: justify;
+    font-family: monospace;
+    word-break: break-all;
+    background: #eee;
+    padding: 10px;
+    border: 1px solid #000;
+    line-height: 1.2;
+    letter-spacing: 0px;
+    margin-top: 10px;
 }
