@@ -1,78 +1,60 @@
-// ui.js - Fokus pada interaksi tombol dan display
+// ui.js - Kode yang sudah disatukan dan lengkap
 
-// Fungsi untuk menambah baris filter
-function tambahBarisFilter() {
-    const container = document.getElementById('filterContainer');
-    const div = document.createElement('div');
-    div.innerHTML = `
-        <input type="text" class="filter-pos" placeholder="As" maxlength="1">
-        <input type="text" class="filter-pos" placeholder="Kop" maxlength="1">
-        <input type="text" class="filter-pos" placeholder="Kep" maxlength="1">
-        <input type="text" class="filter-pos" placeholder="Ekor" maxlength="1">
-    `;
-    container.appendChild(div);
-}
-
-// Fungsi utama trigger proses
-async function jalankanProses() {
-    // 1. Ambil input BBFS
-    const inputBBFS = document.getElementById('inputBBFS').value;
-    let data = generateBBFS(inputBBFS, 4); // Panggil dari core.js
-    
-    // 2. Jalankan Filter
-    data = filterByPosisi(data, ambilRulesDariUI()); // Panggil dari filter.js
-    
-    // 3. Tampilkan di UI
-    renderHasil(data);
-}
-// ui.js - Jembatan Antar File
+// 1. Fungsi Utama untuk Generate
 function jalankanProses() {
     const inputBBFS = document.getElementById('inputBBFS').value;
     if (inputBBFS.length < 4) { alert("Minimal 4 digit, Koh!"); return; }
 
-    // 1. Generate Kombinasi (dari core.js)
+    // Generate kombinasi (dari core.js)
     let hasil = generateBBFS(inputBBFS, 4); 
 
-    // 2. Ambil Filter Posisi dari UI
-    const rows = document.querySelectorAll('#filterContainer .filter-row');
+    // Ambil Filter Posisi dari UI
+    const rows = document.querySelectorAll('.filter-row');
     let rules = [];
     rows.forEach(row => {
-        rules.push({
-            as: row.querySelector('.f-as').value,
-            kop: row.querySelector('.f-kop').value,
-            kepala: row.querySelector('.f-kep').value,
-            ekor: row.querySelector('.f-ekor').value
-        });
+        const as = row.querySelector('.f-as').value;
+        const kop = row.querySelector('.f-kop').value;
+        const kepala = row.querySelector('.f-kep').value;
+        const ekor = row.querySelector('.f-ekor').value;
+        
+        // Hanya tambahkan jika ada isi
+        if (as || kop || kepala || ekor) {
+            rules.push({ as, kop, kepala, ekor });
+        }
     });
 
-    // 3. Filter (dari filter.js)
+    // Jalankan Filter (dari filter.js)
     hasil = filterByPosisi(hasil, rules);
 
-    // 4. Tampilkan
+    // Tampilkan hasil
     renderHasil(hasil);
 }
 
-// Fungsi bantu pindah kursor otomatis
-document.addEventListener('input', (e) => {
-    if (e.target.classList.contains('f-as') && e.target.value.length === 1) e.target.nextElementSibling.focus();
-    if (e.target.classList.contains('f-kop') && e.target.value.length === 1) e.target.nextElementSibling.focus();
-    if (e.target.classList.contains('f-kep') && e.target.value.length === 1) e.target.nextElementSibling.focus();
-});
-// ui.js - Bagian untuk menampilkan hasil
+// 2. Fungsi untuk Menampilkan Hasil (Pemicu Error sebelumnya)
 function renderHasil(data) {
     const output = document.getElementById('outputHasil');
-    
-    // Cek apakah ada data
     if (data.length === 0) {
         output.innerHTML = "<p>Tidak ada angka yang cocok, Koh.</p>";
         return;
     }
-
-    // Tampilan hasil dalam bentuk kode blok yang mudah dicopy
     output.innerHTML = `
         <div class="result-block">
             <h3>HASIL 4D ACAK (${data.length} line)</h3>
             <textarea style="width: 100%; height: 200px; font-family: monospace;">${data.join('\n')}</textarea>
         </div>
     `;
+}
+
+// 3. Fungsi Tambah Baris Filter
+function tambahBarisFilter() {
+    const container = document.getElementById('filterContainer');
+    const div = document.createElement('div');
+    div.className = 'filter-row';
+    div.innerHTML = `
+        <input type="text" class="f-as" maxlength="1" placeholder="As">
+        <input type="text" class="f-kop" maxlength="1" placeholder="Kop">
+        <input type="text" class="f-kep" maxlength="1" placeholder="Kep">
+        <input type="text" class="f-ekor" maxlength="1" placeholder="Ekor">
+    `;
+    container.appendChild(div);
 }
