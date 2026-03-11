@@ -25,3 +25,36 @@ async function jalankanProses() {
     // 3. Tampilkan di UI
     renderHasil(data);
 }
+// ui.js - Jembatan Antar File
+function jalankanProses() {
+    const inputBBFS = document.getElementById('inputBBFS').value;
+    if (inputBBFS.length < 4) { alert("Minimal 4 digit, Koh!"); return; }
+
+    // 1. Generate Kombinasi (dari core.js)
+    let hasil = generateBBFS(inputBBFS, 4); 
+
+    // 2. Ambil Filter Posisi dari UI
+    const rows = document.querySelectorAll('#filterContainer .filter-row');
+    let rules = [];
+    rows.forEach(row => {
+        rules.push({
+            as: row.querySelector('.f-as').value,
+            kop: row.querySelector('.f-kop').value,
+            kepala: row.querySelector('.f-kep').value,
+            ekor: row.querySelector('.f-ekor').value
+        });
+    });
+
+    // 3. Filter (dari filter.js)
+    hasil = filterByPosisi(hasil, rules);
+
+    // 4. Tampilkan
+    renderHasil(hasil);
+}
+
+// Fungsi bantu pindah kursor otomatis
+document.addEventListener('input', (e) => {
+    if (e.target.classList.contains('f-as') && e.target.value.length === 1) e.target.nextElementSibling.focus();
+    if (e.target.classList.contains('f-kop') && e.target.value.length === 1) e.target.nextElementSibling.focus();
+    if (e.target.classList.contains('f-kep') && e.target.value.length === 1) e.target.nextElementSibling.focus();
+});
