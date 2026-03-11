@@ -72,3 +72,12 @@ async function scanAngka() {
         kontainerHasil.innerHTML = `<div class="no-data">NOMOR PERAWAN</div>`;
     }
 }
+// Mendengarkan event tombol keyboard pada input field
+document.getElementById('inputScan').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        // Mencegah form submit default jika ada
+        e.preventDefault();
+        // Memanggil fungsi scan yang sudah ada
+        scanAngka();
+    }
+});
