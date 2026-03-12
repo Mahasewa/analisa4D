@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>BBFS Pro v2 - Detail Pola & Filter</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 20px; background-color: #f0f2f5; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input[type="text"], select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        .checkbox-group { margin: 15px 0; background: #fff9e6; padding: 10px; border-radius: 6px; border: 1px solid #ffe58f; }
+        button { width: 100%; padding: 15px; background-color: #28a745; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .category-header { display: flex; justify-content: space-between; align-items: center; background: #e7f3ff; padding: 8px 12px; border-radius: 4px; margin: 15px 0 5px 0; border-left: 4px solid #007bff; }
+        .category-title { font-weight: bold; color: #007bff; }
+        .btn-pilih-pola { background: #007bff; color: white; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .result-container { background: #272822; color: #f8f8f2; padding: 15px; border-radius: 6px; font-family: 'Courier New', monospace; line-height: 1.8; word-wrap: break-word; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); }
+        .modal-content { background: white; margin: 5% auto; padding: 25px; width: 90%; max-width: 500px; border-radius: 12px; max-height: 80vh; overflow-y: auto; }
+        .pola-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .pola-item input { margin-right: 10px; }
+        .line-count { color: #28a745; font-weight: bold; font-size: 14px; }
+        .btn-gabung-aksi { background: #ffc107; color: #000; width: 100%; padding: 15px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>BBFS Pro v2 - Analisis Pola Lurus</h2>
+    <label>Input Angka BBFS:</label>
+    <input type="text" id="inputAngka" placeholder="Contoh: 0123456789" maxlength="10">
+    <label>Pilih Pasaran:</label>
+    <select id="filePasaran">
+        <option value="data_keluaran_magnum.txt">Magnum 4D</option>
+        <option value="data_keluaran_kuda.txt">Damacai / Kuda</option>
+        <option value="data_keluaran_toto.txt">Sports Toto</option>
+    </select>
+    <div class="checkbox-group">
+        <label><input type="checkbox" id="useFilter" checked> Eliminasi 4D yang pernah keluar (Lurus)</label>
+    </div>
+    <button onclick="prosesMain()">GENERATE & FILTER</button>
+    <div id="infoBox" style="margin-top:10px; font-weight:bold; color:#28a745;"></div>
+    <div class="result-section" id="hasilArea"></div>
+</div>
+
+<div id="modalPola" class="modal">
+    <div class="modal-content">
+        <h3>Pilih Detail Pola Twin & Triple</h3>
+        <div id="daftarPola"></div>
+        <button class="btn-gabung-aksi" onclick="gabungkanPola()">GABUNGKAN POLA TERPILIH</button>
+        <button onclick="tutupModal()" style="width:100%; margin-top:10px; border:none; background:none; color:grey; cursor:pointer;">Tutup</button>
+    </div>
+</div>
+
+<script>
+let storagePola = {};
+
+function bukaModal() { document.getElementById('modalPola').style.display = 'block'; renderDaftarPola(); }
+function tutupModal() { document.getElementById('modalPola').style.display = 'none'; }
+
+async function prosesMain() {
+    const inputStr = document.getElementById('inputAngka').value;
+    const fileName = document.getElementById('filePasaran').value;
+    const useFilter = document.getElementById('useFilter').checked;
+    const digits = [...new Set(inputStr.split(''))];
+    let historySet = new Set();
+
+    if (useFilter) {
+        try {
+            const response = await fetch(fileName);
+            const text = await response.text();
+            historySet = new Set(text.match(/\d{4}/g) || []);
+        } catch (e) {}
+    }
+
+    storagePola = { "AABB": [], "ABAB": [], "ABBA": [], "AABC": [], "ABAC": [], "ABCA": [], "BAAC": [], "BACA": [], "BCAA": [], "TRIPLE": [] };
+    let resMurni = [], resQuad = [], eliminated = 0;
+
+    for (let a of digits) {
+        for (let b of digits) {
+            for (let c of digits) {
+                for (let d of digits) {
+                    let k = a + b + c + d;
+                    if (useFilter && historySet.has(k)) { eliminated++; continue; }
+                    let u = new Set([a, b, c, d]).size;
+                    if (u === 4) resMurni.push(k);
+                    else if (u === 1) resQuad.push(k);
+                    else if (u === 2) {
+                        if (isTriple(a, b, c, d)) storagePola["TRIPLE"].push(k);
+                        else {
+                            if (a === b && c === d) storagePola["AABB"].push(k);
+                            else if (a === c && b === d) storagePola["ABAB"].push(k);
+                            else if (a === d && b === c) storagePola["ABBA"].push(k);
+                        }
+                    } else if (u === 3) {
+                        if (a === b) storagePola["AABC"].push(k);
+                        else if (a === c) storagePola["ABAC"].push(k);
+                        else if (a === d) storagePola["ABCA"].push(k);
+                        else if (b === c) storagePola["BAAC"].push(k);
+                        else if (b === d) storagePola["BACA"].push(k);
+                        else if (c === d) storagePola["BCAA"].push(k);
+                    }
+                }
+            }
+        }
+    }
+
+    let allTwin = Object.values(storagePola).flat().filter(x => !storagePola.TRIPLE.includes(x));
+    document.getElementById('infoBox').innerText = `Tereliminasi: ${eliminated} line`;
+    document.getElementById('hasilArea').innerHTML = `
+        ${renderKategori("Hasil 4D MURNI", resMurni)}
+        ${renderKategori("Hasil 4D TWIN", allTwin, true)}
+        ${renderKategori("Hasil 4D TRIPLE", storagePola.TRIPLE, true)}
+        ${renderKategori("Hasil 4D QUAD", resQuad)}
+        <div id="tempatGabungan"></div>
+    `;
+}
+
+function isTriple(a, b, c, d) {
+    let m = {}; [a,b,c,d].forEach(x => m[x] = (m[x]||0)+1);
+    return Object.values(m).includes(3);
+}
+
+function renderKategori(t, d, b = false) {
+    if (d.length === 0) return "";
+    return `<div class="category-header"><span class="category-title">${t} (${d.length} line)</span>${b ? `<div class="btn-pilih-pola" onclick="bukaModal()">(Pilih Pola)</div>` : ""}</div><div class="result-container">${d.join('*')}</div>`;
+}
+
+function renderDaftarPola() {
+    let html = "";
+    for (let p in storagePola) {
+        if (storagePola[p].length > 0) {
+            html += `<label class="pola-item"><span><input type="checkbox" value="${p}"> Pola ${p}</span><span class="line-count">(${storagePola[p].length} line)</span></label>`;
+        }
+    }
+    document.getElementById('daftarPola').innerHTML = html;
+}
+
+function gabungkanPola() {
+    let gab = [], n = [];
+    document.querySelectorAll('#daftarPola input:checked').forEach(c => { gab = gab.concat(storagePola[c.value]); n.push(c.value); });
+    if (gab.length === 0) return alert("Pilih pola!");
+    const t = document.getElementById('tempatGabungan');
+    t.innerHTML = `<div class="category-header" style="background:#ffc107; margin-top:30px;"><span class="category-title" style="color:#000">GABUNGAN: ${n.join(', ')}</span><span style="color:#000; font-weight:bold">${gab.length} line</span></div><div class="result-container" style="border:2px solid #ffc107">${gab.join('*')}</div>`;
+    tutupModal();
+    t.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
