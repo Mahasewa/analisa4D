@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BBFS Generator Pro v2 - Pola & Filter</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background-color: #f0f2f5; color: #333; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input[type="text"], select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        
+        .checkbox-group { margin: 15px 0; background: #fff9e6; padding: 10px; border-radius: 6px; border: 1px solid #ffe58f; }
+        button { width: 100%; padding: 15px; background-color: #28a745; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        button:hover { background-color: #218838; }
+
+        /* Tampilan Hasil */
+        .result-section { margin-top: 25px; }
+        .category-header { display: flex; justify-content: space-between; align-items: center; background: #e7f3ff; padding: 8px 12px; border-radius: 4px; margin: 15px 0 5px 0; border-left: 4px solid #007bff; }
+        .category-title { font-weight: bold; color: #007bff; }
+        .btn-pilih-pola { background: #007bff; color: white; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; text-decoration: none; font-weight: bold; }
+        .btn-pilih-pola:hover { background: #0056b3; }
+
+        .result-container { background: #272822; color: #f8f8f2; padding: 15px; border-radius: 6px; font-family: 'Courier New', Courier, monospace; line-height: 1.8; word-wrap: break-word; font-size: 15px; }
+        .summary { margin-top: 20px; padding: 15px; border-left: 5px solid #28a745; background: #f8fff9; display:none; }
+
+        /* Modal Style */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); }
+        .modal-content { background: white; margin: 10% auto; padding: 25px; width: 90%; max-width: 450px; border-radius: 12px; position: relative; }
+        .modal-content h3 { margin-top: 0; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .pola-list { margin: 20px 0; }
+        .pola-item { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #f9f9f9; font-size: 16px; cursor: pointer; }
+        .pola-item input { margin-right: 15px; transform: scale(1.3); }
+        .btn-gabung-aksi { background: #ffc107; color: #000; width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .btn-gabung-aksi:hover { background: #e0a800; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>BBFS Pro v2 (Smart Filter & Pola)</h2>
+    
+    <label>Input Angka BBFS (Maks 10 Digit):</label>
+    <input type="text" id="inputAngka" placeholder="Contoh: 0123456789" maxlength="10">
+
+    <label>Pilih Pasaran:</label>
+    <select id="filePasaran">
+        <option value="data_keluaran_magnum.txt">Magnum 4D</option>
+        <option value="data_keluaran_kuda.txt">Damacai / Kuda</option>
+        <option value="data_keluaran_toto.txt">Sports Toto</option>
+    </select>
+
+    <div class="checkbox-group">
+        <label style="cursor: pointer;">
+            <input type="checkbox" id="useFilter" checked> Eliminasi kombinasi yang sudah pernah keluar (Lurus)
+        </label>
+    </div>
+
+    <button onclick="prosesMain()">Generate & Filter Semua Kategori</button>
+
+    <div id="infoBox" class="summary"></div>
+
+    <div class="result-section" id="hasilArea">
+        </div>
+</div>
+
+<div id="modalPola" class="modal">
+    <div class="modal-content">
+        <h3>Pilih Pola Twin & Triple</h3>
+        <div class="pola-list" id="daftarPola">
+            <label class="pola-item"><input type="checkbox" value="AABB"> Pola AABB</label>
+            <label class="pola-item"><input type="checkbox" value="ABAB"> Pola ABAB</label>
+            <label class="pola-item"><input type="checkbox" value="ABBA"> Pola ABBA</label>
+            <label class="pola-item"><input type="checkbox" value="TWIN_LAIN"> Twin 1 Pasang (AABC, dll)</label>
+            <label class="pola-item"><input type="checkbox" value="TRIPLE"> Pola Triple (AAAB)</label>
+        </div>
+        <button class="btn-gabung-aksi" onclick="gabungkanPola()">GABUNGKAN POLA TERPILIH</button>
+        <button onclick="tutupModal()" style="width:100%; margin-top:10px; border:none; background:none; color:grey; cursor:pointer;">Batal</button>
+    </div>
+</div>
+
+<script>
+// Variabel Global untuk menyimpan data pola hasil generate terakhir
+let storagePola = {
+    "AABB": [], "ABAB": [], "ABBA": [], "TWIN_LAIN": [], "TRIPLE": []
+};
+
+function bukaModal() { document.getElementById('modalPola').style.display = 'block'; }
+function tutupModal() { document.getElementById('modalPola').style.display = 'none'; }
+
+async function prosesMain() {
+    const inputStr = document.getElementById('inputAngka').value;
+    const fileName = document.getElementById('filePasaran').value;
+    const useFilter = document.getElementById('useFilter').checked;
+    const hasilArea = document.getElementById('hasilArea');
+    const infoBox = document.getElementById('infoBox');
+
+    if (inputStr.length < 1) { alert("Masukkan angka!"); return; }
+
+    const digits = [...new Set(inputStr.split(''))];
+    let historySet = new Set();
+
+    if (useFilter) {
+        try {
+            const response = await fetch(fileName);
+            const text = await response.text();
+            const history4D = text.match(/\d{4}/g) || [];
+            historySet = new Set(history4D);
+        } catch (err) {
+            console.warn("File filter tidak ditemukan.");
+        }
+    }
+
+    // Reset Storage Pola
+    storagePola = { "AABB": [], "ABAB": [], "ABBA": [], "TWIN_LAIN": [], "TRIPLE": [] };
+    let resMurni = [], resQuad = [];
+    let eliminated = 0;
+
+    // Generator 4D Full Set
+    for (let a of digits) {
+        for (let b of digits) {
+            for (let c of digits) {
+                for (let d of digits) {
+                    let kombinasi = a + b + c + d;
+                    if (useFilter && historySet.has(kombinasi)) { eliminated++; continue; }
+
+                    let u = new Set([a, b, c, d]).size;
+                    if (u === 4) resMurni.push(kombinasi);
+                    else if (u === 1) resQuad.push(kombinasi);
+                    else if (u === 2) {
+                        if (isTriple(a, b, c, d)) storagePola["TRIPLE"].push(kombinasi);
+                        else {
+                            if (a === b && c === d) storagePola["AABB"].push(kombinasi);
+                            else if (a === c && b === d) storagePola["ABAB"].push(kombinasi);
+                            else if (a === d && b === c) storagePola["ABBA"].push(kombinasi);
+                            else storagePola["TWIN_LAIN"].push(kombinasi);
+                        }
+                    } else if (u === 3) storagePola["TWIN_LAIN"].push(kombinasi);
+                }
+            }
+        }
+    }
+
+    // Hitung Total Twin untuk tampilan utama
+    let allTwin = [...storagePola.AABB, ...storagePola.ABAB, ...storagePola.ABBA, ...storagePola.TWIN_LAIN];
+    let allTriple = storagePola.TRIPLE;
+
+    infoBox.style.display = "block";
+    infoBox.innerHTML = `<b>Filter Aktif:</b> Membuang ${eliminated} line yang sudah pernah keluar di ${fileName}.`;
+
+    hasilArea.innerHTML = `
+        ${renderKategori("Hasil 4D MURNI", resMurni)}
+        ${renderKategori("Hasil 4D TWIN", allTwin, true)}
+        ${renderKategori("Hasil 4D TRIPLE", allTriple, true)}
+        ${renderKategori("Hasil 4D QUAD", resQuad)}
+        <div id="tempatGabungan"></div>
+    `;
+}
+
+function isTriple(a, b, c, d) {
+    let counts = {};
+    [a, b, c, d].forEach(x => counts[x] = (counts[x] || 0) + 1);
+    return Object.values(counts).includes(3);
+}
+
+function renderKategori(title, data, adaPola = false) {
+    if (data.length === 0) return "";
+    let btn = adaPola ? `<div class="btn-pilih-pola" onclick="bukaModal()">(Pilih Pola)</div>` : "";
+    return `
+        <div class="category-header">
+            <span class="category-title">${title} (${data.length} line)</span>
+            ${btn}
+        </div>
+        <div class="result-container">${data.join('*')}</div>
+    `;
+}
+
+function gabungkanPola() {
+    const checkboxes = document.querySelectorAll('#daftarPola input:checked');
+    let gabungan = [];
+    let namaPola = [];
+
+    checkboxes.forEach(cb => {
+        gabungan = gabungan.concat(storagePola[cb.value]);
+        namaPola.push(cb.value);
+    });
+
+    if (gabungan.length === 0) { alert("Pilih minimal satu pola!"); return; }
+
+    const target = document.getElementById('tempatGabungan');
+    target.innerHTML = `
+        <div class="category-header" style="background:#ffc107; border-left:4px solid #856404; margin-top:30px;">
+            <span class="category-title" style="color:#000">GABUNGAN POLA (${namaPola.join(' + ')})</span>
+            <span style="font-weight:bold; color:#000">${gabungan.length} line</span>
+        </div>
+        <div class="result-container" style="border: 2px solid #ffc107; color: #fff;">${gabungan.join('*')}</div>
+    `;
+    
+    tutupModal();
+    target.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
