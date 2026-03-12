@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>BBFS Generator Pro - Full Set Filter</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 20px; background-color: #f0f2f5; color: #333; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input[type="text"], select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        .checkbox-group { margin: 15px 0; background: #fff9e6; padding: 10px; border-radius: 6px; border: 1px solid #ffe58f; }
+        button { width: 100%; padding: 15px; background-color: #28a745; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        button:hover { background-color: #218838; }
+        
+        .result-section { margin-top: 25px; }
+        .category-title { font-weight: bold; color: #007bff; margin: 15px 0 5px 0; display: block; background: #e7f3ff; padding: 8px; border-radius: 4px; }
+        .result-container { background: #272822; color: #f8f8f2; padding: 15px; border-radius: 6px; font-family: 'Courier New', monospace; line-height: 1.6; word-wrap: break-word; min-height: 20px; }
+        .summary { margin-top: 20px; padding: 15px; border-left: 5px solid #28a745; background: #f8fff9; display:none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>BBFS 10 Digit (Murni, Twin, Triple, Quad)</h2>
+    
+    <label>Input Angka BBFS (0-9):</label>
+    <input type="text" id="inputAngka" placeholder="Contoh: 0123456789" maxlength="10">
+
+    <label>Pilih Pasaran:</label>
+    <select id="filePasaran">
+        <option value="data_keluaran_magnum.txt">Magnum 4D</option>
+        <option value="data_keluaran_kuda.txt">Damacai / Kuda</option>
+        <option value="data_keluaran_toto.txt">Sports Toto</option>
+    </select>
+
+    <div class="checkbox-group">
+        <label style="cursor: pointer;">
+            <input type="checkbox" id="useFilter" checked> Eliminasi kombinasi yang sudah pernah keluar (Lurus)
+        </label>
+    </div>
+
+    <button onclick="prosesBBFS()">Generate & Filter Semua Kategori</button>
+
+    <div id="infoBox" class="summary"></div>
+
+    <div class="result-section" id="hasilArea">
+        </div>
+</div>
+
+<script>
+async function prosesBBFS() {
+    const inputStr = document.getElementById('inputAngka').value;
+    const fileName = document.getElementById('filePasaran').value;
+    const useFilter = document.getElementById('useFilter').checked;
+    const hasilArea = document.getElementById('hasilArea');
+    const infoBox = document.getElementById('infoBox');
+
+    if (inputStr.length < 1) {
+        alert("Masukkan angka BBFS!");
+        return;
+    }
+
+    const digits = [...new Set(inputStr.split(''))];
+    let historySet = new Set();
+
+    if (useFilter) {
+        try {
+            const response = await fetch(fileName);
+            const text = await response.text();
+            const history4D = text.match(/\d{4}/g) || [];
+            historySet = new Set(history4D);
+        } catch (err) {
+            console.warn("Gagal memuat file filter. Berjalan tanpa filter.");
+        }
+    }
+
+    // Penampung hasil per kategori
+    let resMurni = [];
+    let resTwin = [];
+    let resTriple = [];
+    let resQuad = [];
+    let totalEliminated = 0;
+
+    // Loop 4D (Bolak Balik Full Set)
+    for (let a of digits) {
+        for (let b of digits) {
+            for (let c of digits) {
+                for (let d of digits) {
+                    let kombinasi = a + b + c + d;
+                    
+                    // Cek Filter
+                    if (useFilter && historySet.has(kombinasi)) {
+                        totalEliminated++;
+                        continue;
+                    }
+
+                    // Cek Kategori Angka
+                    let uniqueCount = new Set([a, b, c, d]).size;
+                    
+                    if (uniqueCount === 4) {
+                        resMurni.push(kombinasi);
+                    } else if (uniqueCount === 3) {
+                        resTwin.push(kombinasi); // Contoh: 1123 atau 1223
+                    } else if (uniqueCount === 2) {
+                        // Bisa Twin 2 Pasang (1122) atau Triple (1112)
+                        if (isTriple(a, b, c, d)) {
+                            resTriple.push(kombinasi);
+                        } else {
+                            resTwin.push(kombinasi); // 1122 masuk kategori Twin
+                        }
+                    } else if (uniqueCount === 1) {
+                        resQuad.push(kombinasi);
+                    }
+                }
+            }
+        }
+    }
+
+    // Tampilkan Ringkasan
+    infoBox.style.display = "block";
+    infoBox.innerHTML = `<b>Hasil Analisis:</b> Ditemukan ${totalEliminated} kombinasi yang sudah pernah keluar dan telah dibuang.`;
+
+    // Tampilkan Output Per Bagian
+    hasilArea.innerHTML = `
+        ${renderKategori("Hasil 4D", resMurni)}
+        ${renderKategori("Hasil 4D TWIN", resTwin)}
+        ${renderKategori("Hasil 4D TRIPLE", resTriple)}
+        ${renderKategori("Hasil 4D QUAD", resQuad)}
+    `;
+}
+
+function isTriple(a, b, c, d) {
+    let counts = {};
+    [a, b, c, d].forEach(x => counts[x] = (counts[x] || 0) + 1);
+    return Object.values(counts).includes(3);
+}
+
+function renderKategori(title, data) {
+    if (data.length === 0) return "";
+    return `
+        <span class="category-title">${title} (${data.length} line):</span>
+        <div class="result-container">${data.join('*')}</div>
+    `;
+}
+</script>
+
+</body>
+</html>
