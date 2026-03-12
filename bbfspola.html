@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>BBFS Pro v2 - Detail Pola & Filter</title>
+    <title>BBFS Pro v2 - Full Detail Pola</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 20px; background-color: #f0f2f5; }
         .container { max-width: 1000px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -21,6 +21,7 @@
         .pola-item input { margin-right: 10px; }
         .line-count { color: #28a745; font-weight: bold; font-size: 14px; }
         .btn-gabung-aksi { background: #ffc107; color: #000; width: 100%; padding: 15px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        .pola-group-title { background: #f4f4f4; padding: 5px 10px; font-weight: bold; margin-top: 10px; display: block; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -73,7 +74,12 @@ async function prosesMain() {
         } catch (e) {}
     }
 
-    storagePola = { "AABB": [], "ABAB": [], "ABBA": [], "AABC": [], "ABAC": [], "ABCA": [], "BAAC": [], "BACA": [], "BCAA": [], "TRIPLE": [] };
+    // Inisialisasi semua pola Twin dan Triple
+    storagePola = { 
+        "AABB": [], "ABAB": [], "ABBA": [], 
+        "AABC": [], "ABAC": [], "ABCA": [], "BAAC": [], "BACA": [], "BCAA": [],
+        "AAAB": [], "AABA": [], "ABAA": [], "BAAA": []
+    };
     let resMurni = [], resQuad = [], eliminated = 0;
 
     for (let a of digits) {
@@ -83,16 +89,21 @@ async function prosesMain() {
                     let k = a + b + c + d;
                     if (useFilter && historySet.has(k)) { eliminated++; continue; }
                     let u = new Set([a, b, c, d]).size;
+                    
                     if (u === 4) resMurni.push(k);
                     else if (u === 1) resQuad.push(k);
                     else if (u === 2) {
-                        if (isTriple(a, b, c, d)) storagePola["TRIPLE"].push(k);
-                        else {
-                            if (a === b && c === d) storagePola["AABB"].push(k);
-                            else if (a === c && b === d) storagePola["ABAB"].push(k);
-                            else if (a === d && b === c) storagePola["ABBA"].push(k);
-                        }
+                        // Cek Triple
+                        if (a === b && a === c) storagePola["AAAB"].push(k);
+                        else if (a === b && a === d) storagePola["AABA"].push(k);
+                        else if (a === c && a === d) storagePola["ABAA"].push(k);
+                        else if (b === c && b === d) storagePola["BAAA"].push(k);
+                        // Cek Double Twin
+                        else if (a === b && c === d) storagePola["AABB"].push(k);
+                        else if (a === c && b === d) storagePola["ABAB"].push(k);
+                        else if (a === d && b === c) storagePola["ABBA"].push(k);
                     } else if (u === 3) {
+                        // Twin 1 Pasang
                         if (a === b) storagePola["AABC"].push(k);
                         else if (a === c) storagePola["ABAC"].push(k);
                         else if (a === d) storagePola["ABCA"].push(k);
@@ -105,20 +116,17 @@ async function prosesMain() {
         }
     }
 
-    let allTwin = Object.values(storagePola).flat().filter(x => !storagePola.TRIPLE.includes(x));
+    let allTwin = ["AABB","ABAB","ABBA","AABC","ABAC","ABCA","BAAC","BACA","BCAA"].flatMap(p => storagePola[p]);
+    let allTriple = ["AAAB","AABA","ABAA","BAAA"].flatMap(p => storagePola[p]);
+
     document.getElementById('infoBox').innerText = `Tereliminasi: ${eliminated} line`;
     document.getElementById('hasilArea').innerHTML = `
         ${renderKategori("Hasil 4D MURNI", resMurni)}
         ${renderKategori("Hasil 4D TWIN", allTwin, true)}
-        ${renderKategori("Hasil 4D TRIPLE", storagePola.TRIPLE, true)}
+        ${renderKategori("Hasil 4D TRIPLE", allTriple, true)}
         ${renderKategori("Hasil 4D QUAD", resQuad)}
         <div id="tempatGabungan"></div>
     `;
-}
-
-function isTriple(a, b, c, d) {
-    let m = {}; [a,b,c,d].forEach(x => m[x] = (m[x]||0)+1);
-    return Object.values(m).includes(3);
 }
 
 function renderKategori(t, d, b = false) {
@@ -128,11 +136,20 @@ function renderKategori(t, d, b = false) {
 
 function renderDaftarPola() {
     let html = "";
-    for (let p in storagePola) {
+    // Group Twin
+    html += "<span class='pola-group-title'>POLA TWIN</span>";
+    ["AABB","ABAB","ABBA","AABC","ABAC","ABCA","BAAC","BACA","BCAA"].forEach(p => {
         if (storagePola[p].length > 0) {
             html += `<label class="pola-item"><span><input type="checkbox" value="${p}"> Pola ${p}</span><span class="line-count">(${storagePola[p].length} line)</span></label>`;
         }
-    }
+    });
+    // Group Triple
+    html += "<span class='pola-group-title'>POLA TRIPLE</span>";
+    ["AAAB","AABA","ABAA","BAAA"].forEach(p => {
+        if (storagePola[p].length > 0) {
+            html += `<label class="pola-item"><span><input type="checkbox" value="${p}"> Pola ${p}</span><span class="line-count">(${storagePola[p].length} line)</span></label>`;
+        }
+    });
     document.getElementById('daftarPola').innerHTML = html;
 }
 
