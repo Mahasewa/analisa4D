@@ -117,12 +117,9 @@ async function prosesBBFS() {
         }
     }
 
-    // 3. Tampilkan Hasil
+// Tampilkan Ringkasan
     infoBox.style.display = "block";
-    infoBox.innerHTML = `
-        <b>Total BBFS:</b> ${totalAwal} line <br>
-        <b>Dieliminasi (Pernah Keluar):</b> ${eliminatedCount} line <br>
-        <b>Hasil Akhir:</b> ${bbfsResults.length} line
+    infoBox.innerHTML = `<b>Hasil Analisis:</b> Ditemukan ${totalEliminated} kombinasi yang sudah pernah keluar dan telah dibuang.`;
     `;
     // Tampilkan Output Per Bagian
     hasilArea.innerHTML = `
