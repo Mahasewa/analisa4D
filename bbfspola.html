@@ -2,55 +2,77 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>BBFS Pro v3 - Filter Blok Manual</title>
+    <title>BBFS Master - All Features Integrated</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 20px; background-color: #f0f2f5; }
         .container { max-width: 1000px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .filter-block { background: #f9f9f9; padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; position: relative; }
-        .input-group { display: flex; gap: 10px; flex-wrap: wrap; }
-        .input-box { display: flex; flex-direction: column; width: 100px; }
-        .input-box label { font-size: 12px; font-weight: bold; margin-bottom: 3px; }
-        .result-container { background: #272822; color: #f8f8f2; padding: 15px; border-radius: 6px; font-family: 'Courier New', monospace; word-wrap: break-word; margin-top: 10px; }
-        button { padding: 10px; cursor: pointer; border-radius: 4px; border: none; font-weight: bold; }
+        .box { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #fff; }
+        .filter-block { background: #f9f9f9; padding: 10px; border: 1px solid #eee; margin-bottom: 5px; position: relative; }
+        .input-group { display: flex; gap: 10px; }
+        .input-box { display: flex; flex-direction: column; width: 80px; }
+        .result-container { background: #272822; color: #f8f8f2; padding: 15px; border-radius: 6px; font-family: monospace; word-wrap: break-word; margin-top: 10px; }
+        .category-header { display: flex; justify-content: space-between; background: #e7f3ff; padding: 8px 12px; margin-top: 15px; border-left: 4px solid #007bff; }
+        .btn-pilih-pola { background: #007bff; color: white; padding: 4px 8px; cursor: pointer; border-radius: 4px; font-size: 12px; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); }
+        .modal-content { background: white; margin: 5% auto; padding: 20px; width: 90%; max-width: 450px; border-radius: 12px; max-height: 80vh; overflow-y: auto; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>BBFS Pro v3 - Filter Blok Manual</h2>
+    <h2>BBFS Master - All In One</h2>
     
     <label>Input Angka BBFS:</label>
-    <input type="text" id="inputAngka" style="width:100%; padding:10px; box-sizing:border-box;" placeholder="0123456789" maxlength="10">
+    <input type="text" id="inputAngka" style="width:100%; padding:10px; box-sizing:border-box;" maxlength="10">
 
-    <div style="margin: 20px 0; padding: 15px; background: #fff9e6; border-radius: 8px;">
+    <label>Pilih Pasaran:</label>
+    <select id="filePasaran" style="width:100%; padding:10px;">
+        <option value="data_keluaran_magnum.txt">Magnum 4D</option>
+        <option value="data_keluaran_kuda.txt">Damacai / Kuda</option>
+        <option value="data_keluaran_toto.txt">Sports Toto</option>
+    </select>
+
+    <div class="box" style="margin-top:15px;">
         <label><input type="checkbox" id="useFilter" checked> Eliminasi 4D yang pernah keluar (Lurus)</label>
     </div>
 
-    <div id="filterArea">
+    <div id="filterArea" class="box">
         <label>Filter Manual (Blok Angka Mati):</label>
-        </div>
-    <button onclick="tambahBlokFilter()" style="background:#007bff; color:white; margin-top:10px;">+ Tambah Blok Filter Manual</button>
+    </div>
+    <button onclick="tambahBlokFilter()">+ Tambah Filter Blok</button>
 
-    <button onclick="prosesMain()" style="width:100%; background:#28a745; color:white; font-size:18px; margin-top:20px;">GENERATE & FILTER</button>
+    <button onclick="prosesMain()" style="width:100%; background:#28a745; color:white; padding:15px; margin-top:20px; font-size:18px;">GENERATE & FILTER</button>
 
     <div id="hasilArea"></div>
 </div>
 
+<div id="modalPola" class="modal">
+    <div class="modal-content">
+        <h3>Pilih Pola Detail</h3>
+        <div id="daftarPola"></div>
+        <button onclick="gabungkanPola()" style="width:100%; padding:10px; background:#ffc107;">GABUNGKAN</button>
+        <button onclick="tutupModal()" style="width:100%; margin-top:5px;">Tutup</button>
+    </div>
+</div>
+
 <script>
+let storagePola = {};
+
 function tambahBlokFilter() {
     const div = document.createElement('div');
     div.className = 'filter-block';
-    div.innerHTML = `
-        <button onclick="this.parentElement.remove()" style="position:absolute; right:5px; top:5px; background:red; color:white; padding:2px 8px;">X</button>
+    div.innerHTML = `<button onclick="this.parentElement.remove()" style="float:right">X</button>
         <div class="input-group">
-            <div class="input-box"><label>AS</label><input type="text" class="mAS" placeholder="ex: 12"></div>
-            <div class="input-box"><label>KOP</label><input type="text" class="mKOP" placeholder="ex: 34"></div>
-            <div class="input-box"><label>KEPALA</label><input type="text" class="mKEP" placeholder="ex: 56"></div>
-            <div class="input-box"><label>EKOR</label><input type="text" class="mEKO" placeholder="ex: 78"></div>
-        </div>
-    `;
+            <div class="input-box"><label>AS</label><input type="text" class="mAS"></div>
+            <div class="input-box"><label>KOP</label><input type="text" class="mKOP"></div>
+            <div class="input-box"><label>KEP</label><input type="text" class="mKEP"></div>
+            <div class="input-box"><label>EKO</label><input type="text" class="mEKO"></div>
+        </div>`;
     document.getElementById('filterArea').appendChild(div);
 }
+
+function bukaModal() { document.getElementById('modalPola').style.display = 'block'; }
+function tutupModal() { document.getElementById('modalPola').style.display = 'none'; }
 
 async function prosesMain() {
     const inputStr = document.getElementById('inputAngka').value;
@@ -59,65 +81,65 @@ async function prosesMain() {
 
     if (document.getElementById('useFilter').checked) {
         try {
-            const res = await fetch("data_keluaran_magnum.txt");
+            const res = await fetch(document.getElementById('filePasaran').value);
             const text = await res.text();
             historySet = new Set(text.match(/\d{4}/g) || []);
         } catch(e) {}
     }
 
-    // Ambil semua blok filter
     const blocks = [];
     document.querySelectorAll('.filter-block').forEach(b => {
-        blocks.push({
-            as: b.querySelector('.mAS').value.split(''),
-            kop: b.querySelector('.mKOP').value.split(''),
-            kep: b.querySelector('.mKEP').value.split(''),
-            eko: b.querySelector('.mEKO').value.split('')
-        });
+        blocks.push({ as: b.querySelector('.mAS').value.split(''), kop: b.querySelector('.mKOP').value.split(''), kep: b.querySelector('.mKEP').value.split(''), eko: b.querySelector('.mEKO').value.split('') });
     });
 
-    let resMurni = [], resTwin = [], resTriple = [], resQuad = [];
+    storagePola = { "AABB":[], "ABAB":[], "ABBA":[], "AABC":[], "ABAC":[], "ABCA":[], "BAAC":[], "BACA":[], "BCAA":[], "AAAB":[], "AABA":[], "ABAA":[], "BAAA":[] };
+    let resMurni = [], resQuad = [];
 
-    for (let a of digits) {
-        for (let b of digits) {
-            for (let c of digits) {
-                for (let d of digits) {
-                    let k = a + b + c + d;
-                    if (historySet.has(k)) continue;
+    for (let a of digits) { for (let b of digits) { for (let c of digits) { for (let d of digits) {
+        let k = a + b + c + d;
+        if (historySet.has(k)) continue;
+        let skip = false;
+        for (let f of blocks) { if(f.as.includes(a) || f.kop.includes(b) || f.kep.includes(c) || f.eko.includes(d)) skip=true; }
+        if (skip) continue;
 
-                    // Filter Manual (Setiap blok adalah kondisi "Dibuang")
-                    let skip = false;
-                    for (let f of blocks) {
-                        if (f.as.includes(a) || f.kop.includes(b) || f.kep.includes(c) || f.eko.includes(d)) {
-                            skip = true; break;
-                        }
-                    }
-                    if (skip) continue;
-
-                    // Klasifikasi
-                    let u = new Set([a,b,c,d]).size;
-                    if (u === 4) resMurni.push(k);
-                    else if (u === 1) resQuad.push(k);
-                    else if (u === 2) {
-                        // Tambahkan logika isTriple di sini
-                        if (isT(a,b,c,d)) resTriple.push(k); else resTwin.push(k);
-                    } else if (u === 3) resTwin.push(k);
-                }
-            }
+        let u = new Set([a,b,c,d]).size;
+        if (u === 4) resMurni.push(k);
+        else if (u === 1) resQuad.push(k);
+        else if (u === 2) {
+            if(a==b && b==c) storagePola["AAAB"].push(k); else if(a==b && b==d) storagePola["AABA"].push(k); else if(a==c && c==d) storagePola["ABAA"].push(k); else if(b==c && c==d) storagePola["BAAA"].push(k);
+            else if(a==b && c==d) storagePola["AABB"].push(k); else if(a==c && b==d) storagePola["ABAB"].push(k); else if(a==d && b==c) storagePola["ABBA"].push(k);
+        } else if (u === 3) {
+            if(a==b) storagePola["AABC"].push(k); else if(a==c) storagePola["ABAC"].push(k); else if(a==d) storagePola["ABCA"].push(k); else if(b==c) storagePola["BAAC"].push(k); else if(b==d) storagePola["BACA"].push(k); else if(c==d) storagePola["BCAA"].push(k);
         }
-    }
+    }}}}
+
+    let allTwin = ["AABB","ABAB","ABBA","AABC","ABAC","ABCA","BAAC","BACA","BCAA"].flatMap(p => storagePola[p]);
+    let allTriple = ["AAAB","AABA","ABAA","BAAA"].flatMap(p => storagePola[p]);
     
     document.getElementById('hasilArea').innerHTML = `
-        <div class="result-container">MURNI (${resMurni.length}): ${resMurni.join('*')}</div>
-        <div class="result-container">TWIN (${resTwin.length}): ${resTwin.join('*')}</div>
-        <div class="result-container">TRIPLE (${resTriple.length}): ${resTriple.join('*')}</div>
-        <div class="result-container">QUAD (${resQuad.length}): ${resQuad.join('*')}</div>
-    `;
+        ${renderK("MURNI", resMurni)}
+        ${renderK("TWIN", allTwin, true)}
+        ${renderK("TRIPLE", allTriple, true)}
+        ${renderK("QUAD", resQuad)}
+        <div id="tempatGabungan"></div>`;
+    renderDaftarPola();
 }
 
-function isT(a,b,c,d) {
-    let m = {}; [a,b,c,d].forEach(x => m[x] = (m[x]||0)+1);
-    return Object.values(m).includes(3);
+function renderK(t, d, b=false) {
+    return `<div class="category-header"><b>${t} (${d.length})</b> ${b?`<span class="btn-pilih-pola" onclick="bukaModal()">Pilih Pola</span>`:""}</div><div class="result-container">${d.join('*')}</div>`;
+}
+
+function renderDaftarPola() {
+    let html = "";
+    for(let p in storagePola) { if(storagePola[p].length > 0) html += `<label><input type="checkbox" value="${p}"> ${p} (${storagePola[p].length})</label><br>`; }
+    document.getElementById('daftarPola').innerHTML = html;
+}
+
+function gabungkanPola() {
+    let gab = [], n = [];
+    document.querySelectorAll('#modalPola input:checked').forEach(c => { gab = gab.concat(storagePola[c.value]); n.push(c.value); });
+    document.getElementById('tempatGabungan').innerHTML = `<div class="category-header">GABUNG: ${n.join(', ')} (${gab.length})</div><div class="result-container">${gab.join('*')}</div>`;
+    tutupModal();
 }
 </script>
 </body>
