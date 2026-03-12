@@ -2,29 +2,131 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Sapu Jagat BBFS</title>
-    <link rel="stylesheet" href="bbfs.css">
+    <title>BBFS Generator Pro - Filter History</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background-color: #f0f2f5; color: #333; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input[type="text"], select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        .checkbox-group { margin: 15px 0; background: #fff9e6; padding: 10px; border-radius: 6px; border: 1px solid #ffe58f; }
+        button { width: 100%; padding: 15px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        button:hover { background-color: #0056b3; }
+        .summary { margin-top: 20px; padding: 10px; border-left: 5px solid #007bff; background: #e7f3ff; }
+        .result-container { margin-top: 20px; background: #272822; color: #f8f8f2; padding: 15px; border-radius: 6px; font-family: 'Courier New', Courier, monospace; line-height: 1.6; word-wrap: break-word; }
+        .count-info { font-weight: bold; color: #007bff; margin-bottom: 10px; display: block; }
+    </style>
 </head>
 <body>
-    <div class="bbfs-container">
-        <h2>BBFS SAPU JAGAT</h2>
-        <input type="text" id="inputBBFS" placeholder="Input Digit (max 10)" maxlength="10">
-        <div id="filterContainer">
-            <div class="filter-row">
-                <input type="text" class="f-as" name="as" maxlength="1" placeholder="As">
-                <input type="text" class="f-kop" name="kop" maxlength="1" placeholder="Kop">
-                <input type="text" class="f-kep" name="kep" maxlength="1" placeholder="Kep">
-                <input type="text" class="f-ekor" name="ekor" maxlength="1" placeholder="Ekor">
-            </div>
-        </div>
-        <button onclick="tambahBarisFilter()">+ Baris Filter</button>
-        <button onclick="jalankanProses()" style="background:#27ae60; color:white;">GENERATE</button>
 
-        <div id="polaContainer" style="margin: 20px 0;"></div>
-        <button onclick="gabungkanPola()">Gabungkan Pola</button>
-        <div id="outputHasil" style="margin-top:20px;"></div>
+<div class="container">
+    <h2>BBFS 10 Digit Filter 4D</h2>
+    
+    <label>Input Angka BBFS (Maks 10 Digit):</label>
+    <input type="text" id="inputAngka" placeholder="Contoh: 0123456789" maxlength="10">
+
+    <label>Pilih Pasaran:</label>
+    <select id="filePasaran">
+        <option value="data_keluaran_magnum.txt">Magnum 4D</option>
+        <option value="data_keluaran_kuda.txt">Damacai / Kuda</option>
+        <option value="data_keluaran_toto.txt">Sports Toto</option>
+    </select>
+
+    <div class="checkbox-group">
+        <label style="cursor: pointer;">
+            <input type="checkbox" id="useFilter" checked> Aktifkan Filter (Eliminasi 4D yang pernah keluar)
+        </label>
     </div>
-    <script src="mesin.js"></script>
-    <script src="ui.js"></script>
+
+    <button onclick="mainkan()">Generate & Filter Kombinasi</button>
+
+    <div id="infoBox" class="summary" style="display:none;"></div>
+
+    <div class="result-container" id="output">
+        Hasil akan muncul di sini...
+    </div>
+</div>
+
+<script>
+async function mainkan() {
+    const inputStr = document.getElementById('inputAngka').value;
+    const fileName = document.getElementById('filePasaran').value;
+    const useFilter = document.getElementById('useFilter').checked;
+    const outputDiv = document.getElementById('output');
+    const infoBox = document.getElementById('infoBox');
+
+    if (inputStr.length < 4) {
+        alert("Minimal masukkan 4 digit angka!");
+        return;
+    }
+
+    const digits = [...new Set(inputStr.split(''))];
+    outputDiv.innerHTML = "Sedang memproses...";
+    
+    // 1. Generate BBFS 4D (Semua kombinasi tanpa angka kembar/set)
+    let bbfsResults = generate4D(digits);
+    const totalAwal = bbfsResults.length;
+
+    let eliminatedCount = 0;
+
+    // 2. Proses Filter jika diaktifkan
+    if (useFilter) {
+        try {
+            const response = await fetch(fileName);
+            if (!response.ok) throw new Error("File tidak ditemukan");
+            const text = await response.text();
+
+            // Ambil semua angka 4D dari file (Prize, Special, Consolation)
+            // Regex mencari pola 4 digit angka yang dipisahkan spasi, koma, atau titik dua
+            const history4D = text.match(/\d{4}/g) || [];
+            const historySet = new Set(history4D);
+
+            // Filter: Hanya simpan yang TIDAK ADA di historySet
+            const filtered = bbfsResults.filter(num => {
+                if (historySet.has(num)) {
+                    eliminatedCount++;
+                    return false;
+                }
+                return true;
+            });
+            
+            bbfsResults = filtered;
+        } catch (err) {
+            alert("Gagal memuat file: " + fileName + ". Pastikan file tersedia.");
+        }
+    }
+
+    // 3. Tampilkan Hasil
+    infoBox.style.display = "block";
+    infoBox.innerHTML = `
+        <b>Total BBFS:</b> ${totalAwal} line <br>
+        <b>Dieliminasi (Pernah Keluar):</b> ${eliminatedCount} line <br>
+        <b>Hasil Akhir:</b> ${bbfsResults.length} line
+    `;
+
+    const formattedOutput = bbfsResults.join('*');
+    outputDiv.innerHTML = `<span class="count-info">Hasil 4D (${bbfsResults.length} line):</span>` + formattedOutput;
+}
+
+// Fungsi murni generator BBFS 4D (Permutasi 4 angka unik dari input)
+function generate4D(arr) {
+    let results = [];
+    let n = arr.length;
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+            if (i === j) continue;
+            for (let k = 0; k < n; k++) {
+                if (k === i || k === j) continue;
+                for (let l = 0; l < n; l++) {
+                    if (l === i || l === j || l === k) continue;
+                    results.push(arr[i] + arr[j] + arr[k] + arr[l]);
+                }
+            }
+        }
+    }
+    return results;
+}
+</script>
+
 </body>
 </html>
