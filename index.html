@@ -69,6 +69,18 @@
                     <small>Consolation</small><div class="grid-small" id="totCons"></div>
                 </div>
             </div>
+            <div class="card warna-sgp">
+                <div class="card-header">SINGAPORE</div>
+                <div class="main-prizes">
+                    <div><small>1st</small><div class="num p1" id="sgp1">----</div></div>
+                    <div><small>2nd</small><div class="num" id="sgp2">----</div></div>
+                    <div><small>3rd</small><div class="num" id="sgp3">----</div></div>
+                </div>
+                <div class="extra-prizes">
+                    <small>Special</small><div class="grid-small" id="sgpSpec"></div>
+                    <small>Consolation</small><div class="grid-small" id="sgpCons"></div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -80,6 +92,7 @@
         cariDiFile('data_keluaran_magnum.txt', 'mag', tgl);
         cariDiFile('data_keluaran_kuda.txt', 'kud', tgl);
         cariDiFile('data_keluaran_toto.txt', 'tot', tgl);
+        cariDiFile('data_keluaran_sgp.txt', 'sgp', tgl);
     }
 </script>
 <script src="ambil_data.js"></script>
@@ -88,6 +101,7 @@
         ambilDataLengkap('data_keluaran_magnum.txt', 'mag');
         ambilDataLengkap('data_keluaran_kuda.txt', 'kud');
         ambilDataLengkap('data_keluaran_toto.txt', 'tot');
+        ambilDataLengkap('data_keluaran_sgp.txt', 'sgp');
     });
 </script>
 <link rel="stylesheet" href="hasil.css">
