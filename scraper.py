@@ -30,13 +30,14 @@ def get_data_sapu_jagat(target_date):
         lines = body_text.split('\n')
         
         current_market = ""
-        all_data = {"MAGNUM": [], "KUDA": [], "TOTO": []}
+        all_data = {"MAGNUM": [], "KUDA": [], "TOTO": [], "SGP": []}
 
         for line in lines:
             txt = line.strip().upper()
             if "MAGNUM 4D" in txt: current_market = "MAGNUM"
             elif "DA MA CAI" in txt: current_market = "KUDA"
             elif "SPORTS TOTO" in txt: current_market = "TOTO"
+            elif "SINGAPORE" in txt: current_market = "SGP"
             
             if current_market:
                 parts = txt.split()
@@ -83,8 +84,8 @@ def save_to_file(filename, date, n):
 
 def run_history_scraper():
     # Setting Harian
-    start_date = datetime(2025, 10, 1)
-    end_date = datetime(2025, 11, 30)
+    start_date = datetime(2025, 09, 17)
+    end_date = datetime(2025, 09, 28)
     
     curr = start_date
     print(f"--- MULAI MARATON (Cek Hari Server) ---", flush=True)
