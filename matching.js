@@ -87,23 +87,37 @@ async function scanAngka() {
     renderHasil(semuaHasil, kontainerHasil);
 }
 
-// 3. Fungsi Render
 function renderHasil(semuaHasil, kontainerHasil) {
     kontainerHasil.innerHTML = "";
-    if (semuaHasil.length > 0) {
-        semuaHasil.forEach(h => {
-            let info = h.angkaDitemukan !== h.inputAsli ? `<div style="font-size: 0.8rem; color: #7f8c8d;">(Bolak-balik dari: ${h.inputAsli})</div>` : "";
-            kontainerHasil.innerHTML += `
-            <div class="card ${h.class} card-win" style="margin-bottom: 10px;">
-                <div class="card-header">${h.pasaran} - ${h.tanggal}</div>
-                <div style="padding: 15px; text-align: center;">
-                    <div style="font-weight: bold; color: #555;">Kategori: ${h.prize}</div>
-                    <div style="font-size: 1.8rem; font-weight: bold; color: #000;">${h.angkaDitemukan}</div>
-                    ${info}
-                </div>
-            </div>`;
-        });
-    } else {
-        kontainerHasil.innerHTML = `<div style="text-align: center; padding: 20px; font-weight: bold;">NOMOR PERAWAN</div>`;
+    
+    if (semuaHasil.length === 0) {
+        kontainerHasil.innerHTML = `<div style="grid-column: span 4; text-align: center; font-weight: bold;">NOMOR PERAWAN</div>`;
+        return;
     }
+
+    const urutanPasaran = ["MAGNUM", "DAMACAI", "TOTO", "SINGAPORE"];
+
+    urutanPasaran.forEach(namaPasaran => {
+        // Ambil hasil yang hanya milik pasaran ini
+        const hasilPasaran = semuaHasil.filter(h => h.pasaran === namaPasaran);
+        
+        if (hasilPasaran.length > 0) {
+            let kolomHTML = `<div class="kolom-pasaran">`;
+            kolomHTML += `<h4 style="text-align:center;">${namaPasaran}</h4>`;
+            
+            hasilPasaran.forEach(h => {
+                let info = h.angkaDitemukan !== h.inputAsli ? `<div style="font-size: 0.7rem; color: #7f8c8d;">(BB: ${h.inputAsli})</div>` : "";
+                kolomHTML += `
+                <div class="card ${h.class} card-win" style="margin-bottom: 10px; padding: 10px;">
+                    <div style="font-size: 0.8rem;">${h.tanggal}</div>
+                    <div style="font-weight: bold;">${h.prize}</div>
+                    <div style="font-size: 1.5rem; font-weight: bold;">${h.angkaDitemukan}</div>
+                    ${info}
+                </div>`;
+            });
+            
+            kolomHTML += `</div>`;
+            kontainerHasil.innerHTML += kolomHTML;
+        }
+    });
 }
