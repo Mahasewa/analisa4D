@@ -14,7 +14,7 @@ async function scanAngka() {
     const daftarFile = [
         { url: 'data_keluaran_magnum.txt', nama: 'MAGNUM', class: 'warna-magnum' },
         { url: 'data_keluaran_kuda.txt', nama: 'DAMACAI', class: 'warna-kuda' },
-        { url: 'data_keluaran_toto.txt', nama: 'TOTO', class: 'warna-toto' }
+        { url: 'data_keluaran_toto.txt', nama: 'TOTO', class: 'warna-toto' },
         { url: 'data_keluaran_sgp.txt', nama: 'SINGAPORE', class: 'warna-sgp' }
     ];
 
