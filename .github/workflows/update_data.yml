@@ -38,7 +38,7 @@ jobs:
 
       - name: Run Scraper
         run: python scraper.py
-      - name: Janalankan China
+      - name: Jalankan China
         run: python scraper_china.py
 
       - name: Commit and Push changes
