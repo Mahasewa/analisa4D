@@ -1,4 +1,4 @@
-// 1. Fungsi untuk menghasilkan permutasi (Bolak-Balik)
+// 1. Fungsi Permutasi
 function getPermutations(str) {
     if (str.length <= 1) return [str];
     let permutations = [];
@@ -16,8 +16,7 @@ function getPermutations(str) {
 async function scanAngka() {
     const inputAngka = document.getElementById('inputScan').value.trim();
     const kontainerHasil = document.getElementById('hasilScan');
-    const checkbox = document.getElementById('checkPermute');
-    const isPermute = checkbox ? checkbox.checked : false;
+    const isPermute = document.getElementById('checkPermute') ? document.getElementById('checkPermute').checked : false;
 
     if (inputAngka.length < 4) {
         alert("Masukkan 4 digit angka, Koh!");
@@ -62,8 +61,16 @@ async function scanAngka() {
         } catch (err) { console.log(`Gagal: ${file.nama}`); }
     }
 
-    // Sortir: Tanggal terbaru di atas
+    // --- BAGIAN PENTING: PENGURUTAN RAPI ---
+    const urutanPasaran = ["MAGNUM", "DAMACAI", "TOTO", "SINGAPORE"];
+    
     semuaHasil.sort((a, b) => {
+        // 1. Urutkan berdasarkan urutan pasaran di array 'urutanPasaran'
+        const indexA = urutanPasaran.indexOf(a.pasaran);
+        const indexB = urutanPasaran.indexOf(b.pasaran);
+        if (indexA !== indexB) return indexA - indexB;
+
+        // 2. Jika pasaran sama, urutkan berdasarkan tanggal terbaru
         const dateA = new Date(a.tanggal.split('-').reverse().join('-'));
         const dateB = new Date(b.tanggal.split('-').reverse().join('-'));
         return dateB - dateA;
@@ -77,8 +84,9 @@ function renderHasil(semuaHasil, kontainerHasil) {
     kontainerHasil.innerHTML = "";
     if (semuaHasil.length > 0) {
         semuaHasil.forEach(h => {
-            let info = h.angkaDitemukan !== h.inputAsli ? `<div style="font-size: 0.8rem; color: #7f8c8d;">(Hasil bolak-balik: ${h.inputAsli})</div>` : "";
-            kontainerHasil.innerHTML += `<div class="card ${h.class} card-win" style="margin-bottom: 10px;">
+            let info = h.angkaDitemukan !== h.inputAsli ? `<div style="font-size: 0.8rem; color: #7f8c8d;">(Bolak-balik dari: ${h.inputAsli})</div>` : "";
+            kontainerHasil.innerHTML += `
+            <div class="card ${h.class} card-win" style="margin-bottom: 10px;">
                 <div class="card-header">${h.pasaran} - ${h.tanggal}</div>
                 <div style="padding: 15px; text-align: center;">
                     <div style="font-weight: bold; color: #555;">Kategori: ${h.prize}</div>
@@ -90,10 +98,4 @@ function renderHasil(semuaHasil, kontainerHasil) {
     } else {
         kontainerHasil.innerHTML = `<div style="text-align: center; padding: 20px; font-weight: bold;">NOMOR PERAWAN</div>`;
     }
-}
-
-// 4. Listener Enter
-const inputScan = document.getElementById('inputScan');
-if (inputScan) {
-    inputScan.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); scanAngka(); } });
 }
