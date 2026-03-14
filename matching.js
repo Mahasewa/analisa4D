@@ -1,4 +1,4 @@
-// Fungsi untuk menghasilkan permutasi (Bolak-Balik)
+// 1. Fungsi untuk menghasilkan permutasi (Bolak-Balik)
 function getPermutations(str) {
     if (str.length <= 1) return [str];
     let permutations = [];
@@ -9,23 +9,26 @@ function getPermutations(str) {
             permutations.push(char + subPermutation);
         }
     }
-    // Menghilangkan duplikat jika ada angka kembar (seperti 1122)
+    // Menghilangkan duplikat jika ada angka kembar
     return [...new Set(permutations)];
 }
+
+// 2. Fungsi Utama Pencarian
 async function scanAngka() {
     const inputAngka = document.getElementById('inputScan').value.trim();
-    // Pastikan ID checkbox di HTML Koh adalah "checkPermute"
-    const isPermute = document.getElementById('checkPermute').checked; 
+    const kontainerHasil = document.getElementById('hasilScan');
+    const checkbox = document.getElementById('checkPermute');
+    const isPermute = checkbox ? checkbox.checked : false;
 
     if (inputAngka.length < 4) {
         alert("Masukkan 4 digit angka, Koh!");
         return;
     }
 
-    // LOGIKA BARU: Jika diceklis, buat daftar semua permutasi. Jika tidak, gunakan angka asli saja.
+    // Tentukan daftar angka yang akan dicari
     let daftarCari = isPermute ? getPermutations(inputAngka) : [inputAngka];
 
-    document.getElementById('hasilScan').innerHTML = "Sedang mencari...";
+    kontainerHasil.innerHTML = "Sedang mencari...";
 
     const daftarFile = [
         { url: 'data_keluaran_magnum.txt', nama: 'MAGNUM', class: 'warna-magnum' },
@@ -43,7 +46,6 @@ async function scanAngka() {
             const blokData = teks.split('------------------------------');
 
             blokData.forEach(blok => {
-                // MENCARI KECOCOKAN: Apakah ada angka di daftarCari yang muncul di dalam blok data?
                 const ditemukan = daftarCari.find(angka => blok.includes(angka));
                 
                 if (ditemukan) {
@@ -53,7 +55,7 @@ async function scanAngka() {
                     let prizeCocok = "";
                     const barisPrize = blok.split('\n');
                     for (let b of barisPrize) {
-                        if (b.includes(ditemukan)) { // Kita cek baris berdasarkan angka yang ditemukan
+                        if (b.includes(ditemukan)) {
                             prizeCocok = b.split(':')[0].trim();
                             break;
                         }
@@ -64,8 +66,8 @@ async function scanAngka() {
                         class: file.class,
                         tanggal: tanggal,
                         prize: prizeCocok,
-                        angkaDitemukan: ditemukan, // Angka yang benar-benar cocok
-                        inputAsli: inputAngka      // Angka yang diketik Koh
+                        angkaDitemukan: ditemukan,
+                        inputAsli: inputAngka
                     });
                 }
             });
@@ -74,51 +76,43 @@ async function scanAngka() {
         }
     }
 
-    // Tampilkan hasil (Koh bisa kustomisasi bagian ini sesuai selera)
-    tampilkanHasil(semuaHasil);
+    // Panggil fungsi untuk menampilkan hasil
+    renderHasil(semuaHasil, kontainerHasil);
 }
 
-    // Tampilkan hasil
-kontainerHasil.innerHTML = "";
-if (semuaHasil.length > 0) {
-    semuaHasil.forEach(h => {
-        // Cek apakah angka yang ditemukan berbeda dengan input asli (artinya bolak-balik)
-        let infoTambahan = "";
-        if (h.angkaDitemukan !== h.inputAsli) {
-            infoTambahan = `<div style="font-size: 0.8rem; color: #7f8c8d; margin-top: 5px;">
-                                (Hasil bolak-balik dari: ${h.inputAsli})
-                            </div>`;
-        }
+// 3. Fungsi Render Hasil ke Layar
+function renderHasil(semuaHasil, kontainerHasil) {
+    kontainerHasil.innerHTML = "";
+    if (semuaHasil.length > 0) {
+        semuaHasil.forEach(h => {
+            let infoTambahan = "";
+            if (h.angkaDitemukan !== h.inputAsli) {
+                infoTambahan = `<div style="font-size: 0.8rem; color: #7f8c8d; margin-top: 5px;">(Hasil bolak-balik dari: ${h.inputAsli})</div>`;
+            }
 
-        kontainerHasil.innerHTML += `
-            <div class="card ${h.class} card-win" style="margin-bottom: 10px;">
-                <div class="card-header">${h.pasaran} - ${h.tanggal}</div>
-                <div style="padding: 15px; text-align: center;">
-                    <div style="font-weight: bold; color: #555;">Kategori: ${h.prize}</div>
-                    <div style="font-size: 1.8rem; font-weight: bold; color: #000;">
-                        ${h.angkaDitemukan}
+            kontainerHasil.innerHTML += `
+                <div class="card ${h.class} card-win" style="margin-bottom: 10px;">
+                    <div class="card-header">${h.pasaran} - ${h.tanggal}</div>
+                    <div style="padding: 15px; text-align: center;">
+                        <div style="font-weight: bold; color: #555;">Kategori: ${h.prize}</div>
+                        <div style="font-size: 1.8rem; font-weight: bold; color: #000;">${h.angkaDitemukan}</div>
+                        ${infoTambahan}
                     </div>
-                    ${infoTambahan}
-                </div>
-            </div>`;
-    });
-} else {
-    kontainerHasil.innerHTML = `<div class="no-data" style="text-align: center; padding: 20px; font-weight: bold;">NOMOR PERAWAN</div>`;
-}
-}
-// Listener untuk tombol Enter
-const inputScan = document.getElementById('inputScan');
-
-inputScan.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-        event.preventDefault(); // Mencegah submit form bawaan
-        
-        // Panggil fungsi utama
-        scanAngka();
-        
-        // Kasih jeda sedikit (delay) supaya teks tidak hilang sebelum diproses
-        setTimeout(() => {
-            inputScan.value = ""; 
-        }, 100); 
+                </div>`;
+        });
+    } else {
+        kontainerHasil.innerHTML = `<div class="no-data" style="text-align: center; padding: 20px; font-weight: bold;">NOMOR PERAWAN</div>`;
     }
-});
+}
+
+// 4. Listener untuk tombol Enter
+const inputScan = document.getElementById('inputScan');
+if (inputScan) {
+    inputScan.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            scanAngka();
+            setTimeout(() => { inputScan.value = ""; }, 100);
+        }
+    });
+}
