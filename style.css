@@ -139,3 +139,17 @@ body { font-family: 'Segoe UI', sans-serif; background: #eef2f5; margin: 0; padd
 .nav-btns button:hover {
     background-color: #34495e;
 }
+#hasilScan {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 kolom sama besar */
+    gap: 15px; /* Jarak antar kolom */
+    margin-top: 20px;
+    align-items: start; /* Hasil akan menempel ke atas */
+}
+
+/* Jika hasil hanya 1, biar tetap di tengah */
+#hasilScan:has(> :only-child) {
+    grid-template-columns: 1fr;
+    max-width: 300px;
+    margin: 20px auto;
+}
