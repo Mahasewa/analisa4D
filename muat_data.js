@@ -45,8 +45,8 @@ let dataGlobal = [];
     dataTampil.forEach(d => {
         // Tentukan class warna (pastikan d.pasaran bernilai 'mag', 'kud', 'tot', atau 'sgp')
         let warnaClass = (d.pasaran === 'mag') ? 'warna-magnum' : 
-                         (d.pasaran === 'kud') ? 'warna-kuda' : 'warna-toto' : 'warna-sgp';
-
+                 (d.pasaran === 'kud') ? 'warna-kuda' : 
+                 (d.pasaran === 'tot') ? 'warna-toto' : 'warna-sgp';
         kontainer.innerHTML += `
             <div class="card ${warnaClass}">
                 <div class="card-header">${d.pasaran.toUpperCase()} - ${d.tgl}</div>
