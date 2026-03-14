@@ -1,4 +1,4 @@
-// 1. Fungsi Permutasi
+// Fungsi untuk menghasilkan permutasi (Bolak-Balik)
 function getPermutations(str) {
     if (str.length <= 1) return [str];
     let permutations = [];
@@ -12,11 +12,10 @@ function getPermutations(str) {
     return [...new Set(permutations)];
 }
 
-// 2. Fungsi Utama Scan
 async function scanAngka() {
     const inputAngka = document.getElementById('inputScan').value.trim();
+    const isPermute = document.getElementById('checkPermute').checked;
     const kontainerHasil = document.getElementById('hasilScan');
-    const isPermute = document.getElementById('checkPermute') ? document.getElementById('checkPermute').checked : false;
 
     if (inputAngka.length < 4) {
         alert("Masukkan 4 digit angka, Koh!");
@@ -33,8 +32,6 @@ async function scanAngka() {
         { url: 'data_keluaran_sgp.txt', nama: 'SINGAPORE', class: 'warna-sgp' }
     ];
 
-// ... (kode fungsi getPermutations tetap di atas)
-
     let semuaHasil = [];
 
     for (let file of daftarFile) {
@@ -47,7 +44,7 @@ async function scanAngka() {
                 const ditemukan = daftarCari.find(angka => blok.includes(angka));
                 if (ditemukan) {
                     const barisTanggal = blok.split('\n').find(b => b.includes('Tanggal Result:'));
-                    const tanggal = barisTanggal ? barisTanggal.replace('Tanggal Result:', '').trim() : "01-01-2000";
+                    const tanggal = barisTanggal ? barisTanggal.replace('Tanggal Result:', '').trim() : "0000-00-00";
                     
                     let prizeCocok = "";
                     const barisPrize = blok.split('\n');
@@ -57,67 +54,47 @@ async function scanAngka() {
                             break;
                         }
                     }
-                    semuaHasil.push({ 
-                        pasaran: file.nama, 
-                        class: file.class, 
-                        tanggal: tanggal, 
-                        prize: prizeCocok, 
-                        angkaDitemukan: ditemukan, 
-                        inputAsli: inputAngka 
-                    });
+                    semuaHasil.push({ pasaran: file.nama, class: file.class, tanggal, prize: prizeCocok, angkaDitemukan: ditemukan, inputAsli: inputAngka });
                 }
             });
-        } catch (err) { 
-            console.log(`Gagal: ${file.nama}`); 
-        }
+        } catch (err) { console.log(`Gagal: ${file.nama}`); }
     }
 
-    // --- LOGIKA PENGURUTAN BERTINGKAT ---
-    const urutanPasaran = ["MAGNUM", "DAMACAI", "TOTO", "SINGAPORE"];
-    
-    semuaHasil.sort((a, b) => {
-        const indexA = urutanPasaran.indexOf(a.pasaran);
-        const indexB = urutanPasaran.indexOf(b.pasaran);
-        
-        if (indexA !== indexB) return indexA - indexB;
-
-        return b.tanggal.localeCompare(a.tanggal);
-    });
-
+    // Panggil fungsi render hasil
     renderHasil(semuaHasil, kontainerHasil);
 }
 
 function renderHasil(semuaHasil, kontainerHasil) {
     kontainerHasil.innerHTML = "";
-    
     if (semuaHasil.length === 0) {
-        kontainerHasil.innerHTML = `<div style="grid-column: span 4; text-align: center; font-weight: bold;">NOMOR PERAWAN</div>`;
+        kontainerHasil.innerHTML = `<div style="text-align:center; width:100%;">NOMOR PERAWAN</div>`;
         return;
     }
 
+    // Urutkan per pasaran, lalu tanggal terbaru
     const urutanPasaran = ["MAGNUM", "DAMACAI", "TOTO", "SINGAPORE"];
-
+    
     urutanPasaran.forEach(namaPasaran => {
-        // Ambil hasil yang hanya milik pasaran ini
-        const hasilPasaran = semuaHasil.filter(h => h.pasaran === namaPasaran);
+        let hasilPasaran = semuaHasil.filter(h => h.pasaran === namaPasaran)
+                                     .sort((a, b) => b.tanggal.localeCompare(a.tanggal));
         
         if (hasilPasaran.length > 0) {
-            let kolomHTML = `<div class="kolom-pasaran">`;
-            kolomHTML += `<h4 style="text-align:center;">${namaPasaran}</h4>`;
-            
+            let kolom = `<div class="kolom-pasaran">`;
+            kolom += `<h3 style="text-align:center;">${namaPasaran}</h3>`;
             hasilPasaran.forEach(h => {
-                let info = h.angkaDitemukan !== h.inputAsli ? `<div style="font-size: 0.7rem; color: #7f8c8d;">(BB: ${h.inputAsli})</div>` : "";
-                kolomHTML += `
-                <div class="card ${h.class} card-win" style="margin-bottom: 10px; padding: 10px;">
-                    <div style="font-size: 0.8rem;">${h.tanggal}</div>
-                    <div style="font-weight: bold;">${h.prize}</div>
-                    <div style="font-size: 1.5rem; font-weight: bold;">${h.angkaDitemukan}</div>
-                    ${info}
+                let info = h.angkaDitemukan !== h.inputAsli ? `<div style="font-size:0.7rem; color:#666;">(BB: ${h.inputAsli})</div>` : "";
+                kolom += `
+                <div class="card ${h.class}" style="margin-bottom:10px;">
+                    <div class="card-header">${h.prize}</div>
+                    <div style="padding:10px; text-align:center;">
+                        <div style="font-size:0.8rem;">${h.tanggal}</div>
+                        <div style="font-size:1.5rem; font-weight:bold;">${h.angkaDitemukan}</div>
+                        ${info}
+                    </div>
                 </div>`;
             });
-            
-            kolomHTML += `</div>`;
-            kontainerHasil.innerHTML += kolomHTML;
+            kolom += `</div>`;
+            kontainerHasil.innerHTML += kolom;
         }
     });
 }
