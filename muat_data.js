@@ -1,5 +1,10 @@
 const BASE_URL = "https://raw.githubusercontent.com/Mahasewa/analisa4D/main/";
-
+const warnaPasaran = {
+    'mag': 'warna-magnum',
+    'kud': 'warna-kuda',
+    'tot': 'warna-toto',
+    'sgp': 'warna-sgp'
+};
 let dataGlobal = [];
     let pasaranAktif = 'home';
     let halAktif = 0;
@@ -44,9 +49,8 @@ let dataGlobal = [];
 
     dataTampil.forEach(d => {
         // Tentukan class warna (pastikan d.pasaran bernilai 'mag', 'kud', 'tot', atau 'sgp')
-        let warnaClass = (d.pasaran === 'mag') ? 'warna-magnum' : 
-                 (d.pasaran === 'kud') ? 'warna-kuda' : 
-                 (d.pasaran === 'tot') ? 'warna-toto' : 'warna-sgp';
+        // Di dalam fungsi render()
+        let warnaClass = warnaPasaran[d.pasaran] || 'warna-default';
         kontainer.innerHTML += `
             <div class="card ${warnaClass}">
                 <div class="card-header">${d.pasaran.toUpperCase()} - ${d.tgl}</div>
