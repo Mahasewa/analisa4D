@@ -40,6 +40,9 @@ body { font-family: 'Segoe UI', sans-serif; background: #eef2f5; margin: 0; padd
 .warna-toto { border-color: #e74c3c; }
 .warna-toto .card-header { background: #e74c3c; }
 
+.warna-sgp { border-color: #bf49f2; }
+.warna-sgp .card-header { background: #bf49f2; }
+
 /* --- Isi Kartu --- */
 .main-prizes { 
     display: flex; 
@@ -106,7 +109,7 @@ body { font-family: 'Segoe UI', sans-serif; background: #eef2f5; margin: 0; padd
 .btn-menu[onclick*="mag"] { background: #f1c40f !important; color: #000 !important; }
 .btn-menu[onclick*="kud"] { background: #3498db !important; }
 .btn-menu[onclick*="tot"] { background: #e74c3c !important; }
-
+.btn-menu[onclick*="sgp"] { background: #bf49f2 !important; }
 .btn-menu:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 12px rgba(0,0,0,0.2);
