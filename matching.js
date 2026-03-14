@@ -33,6 +33,8 @@ async function scanAngka() {
         { url: 'data_keluaran_sgp.txt', nama: 'SINGAPORE', class: 'warna-sgp' }
     ];
 
+// ... (kode fungsi getPermutations tetap di atas)
+
     let semuaHasil = [];
 
     for (let file of daftarFile) {
@@ -55,25 +57,31 @@ async function scanAngka() {
                             break;
                         }
                     }
-                    semuaHasil.push({ pasaran: file.nama, class: file.class, tanggal, prize: prizeCocok, angkaDitemukan: ditemukan, inputAsli: inputAngka });
+                    semuaHasil.push({ 
+                        pasaran: file.nama, 
+                        class: file.class, 
+                        tanggal: tanggal, 
+                        prize: prizeCocok, 
+                        angkaDitemukan: ditemukan, 
+                        inputAsli: inputAngka 
+                    });
                 }
             });
-        } catch (err) { console.log(`Gagal: ${file.nama}`); }
+        } catch (err) { 
+            console.log(`Gagal: ${file.nama}`); 
+        }
     }
 
-    // --- BAGIAN PENTING: PENGURUTAN RAPI ---
+    // --- LOGIKA PENGURUTAN BERTINGKAT ---
     const urutanPasaran = ["MAGNUM", "DAMACAI", "TOTO", "SINGAPORE"];
     
     semuaHasil.sort((a, b) => {
-        // 1. Urutkan berdasarkan urutan pasaran di array 'urutanPasaran'
         const indexA = urutanPasaran.indexOf(a.pasaran);
         const indexB = urutanPasaran.indexOf(b.pasaran);
+        
         if (indexA !== indexB) return indexA - indexB;
 
-        // 2. Jika pasaran sama, urutkan berdasarkan tanggal terbaru
-        const dateA = new Date(a.tanggal.split('-').reverse().join('-'));
-        const dateB = new Date(b.tanggal.split('-').reverse().join('-'));
-        return dateB - dateA;
+        return b.tanggal.localeCompare(a.tanggal);
     });
 
     renderHasil(semuaHasil, kontainerHasil);
