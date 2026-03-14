@@ -41,8 +41,8 @@ jobs:
       - name: Jalankan China
         run: python scraper_china.py
         # --- TAMBAHKAN STEP INI ---
-      - name: Urutkan Data ke File Baru
-        run: python sortir_data.py # Pastikan nama file .py ini sesuai dengan nama script yang saya buatkan tadi
+      #- name: Urutkan Data ke File Baru
+       # run: python sortir_data.py # Pastikan nama file .py ini sesuai dengan nama script yang saya buatkan tadi
       # --------------------------
 
         
