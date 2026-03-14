@@ -84,8 +84,8 @@ def save_to_file(filename, date, n):
 
 def run_history_scraper():
     # Setting Harian
-    start_date = datetime(2025, 10, 4)
-    end_date = datetime(2026, 3, 11)
+    start_date = datetime.now()
+    end_date = datetime.now()
     
     curr = start_date
     print(f"--- MULAI MARATON (Cek Hari Server) ---", flush=True)
