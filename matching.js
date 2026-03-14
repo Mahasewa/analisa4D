@@ -9,11 +9,10 @@ function getPermutations(str) {
             permutations.push(char + subPermutation);
         }
     }
-    // Menghilangkan duplikat jika ada angka kembar
     return [...new Set(permutations)];
 }
 
-// 2. Fungsi Utama Pencarian
+// 2. Fungsi Utama Scan
 async function scanAngka() {
     const inputAngka = document.getElementById('inputScan').value.trim();
     const kontainerHasil = document.getElementById('hasilScan');
@@ -25,9 +24,7 @@ async function scanAngka() {
         return;
     }
 
-    // Tentukan daftar angka yang akan dicari
     let daftarCari = isPermute ? getPermutations(inputAngka) : [inputAngka];
-
     kontainerHasil.innerHTML = "Sedang mencari...";
 
     const daftarFile = [
@@ -47,10 +44,9 @@ async function scanAngka() {
 
             blokData.forEach(blok => {
                 const ditemukan = daftarCari.find(angka => blok.includes(angka));
-                
                 if (ditemukan) {
                     const barisTanggal = blok.split('\n').find(b => b.includes('Tanggal Result:'));
-                    const tanggal = barisTanggal ? barisTanggal.replace('Tanggal Result:', '').trim() : "N/A";
+                    const tanggal = barisTanggal ? barisTanggal.replace('Tanggal Result:', '').trim() : "01-01-2000";
                     
                     let prizeCocok = "";
                     const barisPrize = blok.split('\n');
@@ -60,59 +56,44 @@ async function scanAngka() {
                             break;
                         }
                     }
-
-                    semuaHasil.push({
-                        pasaran: file.nama,
-                        class: file.class,
-                        tanggal: tanggal,
-                        prize: prizeCocok,
-                        angkaDitemukan: ditemukan,
-                        inputAsli: inputAngka
-                    });
+                    semuaHasil.push({ pasaran: file.nama, class: file.class, tanggal, prize: prizeCocok, angkaDitemukan: ditemukan, inputAsli: inputAngka });
                 }
             });
-        } catch (err) {
-            console.log(`Gagal membaca ${file.nama}`);
-        }
+        } catch (err) { console.log(`Gagal: ${file.nama}`); }
     }
 
-    // Panggil fungsi untuk menampilkan hasil
+    // Sortir: Tanggal terbaru di atas
+    semuaHasil.sort((a, b) => {
+        const dateA = new Date(a.tanggal.split('-').reverse().join('-'));
+        const dateB = new Date(b.tanggal.split('-').reverse().join('-'));
+        return dateB - dateA;
+    });
+
     renderHasil(semuaHasil, kontainerHasil);
 }
 
-// 3. Fungsi Render Hasil ke Layar
+// 3. Fungsi Render
 function renderHasil(semuaHasil, kontainerHasil) {
     kontainerHasil.innerHTML = "";
     if (semuaHasil.length > 0) {
         semuaHasil.forEach(h => {
-            let infoTambahan = "";
-            if (h.angkaDitemukan !== h.inputAsli) {
-                infoTambahan = `<div style="font-size: 0.8rem; color: #7f8c8d; margin-top: 5px;">(Hasil bolak-balik dari: ${h.inputAsli})</div>`;
-            }
-
-            kontainerHasil.innerHTML += `
-                <div class="card ${h.class} card-win" style="margin-bottom: 10px;">
-                    <div class="card-header">${h.pasaran} - ${h.tanggal}</div>
-                    <div style="padding: 15px; text-align: center;">
-                        <div style="font-weight: bold; color: #555;">Kategori: ${h.prize}</div>
-                        <div style="font-size: 1.8rem; font-weight: bold; color: #000;">${h.angkaDitemukan}</div>
-                        ${infoTambahan}
-                    </div>
-                </div>`;
+            let info = h.angkaDitemukan !== h.inputAsli ? `<div style="font-size: 0.8rem; color: #7f8c8d;">(Hasil bolak-balik: ${h.inputAsli})</div>` : "";
+            kontainerHasil.innerHTML += `<div class="card ${h.class} card-win" style="margin-bottom: 10px;">
+                <div class="card-header">${h.pasaran} - ${h.tanggal}</div>
+                <div style="padding: 15px; text-align: center;">
+                    <div style="font-weight: bold; color: #555;">Kategori: ${h.prize}</div>
+                    <div style="font-size: 1.8rem; font-weight: bold; color: #000;">${h.angkaDitemukan}</div>
+                    ${info}
+                </div>
+            </div>`;
         });
     } else {
-        kontainerHasil.innerHTML = `<div class="no-data" style="text-align: center; padding: 20px; font-weight: bold;">NOMOR PERAWAN</div>`;
+        kontainerHasil.innerHTML = `<div style="text-align: center; padding: 20px; font-weight: bold;">NOMOR PERAWAN</div>`;
     }
 }
 
-// 4. Listener untuk tombol Enter
+// 4. Listener Enter
 const inputScan = document.getElementById('inputScan');
 if (inputScan) {
-    inputScan.addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            scanAngka();
-            setTimeout(() => { inputScan.value = ""; }, 100);
-        }
-    });
+    inputScan.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); scanAngka(); } });
 }
