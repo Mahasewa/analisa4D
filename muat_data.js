@@ -5,7 +5,7 @@ let dataGlobal = [];
     let halAktif = 0;
 
     async function muatData() {
-        const files = { 'mag': 'data_keluaran_magnum.txt', 'kud': 'data_keluaran_kuda.txt', 'tot': 'data_keluaran_toto.txt' };
+        const files = { 'mag': 'data_keluaran_magnum.txt', 'kud': 'data_keluaran_kuda.txt', 'tot': 'data_keluaran_toto.txt', 'sgp': 'data_keluaran_sgp.txt' };
         for (let key in files) {
             try {
                 const res = await fetch(files[key]);
@@ -37,15 +37,15 @@ let dataGlobal = [];
     if (!kontainer) return;
 
     let filtered = (pasaranAktif === 'home') ? dataGlobal : dataGlobal.filter(d => d.pasaran === pasaranAktif);
-    let start = halAktif * 6;
-    let dataTampil = filtered.slice(start, start + 6);
+    let start = halAktif * 8;
+    let dataTampil = filtered.slice(start, start + 8);
 
     kontainer.innerHTML = ""; // Bersihkan kontainer sebelum diisi
 
     dataTampil.forEach(d => {
-        // Tentukan class warna (pastikan d.pasaran bernilai 'mag', 'kud', atau 'tot')
+        // Tentukan class warna (pastikan d.pasaran bernilai 'mag', 'kud', 'tot', atau 'sgp')
         let warnaClass = (d.pasaran === 'mag') ? 'warna-magnum' : 
-                         (d.pasaran === 'kud') ? 'warna-kuda' : 'warna-toto';
+                         (d.pasaran === 'kud') ? 'warna-kuda' : 'warna-toto' : 'warna-sgp';
 
         kontainer.innerHTML += `
             <div class="card ${warnaClass}">
