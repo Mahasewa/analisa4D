@@ -139,17 +139,29 @@ body { font-family: 'Segoe UI', sans-serif; background: #eef2f5; margin: 0; padd
 .nav-btns button:hover {
     background-color: #34495e;
 }
+/* --- Tambahan untuk Tampilan Grid 4 Kolom (Jos Gandos) --- */
 #hasilScan {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 4 kolom sama besar */
-    gap: 15px; /* Jarak antar kolom */
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
     margin-top: 20px;
-    align-items: start; /* Hasil akan menempel ke atas */
+    padding: 10px;
 }
 
-/* Jika hasil hanya 1, biar tetap di tengah */
-#hasilScan:has(> :only-child) {
-    grid-template-columns: 1fr;
-    max-width: 300px;
-    margin: 20px auto;
+/* Memastikan setiap pasaran punya wadah kolom sendiri */
+.kolom-pasaran {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Perbaikan Warna Header agar selalu muncul sesuai class pasaran */
+.warna-magnum .card-header { background: #f1c40f !important; color: #000 !important; }
+.warna-kuda .card-header { background: #3498db !important; color: #fff !important; }
+.warna-toto .card-header { background: #e74c3c !important; color: #fff !important; }
+.warna-sgp .card-header { background: #ba1ab2 !important; color: #fff !important; }
+
+/* Menghilangkan border ganda jika ada konflik */
+.kolom-pasaran .card {
+    border: 2px solid #ccc;
+    margin-bottom: 10px;
 }
