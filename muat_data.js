@@ -64,6 +64,7 @@ let dataGlobal = [];
     
     document.getElementById('infoHal').innerText = "Halaman " + (halAktif + 1);
 }
+    console.log("File muat_data.js berhasil dimuat!");
     function pilihPasaran(p) { pasaranAktif = p; halAktif = 0; render(); }
     function ubahHalaman(dir) { 
         halAktif = Math.max(0, halAktif + dir); 
