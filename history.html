@@ -14,7 +14,21 @@
     <button onclick="pilihPasaran('tot')" class="btn-menu">SPORTS TOTO</button>
 	<button onclick="pilihPasaran('sgp')" class="btn-menu">SINGAPORE</button>
 	</nav>
+	<section style="max-width: 500px; margin: 20px auto; text-align: center;">
+        <input type="text" id="inputScan" placeholder="Masukkan 4 angka..." maxlength="4" style="padding:10px; border-radius:10px; border:1px solid #ccc; width: 80%; margin-bottom: 10px;">
+        
+        <div style="margin-bottom: 10px; font-size: 0.9rem; cursor: pointer;">
+            <input type="checkbox" id="checkPermute" style="cursor: pointer;"> 
+            <label for="checkPermute" style="cursor: pointer;">Cari Bolak-Balik (Permutasi)</label>
+        </div>
 
+        <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;">
+            <button onclick="scanAngka()" style="padding:10px 20px; cursor:pointer;">SCAN SEJARAH</button>
+            <button onclick="scanTerakhir()" style="padding:10px 20px; cursor:pointer; background-color: #27ae60; color: white; border: none; border-radius: 5px;">CEK TERAKHIR</button>
+        </div>
+
+        <div id="hasilScan"></div>
+    </section>
 	<div id="kontenData" class="history-grid">
     </div>
 
@@ -25,5 +39,7 @@
 	</div>
 	
 <script src="muat_data.js"></script>
+<link rel="stylesheet" href="hasil.css">
+<script src="matching.js"></script>
 </body>
 </html>
