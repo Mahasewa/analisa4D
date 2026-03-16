@@ -128,27 +128,44 @@ async function scanTerakhir() {
             const respon = await fetch(file.url);
             const teks = await respon.text();
             
-            // --- PEMBALIKAN LOGIKA: Ambil blok TERAKHIR ---
+            // 1. Ambil data terbaru (blok setelah pemisah terakhir)
             const semuaBlok = teks.split('------------------------------');
-            const blokTerbaru = semuaBlok[semuaBlok.length - 1]; 
+            // Ambil blok yang tidak kosong (biasanya blok terakhir)
+            const blokTerbaru = semuaBlok[semuaBlok.length - 1].trim();
             
+            // 2. Ambil tanggal
             const barisTanggal = blokTerbaru.split('\n').find(b => b.includes('Tanggal Result:'));
-            const tgl = barisTanggal ? barisTanggal.replace('Tanggal Result:', '').trim() : "";
-            if (tgl) semuaTanggal.push(tgl);
+            const tgl = barisTanggal ? barisTanggal.replace('Tanggal Result:', '').trim() : "N/A";
+            if (tgl !== "N/A") semuaTanggal.push(tgl);
 
-            const ditemukan = daftarCari.find(angka => blokTerbaru.includes(angka));
+            // 3. Deteksi angka dengan cara memecah menjadi array angka saja
+            // Mengambil semua angka 4 digit dalam blok tersebut
+            const semuaAngkaDalamBlok = blokTerbaru.match(/\d{4}/g) || [];
+            
+            // Cek apakah ada angka yang dicari di dalam daftar angka blok ini
+            const ditemukan = daftarCari.find(angka => semuaAngkaDalamBlok.includes(angka));
+
             if (ditemukan) {
-                let prizeCocok = "";
-                const barisPrize = blokTerbaru.split('\n');
-                for (let b of barisPrize) {
+                // Cari tahu ini di prize apa
+                let prizeCocok = "Tidak diketahui";
+                const barisBaris = blokTerbaru.split('\n');
+                for (let b of barisBaris) {
                     if (b.includes(ditemukan)) {
                         prizeCocok = b.split(':')[0].trim();
                         break;
                     }
                 }
-                hasilTerakhir.push({ pasaran: file.nama, class: file.class, tanggal: tgl, prize: prizeCocok, angkaDitemukan: ditemukan, inputAsli: inputAngka });
+                
+                hasilTerakhir.push({ 
+                    pasaran: file.nama, 
+                    class: file.class, 
+                    tanggal: tgl, 
+                    prize: prizeCocok, 
+                    angkaDitemukan: ditemukan, 
+                    inputAsli: inputAngka 
+                });
             }
-        } catch (err) { console.log(`Gagal cek ${file.nama}`); }
+        } catch (err) { console.log(`Gagal cek ${file.nama}:`, err); }
     }
 
     let tanggalPalingBaru = semuaTanggal.length > 0 ? semuaTanggal.sort().reverse()[0] : "Data tidak tersedia";
