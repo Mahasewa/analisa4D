@@ -98,11 +98,12 @@ function renderHasil(semuaHasil, kontainerHasil) {
         }
     });
 }
-// --- FITUR BARU: CEK RESULT TERAKHIR ---
+// --- FITUR BARU: CEK RESULT TERAKHIR (EFEKTIF) ---
 async function scanTerakhir() {
     const inputAngka = document.getElementById('inputScan').value.trim();
     const kontainerHasil = document.getElementById('hasilScan');
-    const isPermute = document.getElementById('checkPermute') ? document.getElementById('checkPermute').checked : false;
+    const checkbox = document.getElementById('checkPermute');
+    const isPermute = checkbox ? checkbox.checked : false;
 
     if (inputAngka.length < 4) {
         alert("Masukkan 4 digit angka, Koh!");
@@ -120,20 +121,18 @@ async function scanTerakhir() {
     ];
 
     let hasilTerakhir = [];
-    let tanggalTerakhirDitemukan = ""; // Variabel untuk menyimpan tanggal terbaru
+    let semuaTanggal = []; // Untuk mencari tanggal paling baru
 
     for (let file of daftarFile) {
         try {
             const respon = await fetch(file.url);
             const teks = await respon.text();
+            // Hanya ambil blok pertama (paling atas)
             const blokPertama = teks.split('------------------------------')[0];
             
-            // Ambil tanggal dari blok pertama agar dinamis
             const barisTanggal = blokPertama.split('\n').find(b => b.includes('Tanggal Result:'));
             const tgl = barisTanggal ? barisTanggal.replace('Tanggal Result:', '').trim() : "";
-            
-            // Simpan tanggal terbaru sebagai referensi pesan
-            if (tgl > tanggalTerakhirDitemukan) tanggalTerakhirDitemukan = tgl;
+            if (tgl) semuaTanggal.push(tgl);
 
             const ditemukan = daftarCari.find(angka => blokPertama.includes(angka));
             if (ditemukan) {
@@ -147,12 +146,15 @@ async function scanTerakhir() {
                 }
                 hasilTerakhir.push({ pasaran: file.nama, class: file.class, tanggal: tgl, prize: prizeCocok, angkaDitemukan: ditemukan, inputAsli: inputAngka });
             }
-        } catch (err) { console.log(`Gagal cek terakhir: ${file.nama}`); }
+        } catch (err) { console.log(`Gagal cek ${file.nama}`); }
     }
 
+    // Mencari tanggal paling baru dari semua pasaran yang terbaca
+    let tanggalPalingBaru = semuaTanggal.length > 0 ? semuaTanggal.sort().reverse()[0] : "Data tidak tersedia";
+
     if (hasilTerakhir.length === 0) {
-        kontainerHasil.innerHTML = `<div style="text-align: center; padding: 20px; font-weight: bold; grid-column: span 4;">
-            Angka tidak ditemukan di result terakhir (${tanggalTerakhirDitemukan || 'Data tidak tersedia'})
+        kontainerHasil.innerHTML = `<div style="text-align: center; padding: 20px; font-weight: bold;">
+            Angka tidak ditemukan di result terakhir (${tanggalPalingBaru})
         </div>`;
     } else {
         renderHasil(hasilTerakhir, kontainerHasil);
