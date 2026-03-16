@@ -121,3 +121,55 @@ function renderHasil(semuaHasil, kontainerHasil) {
         }
     });
 }
+async function cekJackpot() {
+    const input = document.getElementById('inputJackpot').value;
+    const kontainer = document.getElementById('hasilJackpot');
+    const nomorUser = input.split(',').map(n => n.trim()).filter(n => n.length === 4);
+    
+    if (nomorUser.length < 1) {
+        alert("Masukkan nomor, Koh!");
+        return;
+    }
+
+    kontainer.innerHTML = "Menganalisa data...";
+
+    const daftarFile = ['data_keluaran_magnum.txt', 'data_keluaran_kuda.txt', 'data_keluaran_toto.txt', 'data_keluaran_sgp.txt'];
+    let hasilFinal = [];
+
+    for (let url of daftarFile) {
+        const respon = await fetch(url + "?t=" + Date.now());
+        const teks = await respon.text();
+        const blokTerbaru = teks.split('------------------------------').filter(b => b.trim()).pop();
+        
+        // Memetakan nomor ke kategori
+        const baris = blokTerbaru.split('\n');
+        let grupUtama = [], grupSpecial = [], grupConsolation = [];
+        
+        baris.forEach(b => {
+            let nums = b.match(/\d{4}/g) || [];
+            if (b.includes('1st Prize') || b.includes('2nd Prize') || b.includes('3rd Prize')) grupUtama.push(...nums);
+            if (b.includes('Special')) grupSpecial.push(...nums);
+            if (b.includes('Consolation')) grupConsolation.push(...nums);
+        });
+
+        // Cek Jackpot
+        nomorUser.forEach(num => {
+            if (grupUtama.includes(num)) {
+                // Logika Jackpot
+                if (nomorUser.filter(n => grupUtama.includes(n)).length >= 2) hasilFinal.push("JACKPOT 1 (2 nomor di Utama)");
+                else if (nomorUser.some(n => grupSpecial.includes(n))) hasilFinal.push("JACKPOT 2 (Utama + Special)");
+                else hasilFinal.push("JACKPOT HIBURAN 1 (Nomor di Utama)");
+            } else if (grupSpecial.includes(num)) {
+                hasilFinal.push("JACKPOT HIBURAN 2 (Nomor di Special)");
+            } else if (grupConsolation.includes(num)) {
+                hasilFinal.push("JACKPOT HIBURAN 3 (Nomor di Consolation)");
+            }
+        });
+    }
+
+    if (hasilFinal.length > 0) {
+        kontainer.innerHTML = `<div style="color: green; font-weight: bold;">SELAMAT ANDA MENANG:<br>${[...new Set(hasilFinal)].join('<br>')}</div>`;
+    } else {
+        kontainer.innerHTML = `<div style="color: red; font-weight: bold;">ANDA BELUM BERUNTUNG</div>`;
+    }
+}
