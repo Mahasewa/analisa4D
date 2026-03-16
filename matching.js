@@ -154,12 +154,12 @@ async function scanTerakhir() {
         } catch (err) { console.log(`Gagal cek terakhir: ${file.nama}`); }
     }
 
-    // Penanganan jika hasil kosong
+// Penanganan jika hasil kosong
     if (hasilTerakhir.length === 0) {
+        // Kita gunakan pesan yang lebih netral tapi tetap informatif
         kontainerHasil.innerHTML = `<div style="text-align: center; padding: 20px; font-weight: bold; grid-column: span 4;">
-            Angka tidak ditemukan di result terakhir (14-03-2026)
+            Angka tidak ditemukan di update data result terakhir.
         </div>`;
     } else {
         renderHasil(hasilTerakhir, kontainerHasil);
     }
-}
