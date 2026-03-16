@@ -165,3 +165,9 @@ body { font-family: 'Segoe UI', sans-serif; background: #eef2f5; margin: 0; padd
     border: 2px solid #ccc;
     margin-bottom: 10px;
 }
+/* --- Tambahan untuk Tombol Jackpot --- */
+.btn-jackpot { 
+    background: #e67e22 !important; 
+    font-weight: bold !important; 
+    color: white !important; /* Supaya kontras dengan background oranye */
+}
