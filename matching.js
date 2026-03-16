@@ -110,7 +110,7 @@ async function scanTerakhir() {
     }
 
     let daftarCari = isPermute ? getPermutations(inputAngka) : [inputAngka];
-    kontainerHasil.innerHTML = "Sedang cek result terakhir...";
+    kontainerHasil.innerHTML = "Sedang cek result terbaru...";
 
     const daftarFile = [
         { url: 'data_keluaran_magnum.txt', nama: 'MAGNUM', class: 'warna-magnum' },
@@ -120,20 +120,23 @@ async function scanTerakhir() {
     ];
 
     let hasilTerakhir = [];
+    let tanggalTerakhirDitemukan = ""; // Variabel untuk menyimpan tanggal terbaru
 
     for (let file of daftarFile) {
         try {
             const respon = await fetch(file.url);
             const teks = await respon.text();
-            
-            // Mengambil HANYA blok paling atas saja
             const blokPertama = teks.split('------------------------------')[0];
             
+            // Ambil tanggal dari blok pertama agar dinamis
+            const barisTanggal = blokPertama.split('\n').find(b => b.includes('Tanggal Result:'));
+            const tgl = barisTanggal ? barisTanggal.replace('Tanggal Result:', '').trim() : "";
+            
+            // Simpan tanggal terbaru sebagai referensi pesan
+            if (tgl > tanggalTerakhirDitemukan) tanggalTerakhirDitemukan = tgl;
+
             const ditemukan = daftarCari.find(angka => blokPertama.includes(angka));
             if (ditemukan) {
-                const barisTanggal = blokPertama.split('\n').find(b => b.includes('Tanggal Result:'));
-                const tanggal = barisTanggal ? barisTanggal.replace('Tanggal Result:', '').trim() : "Terbaru";
-                
                 let prizeCocok = "";
                 const barisPrize = blokPertama.split('\n');
                 for (let b of barisPrize) {
@@ -142,24 +145,16 @@ async function scanTerakhir() {
                         break;
                     }
                 }
-                hasilTerakhir.push({ 
-                    pasaran: file.nama, 
-                    class: file.class, 
-                    tanggal: tanggal, 
-                    prize: prizeCocok, 
-                    angkaDitemukan: ditemukan, 
-                    inputAsli: inputAngka 
-                });
+                hasilTerakhir.push({ pasaran: file.nama, class: file.class, tanggal: tgl, prize: prizeCocok, angkaDitemukan: ditemukan, inputAsli: inputAngka });
             }
         } catch (err) { console.log(`Gagal cek terakhir: ${file.nama}`); }
     }
 
-// Penanganan jika hasil kosong
     if (hasilTerakhir.length === 0) {
-        // Kita gunakan pesan yang lebih netral tapi tetap informatif
         kontainerHasil.innerHTML = `<div style="text-align: center; padding: 20px; font-weight: bold; grid-column: span 4;">
-            Angka tidak ditemukan di update data result terakhir.
+            Angka tidak ditemukan di result terakhir (${tanggalTerakhirDitemukan || 'Data tidak tersedia'})
         </div>`;
     } else {
         renderHasil(hasilTerakhir, kontainerHasil);
     }
+}
