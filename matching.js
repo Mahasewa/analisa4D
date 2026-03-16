@@ -121,23 +121,25 @@ async function scanTerakhir() {
     ];
 
     let hasilTerakhir = [];
-    let semuaTanggal = []; // Untuk mencari tanggal paling baru
+    let semuaTanggal = [];
 
     for (let file of daftarFile) {
         try {
             const respon = await fetch(file.url);
             const teks = await respon.text();
-            // Hanya ambil blok pertama (paling atas)
-            const blokPertama = teks.split('------------------------------')[0];
             
-            const barisTanggal = blokPertama.split('\n').find(b => b.includes('Tanggal Result:'));
+            // --- PEMBALIKAN LOGIKA: Ambil blok TERAKHIR ---
+            const semuaBlok = teks.split('------------------------------');
+            const blokTerbaru = semuaBlok[semuaBlok.length - 1]; 
+            
+            const barisTanggal = blokTerbaru.split('\n').find(b => b.includes('Tanggal Result:'));
             const tgl = barisTanggal ? barisTanggal.replace('Tanggal Result:', '').trim() : "";
             if (tgl) semuaTanggal.push(tgl);
 
-            const ditemukan = daftarCari.find(angka => blokPertama.includes(angka));
+            const ditemukan = daftarCari.find(angka => blokTerbaru.includes(angka));
             if (ditemukan) {
                 let prizeCocok = "";
-                const barisPrize = blokPertama.split('\n');
+                const barisPrize = blokTerbaru.split('\n');
                 for (let b of barisPrize) {
                     if (b.includes(ditemukan)) {
                         prizeCocok = b.split(':')[0].trim();
@@ -149,11 +151,10 @@ async function scanTerakhir() {
         } catch (err) { console.log(`Gagal cek ${file.nama}`); }
     }
 
-    // Mencari tanggal paling baru dari semua pasaran yang terbaca
     let tanggalPalingBaru = semuaTanggal.length > 0 ? semuaTanggal.sort().reverse()[0] : "Data tidak tersedia";
 
     if (hasilTerakhir.length === 0) {
-        kontainerHasil.innerHTML = `<div style="text-align: center; padding: 20px; font-weight: bold;">
+        kontainerHasil.innerHTML = `<div style="text-align: center; padding: 20px; font-weight: bold; grid-column: span 4;">
             Angka tidak ditemukan di result terakhir (${tanggalPalingBaru})
         </div>`;
     } else {
