@@ -61,3 +61,37 @@ async function scanTerakhir() {
         renderHasil(hasilTerakhir, kontainerHasil);
     }
 }
+function renderHasil(semuaHasil, kontainerHasil) {
+    kontainerHasil.innerHTML = "";
+    if (semuaHasil.length === 0) {
+        kontainerHasil.innerHTML = `<div style="text-align:center; width:100%;">NOMOR PERAWAN</div>`;
+        return;
+    }
+
+    // Urutkan per pasaran, lalu tanggal terbaru
+    const urutanPasaran = ["MAGNUM", "DAMACAI", "TOTO", "SINGAPORE"];
+    
+    urutanPasaran.forEach(namaPasaran => {
+        let hasilPasaran = semuaHasil.filter(h => h.pasaran === namaPasaran)
+                                     .sort((a, b) => b.tanggal.localeCompare(a.tanggal));
+        
+        if (hasilPasaran.length > 0) {
+            let kolom = `<div class="kolom-pasaran">`;
+            kolom += `<h3 style="text-align:center;">${namaPasaran}</h3>`;
+            hasilPasaran.forEach(h => {
+                let info = h.angkaDitemukan !== h.inputAsli ? `<div style="font-size:0.7rem; color:#666;">(BB: ${h.inputAsli})</div>` : "";
+                kolom += `
+                <div class="card ${h.class}" style="margin-bottom:10px;">
+                    <div class="card-header">${h.prize}</div>
+                    <div style="padding:10px; text-align:center;">
+                        <div style="font-size:0.8rem;">${h.tanggal}</div>
+                        <div style="font-size:1.5rem; font-weight:bold;">${h.angkaDitemukan}</div>
+                        ${info}
+                    </div>
+                </div>`;
+            });
+            kolom += `</div>`;
+            kontainerHasil.innerHTML += kolom;
+        }
+    });
+}
