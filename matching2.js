@@ -124,52 +124,80 @@ function renderHasil(semuaHasil, kontainerHasil) {
 async function cekJackpot() {
     const input = document.getElementById('inputJackpot').value;
     const kontainer = document.getElementById('hasilJackpot');
+    // Ambil nomor, bersihkan spasi, dan hanya ambil yang 4 digit
     const nomorUser = input.split(',').map(n => n.trim()).filter(n => n.length === 4);
     
     if (nomorUser.length < 1) {
-        alert("Masukkan nomor, Koh!");
+        alert("Masukkan nomor yang benar, Koh!");
         return;
     }
 
     kontainer.innerHTML = "Menganalisa data...";
 
-    const daftarFile = ['data_keluaran_magnum.txt', 'data_keluaran_kuda.txt', 'data_keluaran_toto.txt', 'data_keluaran_sgp.txt'];
+    const daftarFile = [
+        { url: 'data_keluaran_magnum.txt', nama: 'MAGNUM' },
+        { url: 'data_keluaran_kuda.txt', nama: 'DAMACAI' },
+        { url: 'data_keluaran_toto.txt', nama: 'TOTO' },
+        { url: 'data_keluaran_sgp.txt', nama: 'SINGAPORE' }
+    ];
+
     let hasilFinal = [];
 
-    for (let url of daftarFile) {
-        const respon = await fetch(url + "?t=" + Date.now());
-        const teks = await respon.text();
-        const blokTerbaru = teks.split('------------------------------').filter(b => b.trim()).pop();
-        
-        // Memetakan nomor ke kategori
-        const baris = blokTerbaru.split('\n');
-        let grupUtama = [], grupSpecial = [], grupConsolation = [];
-        
-        baris.forEach(b => {
-            let nums = b.match(/\d{4}/g) || [];
-            if (b.includes('1st Prize') || b.includes('2nd Prize') || b.includes('3rd Prize')) grupUtama.push(...nums);
-            if (b.includes('Special')) grupSpecial.push(...nums);
-            if (b.includes('Consolation')) grupConsolation.push(...nums);
-        });
+    for (let file of daftarFile) {
+        try {
+            const respon = await fetch(file.url + "?t=" + Date.now());
+            const teks = await respon.text();
+            const semuaBlok = teks.split('------------------------------');
+            const blokTerbaru = semuaBlok.filter(b => b.trim()).pop().trim();
+            
+            const baris = blokTerbaru.split('\n');
+            let grupUtama = [], grupSpecial = [], grupConsolation = [];
+            
+            baris.forEach(b => {
+                let nums = b.match(/\d{4}/g) || [];
+                if (b.includes('1st Prize') || b.includes('2nd Prize') || b.includes('3rd Prize')) grupUtama.push(...nums);
+                else if (b.includes('Special')) grupSpecial.push(...nums);
+                else if (b.includes('Consolation')) grupConsolation.push(...nums);
+            });
 
-        // Cek Jackpot
-        nomorUser.forEach(num => {
-            if (grupUtama.includes(num)) {
-                // Logika Jackpot
-                if (nomorUser.filter(n => grupUtama.includes(n)).length >= 2) hasilFinal.push("JACKPOT 1 (2 nomor di Utama)");
-                else if (nomorUser.some(n => grupSpecial.includes(n))) hasilFinal.push("JACKPOT 2 (Utama + Special)");
-                else hasilFinal.push("JACKPOT HIBURAN 1 (Nomor di Utama)");
-            } else if (grupSpecial.includes(num)) {
-                hasilFinal.push("JACKPOT HIBURAN 2 (Nomor di Special)");
-            } else if (grupConsolation.includes(num)) {
-                hasilFinal.push("JACKPOT HIBURAN 3 (Nomor di Consolation)");
-            }
-        });
+            // Logika Jackpot
+            nomorUser.forEach(num => {
+                if (grupUtama.includes(num)) {
+                    // Cek Jackpot 1
+                    let jumlahUtama = nomorUser.filter(n => grupUtama.includes(n)).length;
+                    if (jumlahUtama >= 2) {
+                        hasilFinal.push(`SELAMAT ANDA MENANG: JACKPOT 1 di ${file.nama}`);
+                    } 
+                    // Cek Jackpot 2
+                    else if (nomorUser.some(n => grupSpecial.includes(n))) {
+                        hasilFinal.push(`SELAMAT ANDA MENANG: JACKPOT 2 di ${file.nama}`);
+                    } 
+                    // Jackpot Hiburan 1
+                    else {
+                        hasilFinal.push(`SELAMAT ANDA MENANG: JACKPOT HIBURAN 1 di ${file.nama}`);
+                    }
+                } 
+                // Jackpot Hiburan 2 (Special)
+                else if (grupSpecial.includes(num)) {
+                    hasilFinal.push(`SELAMAT ANDA MENANG: JACKPOT HIBURAN 2 di ${file.nama}`);
+                } 
+                // Jackpot Hiburan 3 (Consolation)
+                else if (grupConsolation.includes(num)) {
+                    hasilFinal.push(`SELAMAT ANDA MENANG: JACKPOT HIBURAN 3 di ${file.nama}`);
+                }
+            });
+        } catch (err) { console.log(`Gagal proses ${file.nama}`); }
     }
 
     if (hasilFinal.length > 0) {
-        kontainer.innerHTML = `<div style="color: green; font-weight: bold;">SELAMAT ANDA MENANG:<br>${[...new Set(hasilFinal)].join('<br>')}</div>`;
+        // Menghilangkan duplikat jika ada
+        const hasilUnik = [...new Set(hasilFinal)];
+        kontainer.innerHTML = `<div style="color: #27ae60; font-weight: bold; padding: 10px; border: 2px solid #27ae60; border-radius: 5px;">
+            ${hasilUnik.join('<br>')}
+        </div>`;
     } else {
-        kontainer.innerHTML = `<div style="color: red; font-weight: bold;">ANDA BELUM BERUNTUNG</div>`;
+        kontainer.innerHTML = `<div style="color: #c0392b; font-weight: bold; padding: 10px; border: 2px solid #c0392b; border-radius: 5px;">
+            ANDA BELUM BERUNTUNG
+        </div>`;
     }
 }
