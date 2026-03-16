@@ -20,42 +20,55 @@ async function scanTerakhir() {
     ];
 
     let hasilTerakhir = [];
-    let tanggalTerbaru = "Data tidak tersedia";
 
     for (let file of daftarFile) {
         try {
+            // 1. Ambil seluruh isi file
             const respon = await fetch(file.url + "?t=" + Date.now());
             const teks = await respon.text();
             
-            // Ambil blok terakhir saja
+            // 2. Pecah berdasarkan pemisah
             const semuaBlok = teks.split('------------------------------');
-            const blokTerbaru = semuaBlok[semuaBlok.length - 1].trim();
             
-            // Ambil tanggal dari blok tersebut
-            const barisTanggal = blokTerbaru.split('\n').find(b => b.includes('Tanggal Result:'));
-            const tgl = barisTanggal ? barisTanggal.replace('Tanggal Result:', '').trim() : "";
-            if (tgl > tanggalTerbaru) tanggalTerbaru = tgl;
+            // 3. Ambil elemen terakhir yang berisi data (karena hasil split terakhir mungkin kosong jika file berakhir dengan pemisah)
+            let blokTerbaru = "";
+            for (let i = semuaBlok.length - 1; i >= 0; i--) {
+                if (semuaBlok[i].trim().length > 0) {
+                    blokTerbaru = semuaBlok[i].trim();
+                    break;
+                }
+            }
 
-            // Cari angka (mengabaikan spasi dan format label)
-            const angkaDalamBlok = blokTerbaru.match(/\d{4}/g) || [];
-            const ditemukan = daftarCari.find(angka => angkaDalamBlok.includes(angka));
+            // 4. Ekstrak Tanggal
+            const barisTanggal = blokTerbaru.split('\n').find(b => b.includes('Tanggal Result:'));
+            const tgl = barisTanggal ? barisTanggal.replace('Tanggal Result:', '').trim() : "Data tidak tersedia";
+
+            // 5. Pencocokan Angka (hanya di blok ini)
+            const ditemukan = daftarCari.find(angka => blokTerbaru.includes(angka));
 
             if (ditemukan) {
+                // Cari kategori prize di blok ini
+                const barisPrize = blokTerbaru.split('\n').find(b => b.includes(ditemukan));
+                const prizeCocok = barisPrize ? barisPrize.split(':')[0].trim() : "Result";
+                
                 hasilTerakhir.push({ 
                     pasaran: file.nama, 
                     class: file.class, 
                     tanggal: tgl, 
-                    prize: "Result Terbaru", 
+                    prize: prizeCocok, 
                     angkaDitemukan: ditemukan, 
                     inputAsli: inputAngka 
                 });
+            } else {
+                // Simpan juga info "tidak ada" agar kita bisa tahu tanggal terakhir yang dicek
+                console.log(`${file.nama} terbaru (${tgl}) tidak ada angka ${inputAngka}`);
             }
-        } catch (err) { console.log(`Error pada ${file.nama}`); }
+        } catch (err) { console.log(`Gagal proses ${file.nama}`); }
     }
 
     if (hasilTerakhir.length === 0) {
         kontainerHasil.innerHTML = `<div style="text-align: center; padding: 20px; font-weight: bold; grid-column: span 4;">
-            Angka tidak ditemukan di result terakhir (${tanggalTerbaru})
+            Angka tidak ditemukan di result terakhir.
         </div>`;
     } else {
         renderHasil(hasilTerakhir, kontainerHasil);
