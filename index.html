@@ -21,7 +21,15 @@
     <nav class="menu-bar">
     <a href="index.html" class="btn-menu btn-home active">HOME</a>
     <a href="history.html" class="btn-menu btn-history">HISTORY</a>
+    <a href="#" onclick="showPage('jackpot')" style="font-weight:bold; color: #e67e22;">4D JACKPOT</a>
     </nav>
+  <section id="jackpotPage" style="display:none; max-width: 500px; margin: 20px auto; text-align: center;">
+    <h3>Cek 4D Jackpot</h3>
+    <textarea id="inputJackpot" placeholder="Masukkan nomor, pisahkan koma... (Contoh: 7851, 3017, 9454)" rows="4" style="width: 80%; padding: 10px;"></textarea>
+    <br><br>
+    <button onclick="cekJackpot()" style="padding:10px 20px; background-color: #e67e22; color: white; border: none; border-radius: 5px; cursor:pointer;">CEK 4D JACKPOT</button>
+    <div id="hasilJackpot" style="margin-top: 20px;"></div>
+  </section>  
   <section style="max-width: 500px; margin: 20px auto; text-align: center;">
         <input type="text" id="inputScan" placeholder="Masukkan 4 angka..." maxlength="4" style="padding:10px; border-radius:10px; border:1px solid #ccc; width: 80%; margin-bottom: 10px;">
         
@@ -93,7 +101,13 @@
             </div>
         </div>
     </section>
-
+<script>
+function showPage(page) {
+    document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+    if(page === 'scan') document.getElementById('scanPage').style.display = 'block';
+    if(page === 'jackpot') document.getElementById('jackpotPage').style.display = 'block';
+}
+</script>
 <script>
     function cariDataOtomatis() {
         const tgl = document.getElementById('inputKalender').value;
