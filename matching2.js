@@ -160,32 +160,34 @@ async function cekJackpot() {
                 else if (b.includes('Consolation')) grupConsolation.push(...nums);
             });
 
-            // Logika Jackpot
-            nomorUser.forEach(num => {
-                if (grupUtama.includes(num)) {
-                    // Cek Jackpot 1
-                    let jumlahUtama = nomorUser.filter(n => grupUtama.includes(n)).length;
-                    if (jumlahUtama >= 2) {
-                        hasilFinal.push(`SELAMAT ANDA MENANG: JACKPOT 1 di ${file.nama}`);
-                    } 
-                    // Cek Jackpot 2
-                    else if (nomorUser.some(n => grupSpecial.includes(n))) {
-                        hasilFinal.push(`SELAMAT ANDA MENANG: JACKPOT 2 di ${file.nama}`);
-                    } 
-                    // Jackpot Hiburan 1
-                    else {
+           // Logika Jackpot (Diberi Prioritas)
+            let isJackpot1 = false;
+            let isJackpot2 = false;
+
+            // 1. Cek Jackpot 1 & 2 Dulu (karena butuh kombinasi nomor)
+            let jumlahUtama = nomorUser.filter(n => grupUtama.includes(n)).length;
+            let adaDiSpecial = nomorUser.some(n => grupSpecial.includes(n));
+
+            if (jumlahUtama >= 2) {
+                hasilFinal.push(`SELAMAT ANDA MENANG: JACKPOT 1 di ${file.nama}`);
+                isJackpot1 = true;
+            } else if (jumlahUtama >= 1 && adaDiSpecial) {
+                hasilFinal.push(`SELAMAT ANDA MENANG: JACKPOT 2 di ${file.nama}`);
+                isJackpot2 = true;
+            }
+
+            // 2. Cek Hiburan hanya jika BUKAN Jackpot 1 atau 2
+            if (!isJackpot1 && !isJackpot2) {
+                nomorUser.forEach(num => {
+                    if (grupUtama.includes(num)) {
                         hasilFinal.push(`SELAMAT ANDA MENANG: JACKPOT HIBURAN 1 di ${file.nama}`);
+                    } else if (grupSpecial.includes(num)) {
+                        hasilFinal.push(`SELAMAT ANDA MENANG: JACKPOT HIBURAN 2 di ${file.nama}`);
+                    } else if (grupConsolation.includes(num)) {
+                        hasilFinal.push(`SELAMAT ANDA MENANG: JACKPOT HIBURAN 3 di ${file.nama}`);
                     }
-                } 
-                // Jackpot Hiburan 2 (Special)
-                else if (grupSpecial.includes(num)) {
-                    hasilFinal.push(`SELAMAT ANDA MENANG: JACKPOT HIBURAN 2 di ${file.nama}`);
-                } 
-                // Jackpot Hiburan 3 (Consolation)
-                else if (grupConsolation.includes(num)) {
-                    hasilFinal.push(`SELAMAT ANDA MENANG: JACKPOT HIBURAN 3 di ${file.nama}`);
-                }
-            });
+                });
+            }
         } catch (err) { console.log(`Gagal proses ${file.nama}`); }
     }
 
