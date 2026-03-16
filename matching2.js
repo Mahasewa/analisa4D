@@ -1,3 +1,16 @@
+// Fungsi untuk menghasilkan permutasi (Bolak-Balik)
+function getPermutations(str) {
+    if (str.length <= 1) return [str];
+    let permutations = [];
+    for (let i = 0; i < str.length; i++) {
+        let char = str[i];
+        let remainingChars = str.slice(0, i) + str.slice(i + 1);
+        for (let subPermutation of getPermutations(remainingChars)) {
+            permutations.push(char + subPermutation);
+        }
+    }
+    return [...new Set(permutations)];
+}
 async function scanTerakhir() {
     const inputAngka = document.getElementById('inputScan').value.trim();
     const kontainerHasil = document.getElementById('hasilScan');
