@@ -12,7 +12,7 @@ function prosesRekap() {
 
     // Kelompokkan berdasarkan angka dasar (diurutkan)
     rawNumbers.forEach(num => {
-        const sortedBase = num.split('').sort().join(','); // Contoh: "0,1,3,8"
+        const sortedBase = num.split('').sort().join(''); // Contoh: "0138"
         if (!groups[sortedBase]) {
             groups[sortedBase] = new Set();
         }
