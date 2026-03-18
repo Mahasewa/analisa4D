@@ -38,12 +38,12 @@ function prosesRekap() {
 
         if (count === 24) {
             countFull++;
-            row.innerHTML = `<td><b>{${base}}</b></td><td>${count}</td><td class="status-full">LENGKAP</td>`;
+            row.innerHTML = `<td><b>${base}</b></td><td>${count}</td><td class="status-full">LENGKAP</td>`;
             tableFullBody.appendChild(row);
         } else {
             countPartial++;
             const kurang = 24 - count;
-            row.innerHTML = `<td><b>{${base}}</b></td><td>${count}</td><td class="status-partial">Kurang ${kurang}</td>`;
+            row.innerHTML = `<td><b>${base}</b></td><td>${count}</td><td class="status-partial">Kurang ${kurang}</td>`;
             tablePartialBody.appendChild(row);
         }
     }
