@@ -1,10 +1,9 @@
 function prosesRekap(pakeEliminasi) {
     const inputUtama = document.getElementById('inputAngka').value;
-    const inputElim = document.getElementById('inputEliminasi').value;
+    const filterVal = document.getElementById('inputEliminasi').value;
     const isChecked = document.getElementById('checkElim').checked;
     
     let rawNumbers = inputUtama.split(/[* \n,]+/).filter(n => n.length === 4);
-    const filterList = inputElim.split(/[* \n,]+/).filter(n => n.length === 4);
     
     if (rawNumbers.length === 0) {
         alert("Kotak utama kosong, Koh!");
@@ -12,31 +11,23 @@ function prosesRekap(pakeEliminasi) {
     }
 
     // LOGIKA ELIMINASI 3 DIGIT
-    if (pakeEliminasi && isChecked && filterList.length > 0) {
-        rawNumbers = rawNumbers.filter(num => {
-            const digitNum = num.split(''); // Misal: ['1','3','4','5']
-            
-            // Cek ke setiap angka di kotak filter
-            const kenaElim = filterList.some(fNum => {
-                const digitFilter = fNum.split(''); // Misal: ['1','2','3','4']
-                
-                // Hitung berapa digit yang sama (tanpa melihat urutan)
-                // Kita buat copy digitFilter supaya digit yang sudah dihitung tidak dihitung dua kali
-                let tempFilter = [...digitFilter];
-                let matchCount = 0;
-                
-                digitNum.forEach(d => {
-                    const idx = tempFilter.indexOf(d);
-                    if (idx !== -1) {
-                        matchCount++;
-                        tempFilter.splice(idx, 1);
-                    }
-                });
+    if (pakeEliminasi && isChecked && filterVal.length === 4) {
+        const digitFilter = filterVal.split('');
 
-                return matchCount >= 3; // Jika 3 digit atau lebih sama, tandai untuk buang
+        rawNumbers = rawNumbers.filter(num => {
+            const digitNum = num.split('');
+            let tempFilter = [...digitFilter];
+            let matchCount = 0;
+            
+            digitNum.forEach(d => {
+                const idx = tempFilter.indexOf(d);
+                if (idx !== -1) {
+                    matchCount++;
+                    tempFilter.splice(idx, 1);
+                }
             });
 
-            return !kenaElim; // Simpan jika TIDAK kena eliminasi
+            return matchCount < 3; // Buang jika match >= 3
         });
     }
 
@@ -75,6 +66,6 @@ function tampilkanHasil(groups, total) {
         }
     });
 
-    totalInfo.innerText = `Total Akhir: ${total} Angka | Set Lengkap: ${countFull} | Set Sisa: ${countPartial}`;
+    totalInfo.innerText = `Total: ${total} Angka | Set Lengkap: ${countFull} | Set Sisa: ${countPartial}`;
     document.getElementById('output').style.display = 'block';
 }
