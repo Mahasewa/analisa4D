@@ -3,60 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rekap & Eliminasi 3 Digit - Koh Alim</title>
+    <title>Rekap & Eliminasi - Koh Alim</title>
     <style>
         body { font-family: sans-serif; background: #f4f4f4; padding: 20px; color: #333; }
-        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h2 { border-bottom: 2px solid #333; padding-bottom: 10px; }
-        .flex-input { display: flex; gap: 20px; margin-bottom: 10px; }
-        .input-group { flex: 1; }
-        textarea { width: 100%; height: 150px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: vertical; box-sizing: border-box; font-family: monospace; }
-        .btn-group { margin-top: 15px; display: flex; gap: 10px; align-items: center; }
-        button { border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; font-size: 15px; font-weight: bold; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+        
+        /* Kotak utama tetap lebar */
+        textarea#inputAngka { width: 100%; height: 150px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: monospace; }
+        
+        /* Baris kontrol di bawah textarea */
+        .controls { display: flex; align-items: center; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+        
+        /* Kotak eliminasi dibuat kecil saja */
+        input#inputEliminasi { width: 100px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; text-align: center; font-weight: bold; }
+        
+        button { border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .btn-rekap { background: #28a745; color: white; }
         .btn-elim { background: #dc3545; color: white; }
-        button:hover { opacity: 0.9; }
+        button:hover { opacity: 0.8; }
+
         .result-section { margin-top: 30px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background-color: #333; color: white; }
         .status-full { color: #28a745; font-weight: bold; }
         .status-partial { color: #dc3545; font-weight: bold; }
-        .summary { margin-bottom: 15px; font-weight: bold; font-size: 1.1em; color: #0056b3; padding: 10px; background: #e9f2ff; border-radius: 4px; }
+        .summary { margin-bottom: 15px; font-weight: bold; padding: 10px; background: #e9f2ff; border-radius: 4px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Rekap & Eliminasi 3-Digit Match</h2>
+    <h2>Rekap Kelompok Kombinasi 24</h2>
     
-    <div class="flex-input">
-        <div class="input-group">
-            <p><b>Kotak Input Utama:</b></p>
-            <textarea id="inputAngka" placeholder="Masukkan daftar angka utama..."></textarea>
-        </div>
-        <div class="input-group">
-            <p><b>Kotak Filter Eliminasi:</b></p>
-            <textarea id="inputEliminasi" placeholder="Contoh: 1234 (akan buang angka yang punya 3 digit sama)"></textarea>
-        </div>
-    </div>
+    <p><b>Input Utama:</b></p>
+    <textarea id="inputAngka" placeholder="Masukkan daftar angka utama di sini..."></textarea>
     
-    <div class="btn-group">
-        <button class="btn-rekap" onclick="prosesRekap(false)">Proses Rekap Biasa</button>
-        <button class="btn-elim" onclick="prosesRekap(true)">Proses Eliminasi 3 Digit</button>
-        <label><input type="checkbox" id="checkElim" checked> Aktifkan Filter</label>
+    <div class="controls">
+        <span>Filter (4 Angka):</span>
+        <input type="text" id="inputEliminasi" maxlength="4" placeholder="1234">
+        
+        <button class="btn-rekap" onclick="prosesRekap(false)">Proses Rekap</button>
+        <button class="btn-elim" onclick="prosesRekap(true)">Proses Eliminasi</button>
+        
+        <label><input type="checkbox" id="checkElim" checked> Ceklis Filter</label>
     </div>
 
     <div id="output" class="result-section" style="display:none;">
         <div class="summary" id="totalInfo"></div>
-        
-        <h3>1. Set Lengkap (24 Kombinasi)</h3>
         <table id="tableFull">
             <thead><tr><th>Set Angka Dasar</th><th>Jumlah</th><th>Status</th></tr></thead>
             <tbody></tbody>
         </table>
-
-        <h3>2. Set Tidak Lengkap (Sisa)</h3>
         <table id="tablePartial">
             <thead><tr><th>Set Angka Dasar</th><th>Jumlah</th><th>Kurang</th></tr></thead>
             <tbody></tbody>
