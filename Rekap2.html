@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rekap Pola Ganjil Genap - Koh Alim</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; color: #333; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+        textarea { width: 100%; height: 150px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: monospace; }
+        
+        .pola-box { background: #f9f9f9; padding: 15px; border: 1px solid #ddd; border-radius: 4px; margin-top: 15px; }
+        .pola-title { font-weight: bold; margin-bottom: 10px; display: block; }
+        .grid-pola { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        
+        .controls { margin-top: 20px; display: flex; gap: 10px; align-items: center; }
+        button { background: #007bff; color: white; border: none; padding: 12px 25px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        button:hover { background: #0056b3; }
+
+        .result-section { margin-top: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #333; color: white; }
+        .summary { margin-bottom: 15px; font-weight: bold; padding: 10px; background: #e9f2ff; border-radius: 4px; }
+        label { cursor: pointer; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Rekap Pola Ganjil Genap (G/J)</h2>
+    
+    <p><b>Input Angka (Pisahkan dengan *):</b></p>
+    <textarea id="inputAngka" placeholder="Contoh: 1234*5678*1357..."></textarea>
+    
+    <div class="pola-box">
+        <span class="pola-title">Pilih Pola yang Ingin DITAMPILKAN:</span>
+        <div class="grid-pola">
+            <label><input type="checkbox" class="pola-check" value="GJGJ"> Genap - Ganjil - Genap - Ganjil</label>
+            <label><input type="checkbox" class="pola-check" value="JGJG"> Ganjil - Genap - Ganjil - Genap</label>
+            <label><input type="checkbox" class="pola-check" value="JJJG"> Ganjil - Ganjil - Ganjil - Genap</label>
+            <label><input type="checkbox" class="pola-check" value="GGGJ"> Genap - Genap - Genap - Ganjil</label>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button onclick="prosesPola()">Proses Filter Pola</button>
+        <span id="statusFilter" style="color: #666; font-style: italic;"></span>
+    </div>
+
+    <div id="output" class="result-section" style="display:none;">
+        <div class="summary" id="totalInfo"></div>
+        <table id="tableHasil">
+            <thead>
+                <tr>
+                    <th>Set Angka Dasar</th>
+                    <th>Jumlah</th>
+                    <th>Detail Angka</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function prosesPola() {
+    const input = document.getElementById('inputAngka').value;
+    const checks = document.querySelectorAll('.pola-check:checked');
+    const selectedPola = Array.from(checks).map(c => c.value);
+    
+    let rawNumbers = input.split(/[* \n,]+/).filter(n => n.length === 4);
+    
+    if (rawNumbers.length === 0) {
+        alert("Input kosong, Koh!");
+        return;
+    }
+
+    // Jika ada pola yang dipilih, lakukan filter
+    if (selectedPola.length > 0) {
+        rawNumbers = rawNumbers.filter(num => {
+            // Tentukan pola angka ini (G = Genap, J = Ganjil)
+            // Menggunakan % 2 === 0 untuk Genap
+            let polaAngka = "";
+            num.split('').forEach(digit => {
+                polaAngka += (parseInt(digit) % 2 === 0) ? "G" : "J";
+            });
+            
+            // Cek apakah pola angka ini ada di daftar pilihan Koh
+            return selectedPola.includes(polaAngka);
+        });
+    }
+
+    const groups = {};
+    rawNumbers.forEach(num => {
+        const sortedBase = num.split('').sort().join(''); 
+        if (!groups[sortedBase]) { groups[sortedBase] = []; }
+        groups[sortedBase].push(num);
+    });
+
+    tampilkanHasil(groups, rawNumbers.length);
+}
+
+function tampilkanHasil(groups, total) {
+    const tableBody = document.querySelector('#tableHasil tbody');
+    const totalInfo = document.getElementById('totalInfo');
+    
+    tableBody.innerHTML = '';
+    const sortedKeys = Object.keys(groups).sort();
+
+    sortedKeys.forEach(base => {
+        const variations = groups[base];
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><b>${base}</b></td>
+            <td>${variations.length}</td>
+            <td style="font-size: 12px; color: #555;">${variations.join(', ')}</td>
+        `;
+        tableBody.appendChild(row);
+    });
+
+    totalInfo.innerText = `Ditemukan: ${total} Angka Sesuai Pola`;
+    document.getElementById('output').style.display = 'block';
+}
+</script>
+
+</body>
+</html>
