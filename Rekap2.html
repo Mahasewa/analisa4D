@@ -3,125 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rekap Pola Ganjil Genap - Koh Alim</title>
+    <title>Filter Pola Ganjil Genap - Koh Alim</title>
     <style>
         body { font-family: sans-serif; background: #f4f4f4; padding: 20px; color: #333; }
         .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         h2 { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
-        textarea { width: 100%; height: 150px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: monospace; }
         
-        .pola-box { background: #f9f9f9; padding: 15px; border: 1px solid #ddd; border-radius: 4px; margin-top: 15px; }
-        .pola-title { font-weight: bold; margin-bottom: 10px; display: block; }
-        .grid-pola { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        textarea { width: 100%; height: 180px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: monospace; font-size: 14px; }
         
-        .controls { margin-top: 20px; display: flex; gap: 10px; align-items: center; }
-        button { background: #007bff; color: white; border: none; padding: 12px 25px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        .pola-container { background: #f9f9f9; padding: 15px; border: 1px solid #ddd; border-radius: 4px; margin: 15px 0; }
+        .pola-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .pola-item { display: flex; align-items: center; gap: 5px; font-size: 13px; cursor: pointer; }
+        
+        .btn-group { display: flex; gap: 10px; margin: 20px 0; align-items: center; }
+        button { background: #007bff; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         button:hover { background: #0056b3; }
-
-        .result-section { margin-top: 30px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background-color: #333; color: white; }
-        .summary { margin-bottom: 15px; font-weight: bold; padding: 10px; background: #e9f2ff; border-radius: 4px; }
-        label { cursor: pointer; font-size: 14px; }
+        .btn-clear { background: #6c757d; }
+        
+        .result-box { background: #e9f2ff; border: 1px solid #b6d4fe; padding: 15px; border-radius: 4px; }
+        .summary { font-weight: bold; margin-bottom: 10px; color: #004085; }
+        #outputAngka { background: #fff; min-height: 100px; word-break: break-all; border: 1px solid #ccc; padding: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Rekap Pola Ganjil Genap (G/J)</h2>
+    <h2>Filter Pola Ganjil & Genap</h2>
     
-    <p><b>Input Angka (Pisahkan dengan *):</b></p>
-    <textarea id="inputAngka" placeholder="Contoh: 1234*5678*1357..."></textarea>
+    <p><b>Input Angka:</b></p>
+    <textarea id="inputAngka" placeholder="Masukkan ribuan angka dengan pemisah * ..."></textarea>
     
-    <div class="pola-box">
-        <span class="pola-title">Pilih Pola yang Ingin DITAMPILKAN:</span>
-        <div class="grid-pola">
-            <label><input type="checkbox" class="pola-check" value="GJGJ"> Genap - Ganjil - Genap - Ganjil</label>
-            <label><input type="checkbox" class="pola-check" value="JGJG"> Ganjil - Genap - Ganjil - Genap</label>
-            <label><input type="checkbox" class="pola-check" value="JJJG"> Ganjil - Ganjil - Ganjil - Genap</label>
-            <label><input type="checkbox" class="pola-check" value="GGGJ"> Genap - Genap - Genap - Ganjil</label>
+    <div class="pola-container">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span style="font-weight: bold;">Ceklis Pola yang Ingin DISIMPAN (G=Genap, J=Ganjil):</span>
+            <div>
+                <a href="#" onclick="pilihSemua(true); return false;" style="font-size: 12px;">Ceklis Semua</a> | 
+                <a href="#" onclick="pilihSemua(false); return false;" style="font-size: 12px;">Hapus Semua</a>
+            </div>
+        </div>
+        
+        <div class="pola-grid" id="polaGrid">
+            <!-- Pola akan dibuat otomatis oleh JS -->
         </div>
     </div>
 
-    <div class="controls">
-        <button onclick="prosesPola()">Proses Filter Pola</button>
-        <span id="statusFilter" style="color: #666; font-style: italic;"></span>
+    <div class="btn-group">
+        <button onclick="filterPola()">Proses Filter</button>
+        <button class="btn-clear" onclick="resetForm()">Reset</button>
     </div>
 
-    <div id="output" class="result-section" style="display:none;">
-        <div class="summary" id="totalInfo"></div>
-        <table id="tableHasil">
-            <thead>
-                <tr>
-                    <th>Set Angka Dasar</th>
-                    <th>Jumlah</th>
-                    <th>Detail Angka</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+    <div id="resultArea" class="result-box" style="display:none;">
+        <div class="summary" id="summaryText"></div>
+        <p style="font-size: 12px; margin-bottom: 5px;"><b>Hasil (Bisa langsung di-copy):</b></p>
+        <div id="outputAngka"></div>
+        <button onclick="copyResult()" style="margin-top: 10px; background: #28a745;">Copy Hasil</button>
     </div>
 </div>
 
 <script>
-function prosesPola() {
+// Daftar semua kemungkinan pola Ganjil(J) & Genap(G)
+const daftarPola = [
+    "GGGG", "GGGJ", "GGJG", "GGJJ", 
+    "GJGG", "GJGJ", "GJJG", "GJJJ", 
+    "JGGG", "JGGJ", "JGJG", "JGJJ", 
+    "JJGG", "JJGJ", "JJJG", "JJJJ"
+];
+
+// Munculkan checkbox otomatis
+const grid = document.getElementById('polaGrid');
+daftarPola.forEach(p => {
+    const label = document.createElement('label');
+    label.className = 'pola-item';
+    label.innerHTML = `<input type="checkbox" class="chk-pola" value="${p}"> ${p}`;
+    grid.appendChild(label);
+});
+
+function pilihSemua(status) {
+    document.querySelectorAll('.chk-pola').forEach(c => c.checked = status);
+}
+
+function filterPola() {
     const input = document.getElementById('inputAngka').value;
-    const checks = document.querySelectorAll('.pola-check:checked');
+    const checks = document.querySelectorAll('.chk-pola:checked');
     const selectedPola = Array.from(checks).map(c => c.value);
     
+    // Pecah input berdasarkan bintang atau spasi
     let rawNumbers = input.split(/[* \n,]+/).filter(n => n.length === 4);
     
     if (rawNumbers.length === 0) {
-        alert("Input kosong, Koh!");
+        alert("Masukkan angka dulu, Koh!");
         return;
     }
 
-    // Jika ada pola yang dipilih, lakukan filter
-    if (selectedPola.length > 0) {
-        rawNumbers = rawNumbers.filter(num => {
-            // Tentukan pola angka ini (G = Genap, J = Ganjil)
-            // Menggunakan % 2 === 0 untuk Genap
-            let polaAngka = "";
-            num.split('').forEach(digit => {
-                polaAngka += (parseInt(digit) % 2 === 0) ? "G" : "J";
-            });
-            
-            // Cek apakah pola angka ini ada di daftar pilihan Koh
-            return selectedPola.includes(polaAngka);
-        });
+    if (selectedPola.length === 0) {
+        alert("Pilih minimal satu pola dulu, Koh!");
+        return;
     }
 
-    const groups = {};
-    rawNumbers.forEach(num => {
-        const sortedBase = num.split('').sort().join(''); 
-        if (!groups[sortedBase]) { groups[sortedBase] = []; }
-        groups[sortedBase].push(num);
+    // Proses Filter
+    const hasil = rawNumbers.filter(num => {
+        let pola = "";
+        num.split('').forEach(d => {
+            pola += (parseInt(d) % 2 === 0) ? "G" : "J";
+        });
+        return selectedPola.includes(pola);
     });
 
-    tampilkanHasil(groups, rawNumbers.length);
+    // Tampilkan Hasil
+    document.getElementById('summaryText').innerText = `Total awal: ${rawNumbers.length} | Hasil filter: ${hasil.length} angka`;
+    document.getElementById('outputAngka').innerText = hasil.join('*');
+    document.getElementById('resultArea').style.display = 'block';
 }
 
-function tampilkanHasil(groups, total) {
-    const tableBody = document.querySelector('#tableHasil tbody');
-    const totalInfo = document.getElementById('totalInfo');
-    
-    tableBody.innerHTML = '';
-    const sortedKeys = Object.keys(groups).sort();
+function copyResult() {
+    const text = document.getElementById('outputAngka').innerText;
+    navigator.clipboard.writeText(text).then(() => alert("Berhasil di-copy, Koh!"));
+}
 
-    sortedKeys.forEach(base => {
-        const variations = groups[base];
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td><b>${base}</b></td>
-            <td>${variations.length}</td>
-            <td style="font-size: 12px; color: #555;">${variations.join(', ')}</td>
-        `;
-        tableBody.appendChild(row);
-    });
-
-    totalInfo.innerText = `Ditemukan: ${total} Angka Sesuai Pola`;
-    document.getElementById('output').style.display = 'block';
+function resetForm() {
+    document.getElementById('inputAngka').value = "";
+    document.getElementById('resultArea').style.display = 'none';
+    pilihSemua(false);
 }
 </script>
 
