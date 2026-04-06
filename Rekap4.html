@@ -1,0 +1,85 @@
+import collections
+
+def generate_rekap_html():
+    # Inisialisasi data
+    categories = ['Unik', 'Single Twin', 'Double Twin', 'Triple', 'Quad']
+    data_rekap = {cat: {i: [] for i in range(37)} for cat in categories}
+
+    # Loop semua kombinasi unik (0000-9999)
+    for i in range(10):
+        for j in range(i, 10):
+            for k in range(j, 10):
+                for l in range(k, 10):
+                    combo = [i, j, k, l]
+                    total_jml = sum(combo)
+                    counts = collections.Counter(combo).values()
+                    combo_str = "".join(map(str, combo))
+                    
+                    # Logika Penggolongan
+                    diff_count = len(set(combo))
+                    if diff_count == 4:
+                        data_rekap['Unik'][total_jml].append(combo_str)
+                    elif diff_count == 3:
+                        data_rekap['Single Twin'][total_jml].append(combo_str)
+                    elif diff_count == 2:
+                        if 3 in counts:
+                            data_rekap['Triple'][total_jml].append(combo_str)
+                        else:
+                            data_rekap['Double Twin'][total_jml].append(combo_str)
+                    elif diff_count == 1:
+                        data_rekap['Quad'][total_jml].append(combo_str)
+
+    # CSS untuk mempercantik tampilan
+    html_content = """
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+        <meta charset="UTF-8">
+        <title>Rekap Lengkap 4D Terpisah</title>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #ececec; }
+            h2 { background: #2c3e50; color: white; padding: 10px; border-radius: 5px; margin-top: 40px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+            th, td { border: 1px solid #bdc3c7; padding: 10px; text-align: left; }
+            th { background: #34495e; color: white; width: 100px; text-align: center; }
+            tr:nth-child(even) { background: #f2f2f2; }
+            .jml-col { font-weight: bold; color: #e67e22; text-align: center; }
+            .numbers { letter-spacing: 1px; color: #333; line-height: 1.6; }
+        </style>
+    </head>
+    <body>
+        <h1 style="text-align:center;">REKAP LENGKAP KOMBINASI 4D</h1>
+    """
+
+    # Generate Tabel untuk setiap Kategori
+    for cat in categories:
+        html_content += f"<h2>TABEL DAFTAR {cat.upper()}</h2>"
+        html_content += """
+        <table>
+            <tr>
+                <th>JML</th>
+                <th>KOMBINASI ANGKA</th>
+            </tr>
+        """
+        
+        for jml in range(37):
+            list_angka = data_rekap[cat][jml]
+            if list_angka:
+                html_content += f"""
+                <tr>
+                    <td class="jml-col">JML {jml}</td>
+                    <td class="numbers">{', '.join(list_angka)}</td>
+                </tr>
+                """
+        
+        html_content += "</table>"
+
+    html_content += "</body></html>"
+
+    with open("rekap4.html", "w", encoding="utf-8") as f:
+        f.write(html_content)
+    
+    print("Selesai! File 'rekap4.html' sudah siap dengan tabel terpisah.")
+
+if __name__ == "__main__":
+    generate_rekap_html()
