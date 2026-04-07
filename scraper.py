@@ -95,7 +95,7 @@ def run_history_scraper():
         nama_hari_server = curr.strftime('%A')
         
         # Filter: 2=Wednesday, 5=Saturday, 6=Sunday
-        if curr.weekday() in [2, 5, 6]:
+        if curr.weekday() in [1, 2, 5, 6]:
             # KUNCI: Ubah tanggal jadi teks (YYYY-MM-DD) tanpa jam 00:00:00
             tgl_bersih = curr.strftime('%Y-%m-%d')
             
